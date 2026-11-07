@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/sitemap.xml
