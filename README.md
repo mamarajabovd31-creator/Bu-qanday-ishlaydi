@@ -26,3 +26,7 @@ Yangi 3D model qo'shish: `3d/dvigatel/` papkasidan nusxa oling, `engine.js` ichi
 
 `server/worker.js` — Cloudflare Worker (bepul). Ovozlarni saqlaydi, bot egasiga har yangi "Kutaman" haqida Telegram xabar yuboradi, foizlarni beradi, botda /start ga rasmli salomlashuv yuboradi (`img/bot-cover.png`).
 Sozlash tartibi faylning boshida yozilgan. Server manzilini `app.js` dagi `VOTE_API` ga yozing.
+
+## Telegram kanalga postlar
+
+`telegram/posts/` ga `.json` post qo'shilsa, `.github/workflows/telegram-post.yml` uni bot orqali kanalga joylaydi. Sozlash va post formati: `telegram/README.md`.

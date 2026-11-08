@@ -1,0 +1,67 @@
+name: Telegram post
+
+# telegram/posts/ ichiga yangi .json fayl qo'shilsa, u kanalga joylanadi.
+# Qo'lda ishga tushirish (Actions > Telegram post > Run workflow):
+#   mode = check  -> bot va kanalni tekshiradi, hech narsa yubormaydi
+#   mode = post   -> file da ko'rsatilgan postni qayta yuboradi
+on:
+  push:
+    branches: [main]
+    paths: ['telegram/posts/**']
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check yoki post'
+        default: check
+        type: choice
+        options: [check, post]
+      file:
+        description: 'mode=post uchun: telegram/posts/... .json'
+        required: false
+
+concurrency:
+  group: telegram-post
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Kanalga yuborish
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_CHAT_ID }}
+          EVENT: ${{ github.event_name }}
+          MODE: ${{ inputs.mode }}
+          FILE: ${{ inputs.file }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "$MODE" = "post" ]; then
+              python3 .github/scripts/tg_post.py "$FILE"
+            else
+              python3 .github/scripts/tg_post.py --check
+            fi
+            exit 0
+          fi
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            files=$(git diff-tree --no-commit-id --name-only --diff-filter=A -r HEAD -- 'telegram/posts/*.json')
+          else
+            files=$(git diff --name-only --diff-filter=A "$BEFORE" HEAD -- 'telegram/posts/*.json')
+          fi
+          if [ -z "$files" ]; then
+            echo "Yangi post yo'q."
+            exit 0
+          fi
+          echo "$files" | sort | while read -r f; do
+            python3 .github/scripts/tg_post.py "$f"
+          done
