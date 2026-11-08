@@ -225,7 +225,7 @@ ru: {
 /* ---------- Mexanizm ---------- */
 const root = document.documentElement;
 const base = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './';
-let lang = 'en';
+let lang = (window.BQI_DEFAULT && LANGS.some(l => l.id === window.BQI_DEFAULT)) ? window.BQI_DEFAULT : 'en';
 try { const s = localStorage.getItem('bqi-lang'); if (LANGS.some(l => l.id === s)) lang = s; } catch (e) {}
 const subs = [];
 const origTitle = document.title;

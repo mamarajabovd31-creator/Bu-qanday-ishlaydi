@@ -317,3 +317,4 @@ html.i18n-wait .wrap,html.i18n-wait .tabbar,html.i18n-wait .welcome{visibility:h
 .labcard.soon{opacity:.6;pointer-events:none}
 .labcard.soon .lab-ico svg{animation:none;stroke:var(--muted)}
 .labgrid .labcard{margin:0}
+.tg .install{display:none!important}
