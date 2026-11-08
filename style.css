@@ -318,3 +318,10 @@ html.i18n-wait .wrap,html.i18n-wait .tabbar,html.i18n-wait .welcome{visibility:h
 .labcard.soon .lab-ico svg{animation:none;stroke:var(--muted)}
 .labgrid .labcard{margin:0}
 .tg .install{display:none!important}
+
+/* "Kutaman" foizlari */
+.meter{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.meter[hidden]{display:none}
+.meter .bar{height:8px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden}
+.meter .bar i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.meter small{font-size:12px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}

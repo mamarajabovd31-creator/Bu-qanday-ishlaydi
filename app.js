@@ -5,6 +5,10 @@ const LINKS = {
   youtube: ""      // masalan: "https://youtube.com/@kanal_nomi"
 };
 
+// "Kutaman" ovozlari serveri (server/worker.js, Cloudflare). Bo'sh bo'lsa ovozlar faqat shu telefonda saqlanadi.
+// Masalan: "https://buqanday-bot.SIZNING-NOMINGIZ.workers.dev"
+const VOTE_API = "";
+
 // Tarjima (i18n.js). U yuklanmagan bo'lsa o'zbekcha matn qoladi.
 const I = window.BQI || { t: k => k, on(){}, lang: 'uz' };
 const t = k => I.t(k);
@@ -102,17 +106,61 @@ document.querySelectorAll('.player').forEach(p => {
 
 /* ---------- Mavzular: "Kutaman" (shu qurilmada eslab qolinadi) ---------- */
 const wants = new Set(store.get('bqi-wants', []));
+let voteStats = null;          // serverdan: { voters, topics:{id:n}, pct:{id:%} }
+const topicPainters = [];
+function anonId(){
+  let id = store.get('bqi-anon', '');
+  if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)); store.set('bqi-anon', id); }
+  return id;
+}
+async function sendVote(topic, on){
+  if (!VOTE_API) return;
+  const W = window.Telegram && window.Telegram.WebApp;
+  try {
+    const r = await fetch(VOTE_API.replace(/\/$/, '') + '/vote', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, on, initData: (W && W.initData) || '', anon: anonId() })
+    });
+    if (r.ok) { voteStats = await r.json(); topicPainters.forEach(f => f()); }
+  } catch (e) {}
+}
 document.querySelectorAll('.topic[data-topic]').forEach(tp => {
   const btn = tp.querySelector('button'), lbl = tp.querySelector('.vote span'), id = tp.dataset.topic;
+  // foiz chizig'i (server ulangan bo'lsa ko'rinadi)
+  const meter = document.createElement('div');
+  meter.className = 'meter'; meter.hidden = true;
+  meter.innerHTML = '<span class="bar"><i></i></span><small></small>';
+  tp.insertBefore(meter, tp.querySelector('.vote'));
   const paint = () => {
     const on = wants.has(id);
     btn.setAttribute('aria-pressed', on);
     btn.textContent = t(on ? 'app.wanted' : 'app.want');
     if (lbl) lbl.textContent = on ? t('app.onList') : '';
+    if (voteStats && voteStats.topics) {
+      const n = voteStats.topics[id] || 0, p = (voteStats.pct && voteStats.pct[id]) || 0;
+      meter.hidden = false;
+      meter.querySelector('i').style.width = p + '%';
+      meter.querySelector('small').textContent = voteStats.voters ? t('app.pct').replace('{p}', p).replace('{n}', n) : t('app.pctNone');
+    }
   };
-  btn.addEventListener('click', () => { wants.has(id) ? wants.delete(id) : wants.add(id); store.set('bqi-wants', [...wants]); paint(); });
+  btn.addEventListener('click', () => {
+    const on = !wants.has(id);
+    on ? wants.add(id) : wants.delete(id);
+    store.set('bqi-wants', [...wants]); paint();
+    sendVote(id, on);
+  });
+  topicPainters.push(paint);
   onLang(paint);
 });
+if (VOTE_API && topicPainters.length) {
+  fetch(VOTE_API.replace(/\/$/, '') + '/stats').then(r => r.ok ? r.json() : null)
+    .then(s => {
+      if (!s) return;
+      voteStats = s; topicPainters.forEach(f => f());
+      // server ulanishidan oldin bosilgan "Kutaman"larni bir marta yuboramiz
+      if (!store.get('bqi-synced', false)) { store.set('bqi-synced', true); wants.forEach(id => sendVote(id, true)); }
+    }).catch(() => {});
+}
 
 /* ---------- Aloqa havolalari ---------- */
 document.querySelectorAll('.contact[data-link]').forEach(a => {

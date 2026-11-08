@@ -20,3 +20,8 @@ Ijtimoiy tarmoq havolalarini `app.js` ichidagi `LINKS` qismiga yozing.
 Yangi video qo'shish: `zaryadlovchi/` papkasidan nusxa oling, matnni almashtiring, bosh sahifaga karta qo'shing va `sitemap.xml` ni yangilang.
 
 Yangi 3D model qo'shish: `3d/dvigatel/` papkasidan nusxa oling, `engine.js` ichidagi qismlar va matnlarni almashtiring, bosh sahifaga `labcard` qo'shing va `sitemap.xml` ni yangilang.
+
+## "Kutaman" ovozlari va bot serveri
+
+`server/worker.js` — Cloudflare Worker (bepul). Ovozlarni saqlaydi, bot egasiga har yangi "Kutaman" haqida Telegram xabar yuboradi, foizlarni beradi, botda /start ga rasmli salomlashuv yuboradi (`img/bot-cover.png`).
+Sozlash tartibi faylning boshida yozilgan. Server manzilini `app.js` dagi `VOTE_API` ga yozing.
