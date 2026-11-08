@@ -1,0 +1,10 @@
+{
+  "video": "videos/zaryadlovchi.mp4",
+  "thumbnail": "img/zaryadlovchi_thumb.jpg",
+  "width": 1080, "height": 1920, "duration": 43,
+  "text": "🔌 <b>Zaryadlovchi 220 voltni qanday qilib 5 voltga aylantiradi?</b>\n\nHar kuni ishlatamiz, lekin ichida nima bo'layotganini kam odam biladi. 43 soniyada 3D'da ko'rsatdik ⚡\n\n📸 Instagram'dagi videomiz: <a href=\"https://www.instagram.com/reel/DfeA31kk8k3/\">ko'rish</a>",
+  "buttons": [
+    [{"text": "📸 Instagram'da ko'rish", "url": "https://www.instagram.com/reel/DfeA31kk8k3/"}],
+    [{"text": "🤖 Botni ochish", "url": "https://t.me/bu_qandayishlaydi_bot"}]
+  ]
+}
