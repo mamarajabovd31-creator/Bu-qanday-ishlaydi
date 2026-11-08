@@ -5,6 +5,11 @@ const LINKS = {
   youtube: ""      // masalan: "https://youtube.com/@kanal_nomi"
 };
 
+// Tarjima (i18n.js). U yuklanmagan bo'lsa o'zbekcha matn qoladi.
+const I = window.BQI || { t: k => k, on(){}, lang: 'uz' };
+const t = k => I.t(k);
+const onLang = fn => { fn(); I.on(fn); };
+
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -20,8 +25,9 @@ if (welcome && !sess.get('bqi-welcomed')) {
   welcome.hidden = false;
   document.documentElement.style.overflow = 'hidden';
   const h = new Date().getHours();
-  const greet = h < 5 ? 'Xayrli tun' : h < 11 ? 'Xayrli tong' : h < 18 ? 'Xayrli kun' : 'Xayrli kech';
-  const hi = welcome.querySelector('.w-hi'); if (hi) hi.textContent = greet + '!';
+  const g = h < 5 ? 0 : h < 11 ? 1 : h < 18 ? 2 : 3;
+  const hi = welcome.querySelector('.w-hi');
+  onLang(() => { if (hi) hi.textContent = t('app.g' + g) + '!'; });
   const go = welcome.querySelector('.w-go');
   const close = () => {
     sess.set('bqi-welcomed', '1');
@@ -39,17 +45,23 @@ const tabbar = document.querySelector('.tabbar');
 const blob = tabbar && tabbar.querySelector('.blob');
 const tabs = tabbar ? [...tabbar.querySelectorAll('a')] : [];
 const panels = [...document.querySelectorAll('.panel')];
+const ALIAS = { haqida: 'bosh' }; // eski havolalar
 function markTab(id){
   tabs.forEach((a, i) => {
     const on = a.dataset.tab === id;
     if (on) { a.setAttribute('aria-current', 'page'); if (blob) blob.style.transform = `translateX(${i * 100}%)`; }
     else a.removeAttribute('aria-current');
   });
+  if (blob) blob.style.opacity = tabs.some(a => a.dataset.tab === id) ? '' : '0';
 }
 function showPanel(id, scroll){
   if (!panels.length) return;
+  id = ALIAS[id] || id;
   if (!panels.some(p => p.id === id)) id = panels[0].id;
-  panels.forEach(p => { p.hidden = p.id !== id; });
+  panels.forEach(p => {
+    p.hidden = p.id !== id;
+    if (p.hidden) p.querySelectorAll('video').forEach(v => v.pause());
+  });
   markTab(id);
   if (scroll) window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -66,11 +78,13 @@ document.querySelectorAll('.card[data-id]').forEach(c => {
   const b = c.querySelector('.badge.seen'); if (b && seen.has(c.dataset.id)) b.hidden = false;
 });
 const count = document.getElementById('v-count');
-if (count) {
+function paintCount(){
+  if (!count) return;
   const n = document.querySelectorAll('#videolar .card').length;
   const s = [...document.querySelectorAll('#videolar .card[data-id]')].filter(c => seen.has(c.dataset.id)).length;
-  count.textContent = `${n} ta video` + (s ? ` · ${s} tasi ko'rildi` : '');
+  count.textContent = t('app.count').replace('{n}', n) + (s ? t('app.countSeen').replace('{s}', s) : '');
 }
+onLang(paintCount);
 document.querySelectorAll('.player').forEach(p => {
   const v = p.querySelector('video'), b = p.querySelector('.play');
   if (!v || !b) return;
@@ -82,28 +96,33 @@ document.querySelectorAll('.player').forEach(p => {
     const id = p.closest('[data-id]')?.dataset.id; if (!id) return;
     seen.add(id); store.set('bqi-seen', [...seen]);
     const badge = p.closest('[data-id]').querySelector('.badge.seen'); if (badge) badge.hidden = false;
+    paintCount();
   });
 });
 
 /* ---------- Mavzular: "Kutaman" (shu qurilmada eslab qolinadi) ---------- */
 const wants = new Set(store.get('bqi-wants', []));
-document.querySelectorAll('.topic[data-topic]').forEach(t => {
-  const btn = t.querySelector('button'), lbl = t.querySelector('.vote span'), id = t.dataset.topic;
+document.querySelectorAll('.topic[data-topic]').forEach(tp => {
+  const btn = tp.querySelector('button'), lbl = tp.querySelector('.vote span'), id = tp.dataset.topic;
   const paint = () => {
     const on = wants.has(id);
     btn.setAttribute('aria-pressed', on);
-    btn.textContent = on ? '★ Kutyapman' : '☆ Kutaman';
-    if (lbl) lbl.textContent = on ? 'Ro\'yxatingizda' : '';
+    btn.textContent = t(on ? 'app.wanted' : 'app.want');
+    if (lbl) lbl.textContent = on ? t('app.onList') : '';
   };
   btn.addEventListener('click', () => { wants.has(id) ? wants.delete(id) : wants.add(id); store.set('bqi-wants', [...wants]); paint(); });
-  paint();
+  onLang(paint);
 });
 
 /* ---------- Aloqa havolalari ---------- */
 document.querySelectorAll('.contact[data-link]').forEach(a => {
   const url = LINKS[a.dataset.link];
   if (url) { a.href = url; a.target = '_blank'; a.rel = 'noopener'; }
-  else { a.removeAttribute('href'); a.classList.add('soon'); const s = a.querySelector('small'); if (s) s.textContent = 'Tez kunda'; }
+  else {
+    a.removeAttribute('href'); a.classList.add('soon');
+    const s = a.querySelector('small');
+    if (s) onLang(() => { s.textContent = t('app.soon'); });
+  }
 });
 
 /* ---------- Telefonga ilova kabi o'rnatish ---------- */
@@ -116,7 +135,7 @@ if (inst) {
   addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; if (!standalone) inst.hidden = false; });
   if (ios && !standalone) {
     inst.hidden = false; btn.hidden = true;
-    txt.innerHTML = 'Safari\'da pastdagi <b>Ulashish</b> tugmasini, keyin <b>"Bosh ekranga qo\'shish"</b> ni bosing.';
+    onLang(() => { txt.innerHTML = t('app.ios'); });
   }
   btn && btn.addEventListener('click', async () => {
     if (!deferred) return; deferred.prompt(); await deferred.userChoice.catch(() => {}); deferred = null; inst.hidden = true;
@@ -128,25 +147,27 @@ const y = document.getElementById('y'); if (y) y.textContent = new Date().getFul
 /* ---------- Yuklab olish: iPhone'da "Videoni saqlash", boshqa qurilmalarda oddiy yuklab olish ---------- */
 document.querySelectorAll('.dl').forEach(btn => {
   const msg = btn.nextElementSibling, src = btn.dataset.src, name = btn.dataset.name;
-  let file = null;
+  let file = null, msgKey = '';
+  const say = k => { msgKey = k; msg.textContent = k ? t(k) : ''; };
+  I.on(() => { if (msgKey) msg.textContent = t(msgKey); if (file) btn.textContent = t('app.dlAgain'); });
   const plain = () => { const a = document.createElement('a'); a.href = src; a.download = name; document.body.appendChild(a); a.click(); a.remove(); };
   btn.addEventListener('click', async () => {
     const canFiles = !!(navigator.canShare && window.File);
-    if (!canFiles) { plain(); msg.textContent = "Yuklab olinmoqda… Fayl \"Yuklanmalar\" papkasida bo'ladi."; return; }
+    if (!canFiles) { plain(); say('app.dlPlain'); return; }
     if (file) {
       try {
-        if (navigator.canShare({files:[file]})) { await navigator.share({files:[file]}); msg.textContent = ''; }
+        if (navigator.canShare({files:[file]})) { await navigator.share({files:[file]}); say(''); }
         else plain();
-      } catch(e) { if (e && e.name === 'AbortError') msg.textContent = 'Bekor qilindi.'; else plain(); }
+      } catch(e) { if (e && e.name === 'AbortError') say('app.dlCancel'); else plain(); }
       return;
     }
-    btn.disabled = true; msg.textContent = 'Video tayyorlanmoqda…';
+    btn.disabled = true; say('app.dlPrep');
     try {
       const r = await fetch(src); if (!r.ok) throw new Error('fetch');
       file = new File([await r.blob()], name, {type:'video/mp4'});
-      btn.classList.add('ready'); btn.textContent = 'Saqlash uchun yana bosing';
-      msg.textContent = 'Ochilgan oynada "Videoni saqlash" (Save Video) ni tanlang.';
-    } catch(e) { msg.textContent = "Video yuklanmadi, internetni tekshirib qayta bosing."; }
+      btn.classList.add('ready'); btn.removeAttribute('data-t'); btn.textContent = t('app.dlAgain');
+      say('app.dlHint');
+    } catch(e) { say('app.dlFail'); }
     finally { btn.disabled = false; }
   });
 });

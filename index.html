@@ -18,7 +18,9 @@
 <meta property="og:image" content="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/avatar.jpg">
 <meta property="og:url" content="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/">
 <meta property="og:type" content="website">
-<meta property="og:locale" content="uz_UZ">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="uz_UZ">
+<meta property="og:locale:alternate" content="ru_RU">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="img/favicon.png">
 <link rel="apple-touch-icon" href="img/avatar.jpg">
@@ -26,10 +28,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap">
 <link rel="stylesheet" href="style.css">
-<script>document.documentElement.classList.add('js')</script>
+<script>(function(d){d.classList.add('js');var l;try{l=localStorage.getItem('bqi-lang')}catch(e){}if(l!=='uz'){d.classList.add('i18n-wait');setTimeout(function(){d.classList.remove('i18n-wait')},2500)}})(document.documentElement)</script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"WebSite","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","inLanguage":"uz"},
+ {"@type":"WebSite","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","inLanguage":["en","uz","ru"]},
  {"@type":"Organization","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","logo":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/avatar.jpg","sameAs":["https://t.me/buqanday_ishlaydi1"]},
  {"@type":"ItemList","itemListElement":[
   {"@type":"ListItem","position":1,"url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/zaryadlovchi/"},
@@ -38,7 +40,7 @@
 ]}
 </script>
 </head>
-<body>
+<body data-title="meta.home">
 <div class="liquid" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
 <!-- Kutib olish oynasi: JS bo'lmasa ko'rinmaydi, shuning uchun Google hamma matnni ko'radi -->
@@ -46,119 +48,156 @@
   <div class="welcome-card glass">
     <img class="w-logo" src="img/avatar.jpg" alt="" width="104" height="104">
     <p class="w-hi">Assalomu alaykum!</p>
-    <h2 class="w-title" id="w-title">"Bu qanday ishlaydi?" saytiga xush kelibsiz</h2>
-    <p class="w-text">Har kuni ishlatadigan texnikamiz sirlarini 3D animatsiyada, o'zbek tilida ochib beramiz.</p>
-    <button class="gbtn primary w-go" type="button">Kirish</button>
-    <p class="w-small">Biz bilan qiziqarli bo'ladi ⚙️</p>
+    <h2 class="w-title" id="w-title" data-t="w.title">"Bu qanday ishlaydi?" saytiga xush kelibsiz</h2>
+    <p class="w-text" data-t="w.text">Har kuni ishlatadigan texnikamiz sirlarini 3D animatsiyada ochib beramiz.</p>
+    <button class="gbtn primary w-go" type="button" data-t="w.go">Kirish</button>
+    <p class="w-small" data-t="w.small">Biz bilan qiziqarli bo'ladi ⚙️</p>
   </div>
 </div>
 
 <main class="wrap">
   <div class="top glass">
-    <a class="brand" href="./"><img src="img/avatar.jpg" alt="" width="36" height="36">Bu qanday ishlaydi?</a>
-    <span class="top-note">3D · O'zbekcha</span>
+    <a class="brand" href="./#bosh"><img src="img/avatar.jpg" alt="" width="36" height="36">Bu qanday ishlaydi?</a>
   </div>
 
-  <header class="hero">
-    <span class="hello">Xush kelibsiz</span>
-    <h1>Bu qanday <em>ishlaydi?</em></h1>
-    <p class="lead">Texnika ichida aslida nima bo'ladi? Har bir qismni 3D animatsiyada, qisqa va tushunarli qilib ko'rsatamiz.</p>
-  </header>
+  <!-- 1. Bosh sahifa -->
+  <section class="panel home" id="bosh" aria-labelledby="hero-title">
+    <header class="hero">
+      <span class="hello" data-t="hero.hello">Xush kelibsiz</span>
+      <h1 id="hero-title" data-t="hero.h1">Bu qanday <em>ishlaydi?</em></h1>
+      <p class="lead" data-t="hero.lead">Texnika ichida aslida nima bo'ladi? Har bir qismni 3D animatsiyada, qisqa va tushunarli qilib ko'rsatamiz.</p>
+    </header>
 
-  <!-- 1. Videolar -->
-  <section class="panel" id="videolar" aria-labelledby="v-title">
-    <div class="panel-head">
-      <div><h2 id="v-title">Videolar</h2><p class="sub">Ko'rish uchun rasmni bosing, to'liq tushuntirish sahifada.</p></div>
-      <span class="count" id="v-count">2 ta video</span>
+    <div class="doors">
+      <a class="door glass" href="#videolar">
+        <span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3z"/></svg></span>
+        <b data-t="door.v.t">Videolar</b>
+        <small data-t="door.v.d">Qisqa 3D videolar va batafsil tushuntirishlar</small>
+        <span class="go" data-t="door.go">Ochish →</span>
+      </a>
+      <a class="door lab glass" href="#lab">
+        <span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M12 12 20 7.5M12 12 4 7.5M12 12v9"/></svg></span>
+        <b data-t="door.l.t">3D laboratoriya</b>
+        <small data-t="door.l.d">Buyumlarni o'zingiz aylantirib, ochib o'rganing</small>
+        <span class="go" data-t="door.go">Ochish →</span>
+      </a>
     </div>
-    <a class="labcard glass" href="3d/dvigatel/">
-      <span class="lab-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/><circle cx="12" cy="12" r="7"/></svg></span>
-      <span><b>3D laboratoriya: Dvigatel</b><small>Videoni emas, dvigatelning o'zini aylantiring, qismlarga ajrating va har bir detalni bosib o'rganing.</small></span>
-      <span class="row"><span class="tag">Interaktiv</span><span class="tag gold">4 takt</span><span class="tag">UZ · EN</span><span class="go">Ochish →</span></span>
-    </a>
-    <div class="grid">
-      <article class="card glass" data-id="zaryadlovchi">
-        <div class="player">
-          <div class="badges"><span class="badge new">Yangi</span><span class="badge seen" hidden>✓ Ko'rildi</span></div>
-          <video src="videos/zaryadlovchi.mp4" poster="img/zaryadlovchi.jpg" playsinline controls preload="none"></video>
-          <button class="play" style="background-image:url(img/zaryadlovchi.jpg)" aria-label="Zaryadlovchi videosini ko'rish"></button>
-        </div>
-        <div class="meta">
-          <h3><a href="zaryadlovchi/">Telefon zaryadlovchisi qanday ishlaydi?</a></h3>
-          <p class="desc">220 V qanday qilib xavfsiz 5 V ga aylanadi: diod ko'prigi, kondensator, tranzistor va transformator.</p>
-          <div class="row"><span class="tag">0:43</span><span class="tag gold">220 V → 5 V</span></div>
-          <a class="more" href="zaryadlovchi/">Batafsil tushuntirish →</a>
-        </div>
-      </article>
-      <article class="card glass" data-id="kir-mashina">
-        <div class="player">
-          <div class="badges"><span class="badge seen" hidden>✓ Ko'rildi</span></div>
-          <video src="videos/kir-mashina.mp4" poster="img/kir-mashina.jpg" playsinline controls preload="none"></video>
-          <button class="play" style="background-image:url(img/kir-mashina.jpg)" aria-label="Kir mashina videosini ko'rish"></button>
-        </div>
-        <div class="meta">
-          <h3><a href="kir-mashina/">Kir mashina qanday ishlaydi?</a></h3>
-          <p class="desc">Suv olishdan siqishgacha: klapan, isitgich, baraban qovurg'alari, nasos va daqiqasiga 1200 marta aylanish.</p>
-          <div class="row"><span class="tag">0:30</span><span class="tag gold">1200 ayl/daq</span></div>
-          <a class="more" href="kir-mashina/">Batafsil tushuntirish →</a>
-        </div>
-      </article>
-    </div>
-  </section>
 
-  <!-- 2. Mavzular -->
-  <section class="panel" id="mavzular" aria-labelledby="m-title">
-    <div class="panel-head">
-      <div><h2 id="m-title">Keyingi mavzular</h2><p class="sub">Tayyorlanayotgan videolar. Qaysi birini kutayotganingizni belgilang.</p></div>
-    </div>
-    <div class="topics">
-      <div class="topic glass" data-topic="muzlatgich"><span class="ico">🧊</span><b>Muzlatgich</b><small>Sovuqni qayerdan oladi va issiqni qayerga chiqaradi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
-      <div class="topic glass" data-topic="mikroto-lqinli"><span class="ico">📡</span><b>Mikroto'lqinli pech</b><small>Ovqatni ichidan qanday isitadi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
-      <div class="topic glass" data-topic="konditsioner"><span class="ico">❄️</span><b>Konditsioner</b><small>Xonani qanday sovutadi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
-      <div class="topic glass" data-topic="changyutgich"><span class="ico">🌀</span><b>Changyutgich</b><small>Havoni qanday so'radi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
-    </div>
-    <p class="note">O'z mavzuingizni taklif qilmoqchimisiz? <a href="#aloqa">Aloqa</a> bo'limi orqali yozing.</p>
-  </section>
-
-  <!-- 3. Biz haqimizda -->
-  <section class="panel" id="haqida" aria-labelledby="h-title">
-    <div class="panel-head"><div><h2 id="h-title">Biz haqimizda</h2><p class="sub">Murakkab narsalarni oddiy qilib ko'rsatamiz.</p></div></div>
-    <div class="about glass">
-      <p>"Bu qanday ishlaydi?" — o'zbek tilidagi ilmiy-ommabop loyiha. Har kuni qo'limizdagi zaryadlovchi, uydagi kir mashina yoki muzlatgich ichida aslida nima bo'layotganini 3D animatsiya yordamida ko'rsatamiz.</p>
-      <div class="how">
-        <div><b>🎯 Bitta savol</b><small>Har bir video bitta oddiy savolga javob beradi.</small></div>
-        <div><b>🧩 3D animatsiya</b><small>Qurilmani ichidan, qism-qism qilib ko'rsatamiz.</small></div>
-        <div><b>⏱ Qisqa</b><small>Asosiy g'oya bir daqiqadan kam vaqtda.</small></div>
-        <div><b>📖 Batafsil matn</b><small>Har bir videoning sahifasida to'liq tushuntirish.</small></div>
-        <div><b>🖐 3D laboratoriya</b><small>Qurilmani o'zingiz aylantirib, ochib o'rganasiz.</small></div>
+    <div>
+      <div class="panel-head"><div><h2 data-t="about.t">Biz haqimizda</h2><p class="sub" data-t="about.sub">Murakkab narsalarni oddiy qilib ko'rsatamiz.</p></div></div>
+      <div class="about glass">
+        <p data-t="about.p">"Bu qanday ishlaydi?" — ilmiy-ommabop loyiha. Har kuni qo'limizdagi zaryadlovchi, uydagi kir mashina yoki mashinadagi dvigatel ichida aslida nima bo'layotganini 3D animatsiya yordamida ko'rsatamiz.</p>
+        <div class="how">
+          <div><b data-t="how1.b">🎯 Bitta savol</b><small data-t="how1.s">Har bir video bitta oddiy savolga javob beradi.</small></div>
+          <div><b data-t="how2.b">🧩 3D animatsiya</b><small data-t="how2.s">Qurilmani ichidan, qism-qism qilib ko'rsatamiz.</small></div>
+          <div><b data-t="how3.b">⏱ Qisqa</b><small data-t="how3.s">Asosiy g'oya bir daqiqadan kam vaqtda.</small></div>
+          <div><b data-t="how4.b">📖 Batafsil matn</b><small data-t="how4.s">Har bir videoning sahifasida to'liq tushuntirish.</small></div>
+          <div><b data-t="how5.b">🖐 3D laboratoriya</b><small data-t="how5.s">Qurilmani o'zingiz aylantirib, ochib o'rganasiz.</small></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. Aloqa -->
+  <!-- 2. Videolar -->
+  <section class="panel" id="videolar" aria-labelledby="v-title">
+    <div class="panel-head">
+      <div><h2 id="v-title" data-t="v.title">Videolar</h2><p class="sub" data-t="v.sub">Ko'rish uchun rasmni bosing, to'liq tushuntirish sahifada.</p></div>
+      <span class="count" id="v-count">2 ta video</span>
+    </div>
+    <div class="grid">
+      <article class="card glass" data-id="zaryadlovchi">
+        <div class="player">
+          <div class="badges"><span class="badge new" data-t="badge.new">Yangi</span><span class="badge seen" hidden data-t="badge.seen">✓ Ko'rildi</span></div>
+          <video src="videos/zaryadlovchi.mp4" poster="img/zaryadlovchi.jpg" playsinline controls preload="none"></video>
+          <button class="play" style="background-image:url(img/zaryadlovchi.jpg)" aria-label="Zaryadlovchi videosini ko'rish" data-t-aria="v1.aria"></button>
+        </div>
+        <div class="meta">
+          <h3><a href="zaryadlovchi/" data-t="v1.t">Telefon zaryadlovchisi qanday ishlaydi?</a></h3>
+          <p class="desc" data-t="v1.d">220 V qanday qilib xavfsiz 5 V ga aylanadi: diod ko'prigi, kondensator, tranzistor va transformator.</p>
+          <div class="row"><span class="tag">0:43</span><span class="tag gold">220 V → 5 V</span></div>
+          <a class="more" href="zaryadlovchi/" data-t="more">Batafsil tushuntirish →</a>
+        </div>
+      </article>
+      <article class="card glass" data-id="kir-mashina">
+        <div class="player">
+          <div class="badges"><span class="badge seen" hidden data-t="badge.seen">✓ Ko'rildi</span></div>
+          <video src="videos/kir-mashina.mp4" poster="img/kir-mashina.jpg" playsinline controls preload="none"></video>
+          <button class="play" style="background-image:url(img/kir-mashina.jpg)" aria-label="Kir mashina videosini ko'rish" data-t-aria="v2.aria"></button>
+        </div>
+        <div class="meta">
+          <h3><a href="kir-mashina/" data-t="v2.t">Kir mashina qanday ishlaydi?</a></h3>
+          <p class="desc" data-t="v2.d">Suv olishdan siqishgacha: klapan, isitgich, baraban qovurg'alari, nasos va daqiqasiga 1200 marta aylanish.</p>
+          <div class="row"><span class="tag">0:30</span><span class="tag gold" data-t="v2.tag">1200 ayl/daq</span></div>
+          <a class="more" href="kir-mashina/" data-t="more">Batafsil tushuntirish →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. 3D laboratoriya -->
+  <section class="panel" id="lab" aria-labelledby="l-title">
+    <div class="panel-head">
+      <div><h2 id="l-title" data-t="lab.title">3D laboratoriya</h2><p class="sub" data-t="lab.sub">Video emas, buyumning o'zi: aylantiring, oching, har bir qismni bosib o'rganing.</p></div>
+    </div>
+    <div class="labgrid">
+      <a class="labcard glass" href="3d/dvigatel/">
+        <span class="lab-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/><circle cx="12" cy="12" r="7"/></svg></span>
+        <span><b data-t="lab1.t">Dvigatel</b><small data-t="lab1.d">4 taktli ichki yonuv dvigateli: porshen, shatun, tirsakli val, klapanlar va sham.</small></span>
+        <span class="row"><span class="tag" data-t="lab.tagI">Interaktiv</span><span class="tag gold" data-t="lab1.tag">4 takt</span><span class="go" data-t="lab.open">Ochish →</span></span>
+      </a>
+      <div class="labcard glass soon" aria-disabled="true">
+        <span class="lab-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="5"/><circle cx="17" cy="16" r="4"/><path d="M8 2v2M8 14v2M3 9H1M15 9h-2"/></svg></span>
+        <span><b data-t="lab2.t">Uzatmalar qutisi</b><small data-t="lab2.d">Tishli g'ildiraklar tezlik va kuchni qanday o'zgartiradi.</small></span>
+        <span class="row"><span class="tag" data-t="lab.soon">Tez kunda</span></span>
+      </div>
+      <div class="labcard glass soon" aria-disabled="true">
+        <span class="lab-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M5 10h14M9 6v2M9 13v3"/></svg></span>
+        <span><b data-t="lab3.t">Muzlatgich kompressori</b><small data-t="lab3.d">Porshen muzlatgich ichidagi issiqni qanday haydab chiqaradi.</small></span>
+        <span class="row"><span class="tag" data-t="lab.soon">Tez kunda</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Mavzular -->
+  <section class="panel" id="mavzular" aria-labelledby="m-title">
+    <div class="panel-head">
+      <div><h2 id="m-title" data-t="m.title">Keyingi mavzular</h2><p class="sub" data-t="m.sub">Tayyorlanayotgan videolar. Qaysi birini kutayotganingizni belgilang.</p></div>
+    </div>
+    <div class="topics">
+      <div class="topic glass" data-topic="muzlatgich"><span class="ico">🧊</span><b data-t="t1.b">Muzlatgich</b><small data-t="t1.s">Sovuqni qayerdan oladi va issiqni qayerga chiqaradi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
+      <div class="topic glass" data-topic="mikroto-lqinli"><span class="ico">📡</span><b data-t="t2.b">Mikroto'lqinli pech</b><small data-t="t2.s">Ovqatni ichidan qanday isitadi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
+      <div class="topic glass" data-topic="konditsioner"><span class="ico">❄️</span><b data-t="t3.b">Konditsioner</b><small data-t="t3.s">Xonani qanday sovutadi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
+      <div class="topic glass" data-topic="changyutgich"><span class="ico">🌀</span><b data-t="t4.b">Changyutgich</b><small data-t="t4.s">Havoni qanday so'radi?</small><div class="vote"><button type="button" aria-pressed="false">☆ Kutaman</button><span></span></div></div>
+    </div>
+    <p class="note" data-t="m.note">O'z mavzuingizni taklif qilmoqchimisiz? <a href="#aloqa">Aloqa</a> bo'limi orqali yozing.</p>
+  </section>
+
+  <!-- 5. Aloqa -->
   <section class="panel" id="aloqa" aria-labelledby="a-title">
-    <div class="panel-head"><div><h2 id="a-title">Aloqa</h2><p class="sub">Savol, taklif yoki yangi mavzu uchun yozing.</p></div></div>
+    <div class="panel-head"><div><h2 id="a-title" data-t="a.title">Aloqa</h2><p class="sub" data-t="a.sub">Savol, taklif yoki yangi mavzu uchun yozing.</p></div></div>
     <div class="contacts">
-      <a class="contact glass" data-link="telegram" href="https://t.me/buqanday_ishlaydi1"><b>Telegram</b><small>Yangi videolar va so'rovnomalar</small></a>
+      <a class="contact glass" data-link="telegram" href="https://t.me/buqanday_ishlaydi1"><b>Telegram</b><small data-t="a.tg">Yangi videolar va so'rovnomalar</small></a>
       <a class="contact glass" data-link="instagram"><b>Instagram</b><small>Reels</small></a>
       <a class="contact glass" data-link="youtube"><b>YouTube</b><small>Shorts</small></a>
     </div>
     <div class="install glass" id="install" hidden style="margin-top:14px">
-      <p>Saytni telefoningizga ilova kabi o'rnating, bir bosishda ochiladi.</p>
-      <button class="gbtn primary" type="button">O'rnatish</button>
+      <p data-t="inst.p">Saytni telefoningizga ilova kabi o'rnating, bir bosishda ochiladi.</p>
+      <button class="gbtn primary" type="button" data-t="inst.btn">O'rnatish</button>
     </div>
   </section>
 
   <footer>© <span id="y"></span> Bu qanday ishlaydi?</footer>
 </main>
 
-<nav class="tabbar" aria-label="Asosiy menyu">
+<nav class="tabbar" aria-label="Menu">
   <span class="blob" aria-hidden="true"></span>
-  <a href="#videolar" data-tab="videolar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3z"/></svg>Videolar</a>
-  <a href="#mavzular" data-tab="mavzular"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Mavzular</a>
-  <a href="#haqida" data-tab="haqida"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>Biz haqimizda</a>
-  <a href="#aloqa" data-tab="aloqa"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l7 2 2 7z"/><path d="m10 13 4-4"/></svg>Aloqa</a>
+  <a href="#bosh" data-tab="bosh"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><span data-t="tab.home">Bosh</span></a>
+  <a href="#videolar" data-tab="videolar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3z"/></svg><span data-t="tab.videos">Videolar</span></a>
+  <a href="#lab" data-tab="lab"><svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M12 12 20 7.5M12 12 4 7.5M12 12v9"/></svg><span data-t="tab.lab">3D lab</span></a>
+  <a href="#mavzular" data-tab="mavzular"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><span data-t="tab.topics">Mavzular</span></a>
+  <a href="#aloqa" data-tab="aloqa"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l7 2 2 7z"/><path d="m10 13 4-4"/></svg><span data-t="tab.contact">Aloqa</span></a>
 </nav>
+<script src="i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 {
   "name": "Bu qanday ishlaydi?",
   "short_name": "Qanday ishlaydi",
-  "description": "Texnika qanday ishlaydi: 3D videolar o'zbek tilida",
-  "lang": "uz",
+  "description": "How things work: 3D videos and interactive models (EN / UZ / RU)",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

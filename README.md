@@ -4,10 +4,12 @@ Kundalik texnika ichida nima bo'ladi: 3D animatsiyada, o'zbek tilida.
 
 Sayt GitHub Pages orqali ishlaydi.
 
-- `index.html` — bosh sahifa: kutib olish oynasi va pastki menyu (Videolar, Mavzular, Biz haqimizda, Aloqa)
+- `index.html` — bosh sahifa: kutib olish oynasi va pastki menyu (Bosh, Videolar, 3D lab, Mavzular, Aloqa). Kirganda faqat "Bosh" bo'limi ko'rinadi
+- `i18n.js` — 3 til: English (standart), O'zbekcha, Русский. Tepadagi bayroqli tanlagich. HTML'dagi asl matn o'zbekcha, tarjima kerak bo'lgan elementga `data-t="kalit"` qo'yib, kalitni `i18n.js` ichidagi `en` va `ru` bo'limlariga yozing
+- `img/flags/` — bayroqlar
 - `zaryadlovchi/`, `kir-mashina/` — har bir video uchun alohida sahifa: video, bosqichma-bosqich matn, savol-javob
 - `style.css`, `app.js` — barcha sahifalar uchun umumiy dizayn va skript
-- `3d/dvigatel/` — 3D laboratoriya: interaktiv 4 taktli dvigatel (Three.js, `engine.js`). Aylantirish, ochib ko'rish, takt bo'yicha qadam, qismni bosib o'qish, UZ/EN
+- `3d/dvigatel/` — 3D laboratoriya: interaktiv 4 taktli dvigatel (Three.js, `engine.js`; matnlari `engine-text.js` ichida, 3 tilda)
 - `videos/`, `img/` — videolar va muqovalar
 - `manifest.webmanifest` — saytni telefonga ilova kabi o'rnatish uchun
 - `sitemap.xml` — Google uchun sahifalar ro'yxati (yangi sahifa qo'shilganda shu yerga ham yozing)
