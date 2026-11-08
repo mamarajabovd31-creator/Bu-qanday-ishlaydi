@@ -1,0 +1,15 @@
+{
+  "name": "Bu qanday ishlaydi?",
+  "short_name": "Qanday ishlaydi",
+  "description": "Texnika qanday ishlaydi: 3D videolar o'zbek tilida",
+  "lang": "uz",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050a16",
+  "theme_color": "#050a16",
+  "icons": [
+    {"src": "img/avatar.jpg", "sizes": "360x360", "type": "image/jpeg"},
+    {"src": "img/favicon.png", "sizes": "64x64", "type": "image/png"}
+  ]
+}
