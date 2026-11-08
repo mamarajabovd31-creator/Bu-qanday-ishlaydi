@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Server kodi</title>
+<style>
+  :root{--bg:#050a16;--fg:#f2f6ff;--muted:#a3b1cc;--cyan:#4fe3ff;--line:rgba(255,255,255,.14)}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,system-ui,sans-serif;padding:20px 16px 40px}
+  h1{font-size:22px;margin:0 0 6px}
+  p{color:var(--muted);margin:0 0 16px}
+  button{width:100%;min-height:56px;border:0;border-radius:16px;background:var(--cyan);color:#04121a;font:800 18px/1 inherit;cursor:pointer}
+  button.ok{background:#3ddc84}
+  pre{margin-top:16px;padding:12px;border:1px solid var(--line);border-radius:12px;max-height:45vh;overflow:auto;font-size:11px;white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+<h1>Server kodi (worker.js)</h1>
+<p>Tugmani bosing, keyin Cloudflare muharririda hamma kodni o'chirib, joylang (Paste) va Deploy ni bosing.</p>
+<button id="copy" type="button" disabled>Yuklanmoqda…</button>
+<pre id="code"></pre>
+<script>
+const btn = document.getElementById('copy'), pre = document.getElementById('code');
+fetch('worker.js', { cache: 'no-store' }).then(r => r.text()).then(code => {
+  pre.textContent = code;
+  btn.disabled = false; btn.textContent = '📋 Kodni nusxa olish';
+  btn.onclick = async () => {
+    try { await navigator.clipboard.writeText(code); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); }
+    btn.classList.add('ok'); btn.textContent = '✅ Nusxa olindi! Endi Cloudflare\'ga joylang';
+  };
+}).catch(() => { btn.textContent = 'Yuklanmadi, sahifani yangilang'; });
+</script>
+</body>
+</html>
