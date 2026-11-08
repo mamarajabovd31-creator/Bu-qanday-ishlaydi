@@ -122,6 +122,21 @@ en: {
   'k.q4': 'Which compartment does the detergent go in?', 'k.a4': 'Usually II is for the main wash, I is for the pre-wash, and the flower symbol is for fabric softener. Water passes through the right compartment at exactly the right stage and carries its contents into the drum.',
 
   /* 3D dvigatel sahifasi sarlavhasi va 404 */
+  'v3.t': 'How does an ATM work?', 'v3.aria': 'Watch the ATM video', 'v3.tag': '5 steps', 'ad.dcard': 'Partner: Dcard',
+  'v3.d': 'From card to cash: the chip, the encrypted PIN, the bank server, cassettes, rollers and the note-checking sensor.',
+  'lab4.t': 'ATM', 'lab4.d': 'Card reader, PIN pad, bank server, cassettes and the rollers that count the cash. Look inside it too.', 'lab4.tag': '5 steps',
+  'meta.a': 'How does an ATM work? Interactive 3D model | Bu qanday ishlaydi?',
+  'meta.b': 'How does an ATM work? From card to cash, in 3D | Bu qanday ishlaydi?',
+  'b.crumb': 'ATM', 'b.h1': 'How does an ATM <em>work?</em>',
+  'b.lead': 'You insert a card and a few seconds later you are holding cash. In between, five steps happen inside the ATM and on the bank server. Watch the video; below we explain each one in plain words.',
+  'b.p': 'An ATM has two parts: a computer, screen, keypad and card reader on top, and a thick steel safe below. The cash sits in cassettes inside the safe, but the decision to pay out is made not by the ATM but by the bank server.',
+  'b.s1.h': 'Card in', 'b.s1.p': 'The card is pulled into the reader. The ATM reads the card data through the chip contacts, and the chip creates a new code for every transaction, which makes the card hard to copy.',
+  'b.s2.h': 'PIN', 'b.s2.p': 'You type your PIN. A special chip inside the keypad encrypts every digit the moment it is pressed. The plain PIN never reaches the ATM software or the internet.',
+  'b.s3.h': 'The bank checks', 'b.s3.p': 'The encrypted request goes to the bank server. The bank checks that the card is genuine, the PIN is right and there is enough money, then answers with approval or refusal in an instant.',
+  'b.s4.h': 'Cash is counted', 'b.s4.p': 'Once approved, rubber rollers pull notes one by one from the cassettes in the safe. A sensor measures each note: stuck-together or torn notes drop into a separate reject bin.',
+  'b.s5.h': 'Take your cash', 'b.s5.p': 'The counted cash reaches the slot and the shutter opens. The card is returned and the ATM confirms to the bank that the transaction is complete. If the cash is not taken, the shutter pulls it back.',
+  'b.fact': '<b>Fun fact:</b> the first ATM started working in London in 1967. There were no plastic cards back then; people inserted special paper vouchers. Today the whole process takes a few seconds.',
+  'b.lab': 'Rotate the ATM in 3D →',
   'meta.e': 'How does an engine work? Interactive 3D four-stroke engine | Bu qanday ishlaydi?',
   'nf.h1': 'Where is <em>this page?</em>', 'nf.lead': "Sorry, this page doesn't exist. But 3D videos and models are waiting for you on the home page.", 'nf.btn': 'Go to home page'
 },
@@ -220,6 +235,21 @@ ru: {
   'k.q3': 'Откуда машина знает, сколько воды набрать?', 'k.a3': 'Внизу бака есть датчик давления. Чем больше воды, тем сильнее сжимается воздух внутри. Датчик измеряет это давление и закрывает клапан на нужном уровне.',
   'k.q4': 'В какой отсек класть порошок?', 'k.a4': 'Обычно II — для основной стирки, I — для предварительной, а значок цветка — для кондиционера. Вода проходит через нужный отсек именно на нужном этапе и уносит содержимое в барабан.',
 
+  'v3.t': 'Как работает банкомат?', 'v3.aria': 'Смотреть видео о банкомате', 'v3.tag': '5 шагов', 'ad.dcard': 'Партнёр: Dcard',
+  'v3.d': 'От карты до наличных: чип, зашифрованный PIN, сервер банка, кассеты, ролики и датчик, проверяющий купюры.',
+  'lab4.t': 'Банкомат', 'lab4.d': 'Картридер, PIN-клавиатура, сервер банка, кассеты и ролики, которые считают деньги. Загляните и внутрь.', 'lab4.tag': '5 шагов',
+  'meta.a': 'Как работает банкомат? Интерактивная 3D-модель | Bu qanday ishlaydi?',
+  'meta.b': 'Как работает банкомат? От карты до наличных в 3D | Bu qanday ishlaydi?',
+  'b.crumb': 'Банкомат', 'b.h1': 'Как работает <em>банкомат?</em>',
+  'b.lead': 'Вы вставляете карту, и через несколько секунд у вас в руках деньги. За это время внутри банкомата и на сервере банка проходит пять шагов. Посмотрите видео, а ниже мы простыми словами объяснили каждый.',
+  'b.p': 'Банкомат состоит из двух частей: сверху компьютер, экран, клавиатура и картридер, снизу толстый стальной сейф. Деньги лежат в кассетах внутри сейфа, но решение о выдаче принимает не банкомат, а сервер банка.',
+  'b.s1.h': 'Карта', 'b.s1.p': 'Карта втягивается в картридер. Банкомат считывает данные карты через контакты чипа, а чип создаёт новый код для каждой операции, поэтому карту трудно скопировать.',
+  'b.s2.h': 'PIN-код', 'b.s2.p': 'Вы вводите PIN-код. Специальный чип внутри клавиатуры шифрует каждую цифру в момент нажатия. Открытый PIN не попадает ни в программу банкомата, ни в интернет.',
+  'b.s3.h': 'Проверка в банке', 'b.s3.p': 'Зашифрованный запрос уходит на сервер банка. Банк проверяет подлинность карты, верность PIN и достаточность средств и мгновенно отвечает одобрением или отказом.',
+  'b.s4.h': 'Счёт купюр', 'b.s4.p': 'После одобрения резиновые ролики по одной вытягивают купюры из кассет в сейфе. Датчик измеряет каждую: слипшиеся или порванные купюры падают в отдельный ящик отбраковки.',
+  'b.s5.h': 'Заберите деньги', 'b.s5.p': 'Отсчитанные деньги подходят к окну выдачи, шторка открывается. Карта возвращается, а банкомат подтверждает банку завершение операции. Если деньги не забрать, шторка втянет их обратно.',
+  'b.fact': '<b>Интересный факт:</b> первый банкомат заработал в Лондоне в 1967 году. Пластиковых карт тогда не было, люди вставляли специальные бумажные чеки. Сегодня весь процесс занимает несколько секунд.',
+  'b.lab': 'Покрутите банкомат в 3D →',
   'meta.e': 'Как работает двигатель? Интерактивная 3D-модель четырёхтактного двигателя | Bu qanday ishlaydi?',
   'nf.h1': 'Где <em>эта страница?</em>', 'nf.lead': 'К сожалению, такой страницы нет. Но на главной вас ждут 3D-видео и модели.', 'nf.btn': 'На главную'
 }

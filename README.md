@@ -8,9 +8,10 @@ Sayt GitHub Pages orqali ishlaydi.
 - `i18n.js` — 3 til: English (standart), O'zbekcha, Русский. Tepadagi bayroqli tanlagich. HTML'dagi asl matn o'zbekcha, tarjima kerak bo'lgan elementga `data-t="kalit"` qo'yib, kalitni `i18n.js` ichidagi `en` va `ru` bo'limlariga yozing
 - `img/flags/` — bayroqlar
 - `tg.js` — Telegram Mini App rejimi: bot ichida ochilganda foydalanuvchining Telegram tili, Telegram ranglari, "Orqaga" tugmasi, tebranish. Oddiy brauzerda hech narsa qilmaydi
-- `zaryadlovchi/`, `kir-mashina/` — har bir video uchun alohida sahifa: video, bosqichma-bosqich matn, savol-javob
+- `zaryadlovchi/`, `kir-mashina/`, `bankomat/` — har bir video uchun alohida sahifa: video, bosqichma-bosqich matn, savol-javob
 - `style.css`, `app.js` — barcha sahifalar uchun umumiy dizayn va skript
 - `3d/dvigatel/` — 3D laboratoriya: interaktiv 4 taktli dvigatel (Three.js, `engine.js`; matnlari `engine-text.js` ichida, 3 tilda)
+- `3d/bankomat/` — interaktiv bankomat: 5 bosqich, "Ichini ko'rish" rejimi, bosiladigan qismlar (`atm.js`, matnlari `atm-text.js` ichida, 3 tilda)
 - `videos/`, `img/` — videolar va muqovalar
 - `manifest.webmanifest` — saytni telefonga ilova kabi o'rnatish uchun
 - `sitemap.xml` — Google uchun sahifalar ro'yxati (yangi sahifa qo'shilganda shu yerga ham yozing)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-  <url><loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/</loc><lastmod>2026-11-08</lastmod></url>
+  <url><loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/</loc><lastmod>2026-11-09</lastmod></url>
   <url>
     <loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/zaryadlovchi/</loc><lastmod>2026-11-08</lastmod>
     <video:video>
@@ -22,4 +22,15 @@
     </video:video>
   </url>
   <url><loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/3d/dvigatel/</loc><lastmod>2026-11-08</lastmod></url>
+  <url>
+    <loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/bankomat/</loc><lastmod>2026-11-09</lastmod>
+    <video:video>
+      <video:thumbnail_loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/bankomat.jpg</video:thumbnail_loc>
+      <video:title>Bankomat qanday ishlaydi? 3D animatsiya</video:title>
+      <video:description>Bankomatda karta o'qish, PIN-kod, bank tekshiruvi, pulni sanash va berish bosqichlari 3D animatsiyada, o'zbek tilida.</video:description>
+      <video:content_loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/videos/bankomat.mp4</video:content_loc>
+      <video:duration>30</video:duration>
+    </video:video>
+  </url>
+  <url><loc>https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/3d/bankomat/</loc><lastmod>2026-11-09</lastmod></url>
 </urlset>
