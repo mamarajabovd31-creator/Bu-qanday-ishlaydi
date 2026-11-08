@@ -4,85 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Bu qanday ishlaydi? — texnika qanday ishlaydi, 3D videolar o'zbek tilida</title>
-<meta name="description" content="Kir mashina, telefon zaryadlovchisi va boshqa texnika qanday ishlaydi? Qisqa 3D animatsion videolar o'zbek tilida.">
-<meta name="robots" content="index,follow">
+<meta name="description" content="Kir mashina, telefon zaryadlovchisi va boshqa texnika qanday ishlaydi? Qisqa 3D animatsion videolar va oddiy tushuntirishlar o'zbek tilida.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-video-preview:-1">
+<meta name="theme-color" content="#060c18">
 <link rel="canonical" href="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/">
-<meta property="og:title" content="Bu qanday ishlaydi?">
-<meta property="og:description" content="Texnika ichida nima bo'ladi — 3D animatsiyada, o'zbek tilida.">
+<meta property="og:site_name" content="Bu qanday ishlaydi?">
+<meta property="og:title" content="Bu qanday ishlaydi? — 3D tushuntirish videolari">
+<meta property="og:description" content="Texnika ichida nima bo'ladi: 3D animatsiyada, o'zbek tilida.">
 <meta property="og:image" content="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/avatar.jpg">
 <meta property="og:url" content="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="uz_UZ">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/avatar.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700&display=swap">
-<style>
-/* Layout: one column on phones, two video cards side by side on wider screens; brand colors match the videos. */
-:root{
-  --bg:#060c18; --bg2:#0b1628; --card:#0f1c31; --line:#1d2c46;
-  --fg:#eef4ff; --muted:#93a2c0; --cyan:#4fe3ff; --gold:#ffd34d;
-  --display:"Unbounded","Manrope",system-ui,sans-serif;
-  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{background:var(--bg)}
-body{margin:0;background:radial-gradient(ellipse 80% 40% at 50% 0%,#12355c 0%,var(--bg) 70%) var(--bg);color:var(--fg);font:500 16px/1.6 var(--body);
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:960px;margin:0 auto;padding-block:40px 64px;display:flex;flex-direction:column;gap:48px}
-a{color:var(--cyan)}
-:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:8px}
-
-header.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
-.avatar{width:120px;height:120px;border-radius:50%;border:2px solid var(--line);box-shadow:0 0 0 6px rgba(79,227,255,.08),0 20px 50px rgba(0,0,0,.5)}
-h1{font:800 clamp(30px,7vw,52px)/1.05 var(--display);margin:0;letter-spacing:-.5px;text-wrap:balance}
-h1 em{font-style:normal;color:var(--cyan)}
-.lead{max-width:34em;color:var(--muted);margin:0;font-size:17px}
-.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-.chip{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-.links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.links a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:11px 18px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--fg)}
-.links a:hover{border-color:var(--cyan)}
-.links a{border-color:rgba(79,227,255,.5)}
-.soon{display:inline-flex;align-items:center;padding:11px 18px;border-radius:12px;border:1px dashed var(--line);color:var(--muted);font-weight:700}
-
-h2{font:800 22px/1.2 var(--display);margin:0 0 6px}
-.sub{color:var(--muted);margin:0 0 20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.player{position:relative;aspect-ratio:9/16;max-width:100%;background:#000}
-.player video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.play{position:absolute;inset:0;border:0;padding:0;cursor:pointer;background:center/cover no-repeat;display:grid;place-items:center}
-.play::after{content:"";width:76px;height:76px;border-radius:50%;background:rgba(6,12,24,.65) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='%234fe3ff'/%3E%3C/svg%3E") 56% center/34px no-repeat;border:2px solid var(--cyan);box-shadow:0 0 30px rgba(79,227,255,.45)}
-.play[hidden]{display:none}
-.meta{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px}
-.meta h3{font:800 18px/1.25 var(--display);margin:0}
-.meta .row{display:flex;gap:8px;flex-wrap:wrap}
-.tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:8px;background:rgba(79,227,255,.1);color:var(--cyan);font-variant-numeric:tabular-nums}
-.tag.gold{background:rgba(255,211,77,.12);color:var(--gold)}
-.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px;color:var(--muted);font-size:14px}
-.steps li+li::before{content:"→";margin-right:6px;color:var(--line)}
-
-.dl{appearance:none;border:0;cursor:pointer;margin-top:4px;padding:13px 16px;border-radius:12px;font:700 15px var(--body);color:#04121a;background:var(--cyan);
-  display:flex;align-items:center;justify-content:center;gap:8px}
-.dl::before{content:"";width:18px;height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2304121a' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12m0 0-5-5m5 5 5-5M4 20h16'/%3E%3C/svg%3E") center/contain no-repeat}
-.dl:hover{filter:brightness(1.08)}
-.dl[disabled]{opacity:.6;cursor:default}
-.dl.ready{background:var(--gold)}
-.desc{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
-.dl-msg{margin:0;min-height:1.2em;font-size:13px;color:var(--muted)}
-.next{background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:24px}
-.ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
-.idea{padding:14px;border-radius:14px;border:1px dashed var(--line);font-weight:700}
-.idea small{display:block;color:var(--muted);font-weight:500}
-footer{text-align:center;color:var(--muted);font-size:14px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"WebSite","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","inLanguage":"uz"},
- {"@type":"VideoObject","name":"Kir mashina qanday ishlaydi? 3D animatsiya","description":"Kir mashina ichida suv olish, isitish, yuvish, chayish va 1200 ayl/daq siqish bosqichlari 3D animatsiyada.","thumbnailUrl":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/kir-mashina.jpg","contentUrl":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/videos/kir-mashina.mp4","uploadDate":"2026-11-08","duration":"PT30S","inLanguage":"uz"},
- {"@type":"VideoObject","name":"Telefon zaryadlovchisi qanday ishlaydi? 3D animatsiya","description":"Zaryadlovchi 220 V o'zgaruvchan tokni diod ko'prigi, kondensator va transformator orqali xavfsiz 5 V ga aylantirishi 3D animatsiyada.","thumbnailUrl":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/zaryadlovchi.jpg","contentUrl":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/videos/zaryadlovchi.mp4","uploadDate":"2026-11-08","duration":"PT43S","inLanguage":"uz"}
+ {"@type":"WebSite","@id":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/#site","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","inLanguage":"uz"},
+ {"@type":"Organization","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","logo":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/avatar.jpg","sameAs":["https://t.me/buqanday_ishlaydi1"]},
+ {"@type":"ItemList","itemListElement":[
+  {"@type":"ListItem","position":1,"url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/zaryadlovchi/"},
+  {"@type":"ListItem","position":2,"url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/kir-mashina/"}
+ ]}
 ]}
 </script>
 </head>
@@ -98,42 +45,47 @@ footer{text-align:center;color:var(--muted);font-size:14px}
 
   <section aria-labelledby="v-title">
     <h2 id="v-title">Videolar</h2>
-    <p class="sub">Ko'rish uchun rasmni bosing.</p>
+    <p class="sub">Ko'rish uchun rasmni bosing. To'liq tushuntirish har bir videoning sahifasida.</p>
     <div class="grid">
-      <article class="card">
-        <div class="player">
-          <video src="videos/kir-mashina.mp4" poster="img/kir-mashina.jpg" playsinline controls preload="none"></video>
-          <button class="play" style="background-image:url(img/kir-mashina.jpg)" aria-label="Kir mashina videosini ko'rish"></button>
-        </div>
-        <div class="meta">
-          <h3>Kir mashina qanday ishlaydi?</h3>
-          <p class="desc">Klapan suvni kukun idishi orqali barabanga beradi, isitgich suvni 40°C gacha qizdiradi, baraban kirni aylantirib yuvadi, nasos kir suvni chiqaradi, oxirida 1200 ayl/daq tezlikda siqadi.</p>
-          <div class="row"><span class="tag">0:30</span><span class="tag gold">1200 ayl/daq</span></div>
-          <ul class="steps"><li>Suv</li><li>Isitish 40°C</li><li>Yuvish</li><li>Chayish</li><li>Siqish</li></ul>
-          <button class="dl" type="button" data-src="videos/kir-mashina.mp4" data-name="kir-mashina-3d.mp4">Yuklab olish</button>
-          <p class="dl-msg" role="status"></p>
-        </div>
-      </article>
       <article class="card">
         <div class="player">
           <video src="videos/zaryadlovchi.mp4" poster="img/zaryadlovchi.jpg" playsinline controls preload="none"></video>
           <button class="play" style="background-image:url(img/zaryadlovchi.jpg)" aria-label="Zaryadlovchi videosini ko'rish"></button>
         </div>
         <div class="meta">
-          <h3>Telefon zaryadlovchisi qanday ishlaydi?</h3>
-          <p class="desc">Rozetkadagi 220 V o'zgaruvchan tokni diod ko'prigi to'g'rilaydi, kondensator tekislaydi, transformator xavfsiz 5 V gacha pasaytiradi, telefon ichidagi mikrosxema batareyani to'ldiradi.</p>
+          <h3><a href="zaryadlovchi/">Telefon zaryadlovchisi qanday ishlaydi?</a></h3>
+          <p class="desc">220 V qanday qilib xavfsiz 5 V ga aylanadi: diod ko'prigi, kondensator, sekundiga 100 000 marta ishlaydigan tranzistor va transformator.</p>
           <div class="row"><span class="tag">0:43</span><span class="tag gold">220 V → 5 V</span></div>
-          <ul class="steps"><li>Diod ko'prigi</li><li>Kondensator</li><li>Transformator</li><li>Batareya</li></ul>
-          <button class="dl" type="button" data-src="videos/zaryadlovchi.mp4" data-name="zaryadlovchi-3d.mp4">Yuklab olish</button>
-          <p class="dl-msg" role="status"></p>
+          <a class="more" href="zaryadlovchi/">Batafsil tushuntirish →</a>
+        </div>
+      </article>
+      <article class="card">
+        <div class="player">
+          <video src="videos/kir-mashina.mp4" poster="img/kir-mashina.jpg" playsinline controls preload="none"></video>
+          <button class="play" style="background-image:url(img/kir-mashina.jpg)" aria-label="Kir mashina videosini ko'rish"></button>
+        </div>
+        <div class="meta">
+          <h3><a href="kir-mashina/">Kir mashina qanday ishlaydi?</a></h3>
+          <p class="desc">Suv olishdan siqishgacha: klapan, isitgich, baraban qovurg'alari, nasos va daqiqasiga 1200 marta aylanish.</p>
+          <div class="row"><span class="tag">0:30</span><span class="tag gold">1200 ayl/daq</span></div>
+          <a class="more" href="kir-mashina/">Batafsil tushuntirish →</a>
         </div>
       </article>
     </div>
   </section>
 
+  <aside class="cta" aria-labelledby="cta-title">
+    <span class="cta-ico" aria-hidden="true"></span>
+    <div>
+      <h2 id="cta-title">Yangi videolar avval Telegram'da</h2>
+      <p>Har bir yangi 3D tushuntirish birinchi bo'lib kanalimizda chiqadi.</p>
+    </div>
+    <a class="btn" href="https://t.me/buqanday_ishlaydi1" target="_blank" rel="noopener">Kanalga qo'shilish</a>
+  </aside>
+
   <section class="next" aria-labelledby="n-title">
     <h2 id="n-title">Keyingi qaysi texnikani ko'rsataylik?</h2>
-    <p class="sub" style="margin:0">Fikringizni Instagram yoki YouTube izohlarida yozing.</p>
+    <p class="sub" style="margin:0">Fikringizni <a href="https://t.me/buqanday_ishlaydi1" target="_blank" rel="noopener">Telegram kanalimizda</a> yozing.</p>
     <div class="ideas">
       <div class="idea">Muzlatgich<small>sovuqni qayerdan oladi</small></div>
       <div class="idea">Mikroto'lqinli pech<small>ovqatni qanday isitadi</small></div>
@@ -142,52 +94,8 @@ footer{text-align:center;color:var(--muted);font-size:14px}
     </div>
   </section>
 
-  <footer>© <span id="y"></span> Bu qanday ishlaydi?</footer>
+  <footer><span>© <span id="y"></span> Bu qanday ishlaydi?</span></footer>
 </main>
-<script>
-// Kanal havolalari: manzilni yozsangiz tugma paydo bo'ladi, bo'sh qolsa ko'rinmaydi.
-const LINKS = {
-  instagram: "",   // keyinroq: "https://www.instagram.com/buqanday_.ishlaydi/"
-  youtube: "",     // masalan: "https://youtube.com/@kanal_nomi"
-  telegram: "https://t.me/buqanday_ishlaydi1"
-};
-const nav=document.getElementById('links');
-[['instagram','Instagram'],['youtube','YouTube'],['telegram','Telegram']].forEach(([k,label])=>{
-  if(LINKS[k]){const a=document.createElement('a');a.href=LINKS[k];a.target='_blank';a.rel='noopener';a.textContent=label;nav.appendChild(a);}
-  else{const s=document.createElement('span');s.className='soon';s.textContent=label+' · tez kunda';nav.appendChild(s);}
-});
-document.querySelectorAll('.player').forEach(p=>{
-  const v=p.querySelector('video'),b=p.querySelector('.play');
-  b.addEventListener('click',()=>{document.querySelectorAll('video').forEach(o=>{if(o!==v)o.pause();});b.hidden=true;v.play().catch(()=>{});});
-});
-document.getElementById('y').textContent=new Date().getFullYear();
-
-// Yuklab olish: iPhone'da "Ulashish" oynasi orqali "Videoni saqlash" (Galereyaga),
-// boshqa qurilmalarda oddiy yuklab olish.
-document.querySelectorAll('.dl').forEach(btn=>{
-  const msg=btn.nextElementSibling, src=btn.dataset.src, name=btn.dataset.name;
-  let file=null;
-  const plain=()=>{const a=document.createElement('a');a.href=src;a.download=name;document.body.appendChild(a);a.click();a.remove();};
-  btn.addEventListener('click',async()=>{
-    const canFiles=!!(navigator.canShare&&window.File);
-    if(!canFiles){plain();msg.textContent="Yuklab olinmoqda… Fayl \"Yuklanmalar\" papkasida bo'ladi.";return;}
-    if(file){
-      try{
-        if(navigator.canShare({files:[file]})){await navigator.share({files:[file]});msg.textContent='';}
-        else{plain();}
-      }catch(e){if(e&&e.name==='AbortError')msg.textContent='Bekor qilindi.';else{plain();}}
-      return;
-    }
-    btn.disabled=true;msg.textContent='Video tayyorlanmoqda…';
-    try{
-      const r=await fetch(src);if(!r.ok)throw new Error('fetch');
-      file=new File([await r.blob()],name,{type:'video/mp4'});
-      btn.classList.add('ready');btn.textContent='Saqlash uchun yana bosing';
-      msg.textContent='Ochilgan oynada "Videoni saqlash" (Save Video) ni tanlang.';
-    }catch(e){msg.textContent="Video yuklanmadi, internetni tekshirib qayta bosing.";}
-    finally{btn.disabled=false;}
-  });
-});
-</script>
+<script src="app.js"></script>
 </body>
 </html>
