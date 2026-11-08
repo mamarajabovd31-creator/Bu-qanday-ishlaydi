@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dvigatel qanday ishlaydi? Interaktiv 3D model, 4 taktli dvigatel | Bu qanday ishlaydi?</title>
+<meta name="description" content="4 taktli dvigatelni o'zingiz aylantirib, qismlarga ajratib o'rganing: porshen, shatun, tirsakli val, klapanlar, taqsimlash vali va o't oldirish shami. Interaktiv 3D model o'zbek tilida.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#050a16">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="canonical" href="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/3d/dvigatel/">
+<meta property="og:site_name" content="Bu qanday ishlaydi?">
+<meta property="og:title" content="Dvigatel qanday ishlaydi? — interaktiv 3D model">
+<meta property="og:description" content="Dvigatelni o'zingiz aylantiring, oching va har bir qismini bosib o'rganing.">
+<meta property="og:image" content="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/img/avatar.jpg">
+<meta property="og:url" content="https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/3d/dvigatel/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="uz_UZ">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="../../img/favicon.png">
+<link rel="apple-touch-icon" href="../../img/avatar.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="../../style.css">
+<script>document.documentElement.classList.add('js')</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"LearningResource","name":"Dvigatel qanday ishlaydi? Interaktiv 3D model","description":"4 taktli ichki yonuv dvigatelining interaktiv 3D modeli: so'rish, siqish, ish yo'li va chiqarish taktlari.","learningResourceType":"Interactive simulation","inLanguage":["uz","en"],"isAccessibleForFree":true,"url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/3d/dvigatel/"},
+ {"@type":"BreadcrumbList","itemListElement":[
+  {"@type":"ListItem","position":1,"name":"Bosh sahifa","item":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/"},
+  {"@type":"ListItem","position":2,"name":"3D laboratoriya: dvigatel","item":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/3d/dvigatel/"}]},
+ {"@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"Nega dvigatel 4 taktli deyiladi?","acceptedAnswer":{"@type":"Answer","text":"Porshen bir ish siklida to'rt marta yuradi: pastga (so'rish), yuqoriga (siqish), pastga (ish yo'li) va yuqoriga (chiqarish). Shu to'rt harakat davomida tirsakli val ikki marta aylanadi."}},
+  {"@type":"Question","name":"Taqsimlash vali nega sekinroq aylanadi?","acceptedAnswer":{"@type":"Answer","text":"Har bir klapan bir siklda faqat bir marta ochilishi kerak, sikl esa tirsakli valning ikki aylanishiga teng. Shuning uchun taqsimlash vali tirsakli valdan ikki baravar sekin aylanadi."}},
+  {"@type":"Question","name":"Maxovik nima uchun kerak?","acceptedAnswer":{"@type":"Answer","text":"To'rt taktdan faqat bittasi kuch beradi. Og'ir maxovik ish yo'lida aylanish kuchini to'plab oladi va qolgan uch taktda valni bir tekis aylantirib turadi."}}
+ ]}
+]}
+</script>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body class="lab-page">
+<div class="liquid" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<main class="wrap">
+  <div class="top glass">
+    <a class="brand" href="../../"><img src="../../img/avatar.jpg" alt="" width="36" height="36">Bu qanday ishlaydi?</a>
+    <div class="lang" role="group" aria-label="Til / Language">
+      <button type="button" data-lang="uz" aria-pressed="true">UZ</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <header class="vhead">
+    <p class="crumbs"><a href="../../" data-i18n="crumbHome">Bosh sahifa</a> / <span data-i18n="crumbLab">3D laboratoriya</span></p>
+    <h1 data-i18n-html="title">Dvigatel qanday <em>ishlaydi?</em></h1>
+    <p class="lead" data-i18n="lead">Bu videoni emas, dvigatelning o'zini ko'ryapsiz. Barmoq bilan aylantiring, qismlarga ajrating va istalgan detalni bosib, u nima ish qilishini o'qing.</p>
+  </header>
+
+  <section class="lab glass" aria-labelledby="lab-title">
+    <h2 class="sr" id="lab-title" data-i18n="labTitle">Interaktiv 3D model</h2>
+    <div class="stage" id="stage">
+      <canvas id="c" aria-label="4 taktli dvigatelning 3D modeli" role="img"></canvas>
+      <div class="hud">
+        <span class="hud-step" id="hudStep">1/4</span>
+        <b id="hudName">So'rish</b>
+        <span class="hud-deg" id="hudDeg">0°</span>
+        <span class="hud-bar"><i id="hudBar"></i></span>
+      </div>
+      <p class="hint" id="hint" data-i18n="hint">Aylantirish uchun suring · qismni bilish uchun bosing</p>
+      <div class="loading" id="loading"><span></span><p data-i18n="loading">3D model yuklanmoqda…</p></div>
+    </div>
+
+    <div class="strokes" id="strokes" role="tablist" aria-label="Taktlar">
+      <button type="button" data-s="0"><i>1</i><span data-i18n="s0">So'rish</span></button>
+      <button type="button" data-s="1"><i>2</i><span data-i18n="s1">Siqish</span></button>
+      <button type="button" data-s="2"><i>3</i><span data-i18n="s2">Ish yo'li</span></button>
+      <button type="button" data-s="3"><i>4</i><span data-i18n="s3">Chiqarish</span></button>
+    </div>
+
+    <div class="controls">
+      <button class="gbtn primary" type="button" id="play" aria-pressed="true"><span data-i18n="pause">⏸ To'xtatish</span></button>
+      <button class="gbtn" type="button" id="step" data-i18n="step">Keyingi takt ▸</button>
+      <button class="gbtn" type="button" id="explode" aria-pressed="false" data-i18n="explode">Ochib ko'rish</button>
+      <button class="gbtn" type="button" id="reset" data-i18n="reset">Kamerani tiklash</button>
+      <label class="speed"><span data-i18n="speed">Tezlik</span>
+        <input type="range" id="speed" min="0.1" max="2" step="0.1" value="1" aria-describedby="speedVal">
+        <output id="speedVal">1×</output>
+      </label>
+    </div>
+
+    <div class="info" id="info" aria-live="polite">
+      <div class="info-stroke">
+        <p class="eyebrow" data-i18n="nowHappening">Hozir nima bo'lyapti</p>
+        <p id="strokeText"></p>
+      </div>
+      <div class="info-part" id="partBox">
+        <p class="eyebrow" data-i18n="partEyebrow">Tanlangan qism</p>
+        <h3 id="partName" data-i18n="partNone">Hech narsa tanlanmagan</h3>
+        <p id="partText" data-i18n="partHelp">Modeldagi istalgan qismni bosing: porshen, shatun, klapan, sham…</p>
+      </div>
+    </div>
+  </section>
+
+  <article class="prose">
+    <h2 data-i18n="h4">To'rt takt, bitta sikl</h2>
+    <p data-i18n="p4">Porshen silindr ichida yuqoriga va pastga yuradi. Har bir yurish "takt" deyiladi. To'rtta takt bitta to'liq siklni tashkil qiladi va shu vaqtda tirsakli val ikki marta aylanadi.</p>
+    <ol class="stepper">
+      <li><h3 data-i18n="s0">So'rish</h3><p data-i18n="d0">Porshen pastga tushadi, so'rish klapani ochiq. Silindrga havo va yoqilg'i aralashmasi kiradi.</p></li>
+      <li><h3 data-i18n="s1">Siqish</h3><p data-i18n="d1">Ikkala klapan yopiq. Porshen yuqoriga ko'tarilib, aralashmani taxminan 10 baravar kichik hajmga siqadi.</p></li>
+      <li><h3 data-i18n="s2">Ish yo'li</h3><p data-i18n="d2">Sham uchqun beradi, aralashma yonib, gaz keskin kengayadi va porshenni kuch bilan pastga itaradi. Faqat shu takt kuch beradi.</p></li>
+      <li><h3 data-i18n="s3">Chiqarish</h3><p data-i18n="d3">Chiqarish klapani ochiladi, porshen yuqoriga ko'tarilib, yongan gazni silindrdan quvurga haydab chiqaradi.</p></li>
+    </ol>
+    <p class="fact" data-i18n-html="fact"><b>Qiziq fakt:</b> 3000 ayl/daq tezlikda har bir silindrda uchqun sekundiga 25 marta chaqnaydi.</p>
+
+    <h2 data-i18n="faqTitle">Savol-javob</h2>
+    <div class="faq">
+      <details><summary data-i18n="q1">Nega dvigatel 4 taktli deyiladi?</summary><p data-i18n="a1">Porshen bir ish siklida to'rt marta yuradi: pastga (so'rish), yuqoriga (siqish), pastga (ish yo'li) va yuqoriga (chiqarish). Shu to'rt harakat davomida tirsakli val ikki marta aylanadi.</p></details>
+      <details><summary data-i18n="q2">Taqsimlash vali nega sekinroq aylanadi?</summary><p data-i18n="a2">Har bir klapan bir siklda faqat bir marta ochilishi kerak, sikl esa tirsakli valning ikki aylanishiga teng. Shuning uchun taqsimlash vali ikki baravar sekin aylanadi. Modelda buni o'zingiz sanab ko'ring.</p></details>
+      <details><summary data-i18n="q3">Maxovik nima uchun kerak?</summary><p data-i18n="a3">To'rt taktdan faqat bittasi kuch beradi. Og'ir maxovik ish yo'lida aylanish kuchini to'plab oladi va qolgan uch taktda valni bir tekis aylantirib turadi.</p></details>
+    </div>
+  </article>
+
+  <aside class="cta glass" aria-labelledby="cta-title">
+    <span class="cta-ico" aria-hidden="true"></span>
+    <div>
+      <h2 id="cta-title" data-i18n="ctaTitle">Qaysi qurilmani 3D'da ochaylik?</h2>
+      <p data-i18n="ctaText">Telegram kanalimizda keyingi interaktiv modelni o'zingiz tanlang.</p>
+    </div>
+    <a class="gbtn tg" href="https://t.me/buqanday_ishlaydi1" target="_blank" rel="noopener" data-i18n="ctaBtn">Kanalga qo'shilish</a>
+  </aside>
+
+  <section aria-labelledby="r-title">
+    <h2 id="r-title" data-i18n="related">Videolarni ham ko'ring</h2>
+    <div class="related">
+      <a class="rel glass" href="../../zaryadlovchi/"><img src="../../img/zaryadlovchi.jpg" alt="" width="56" height="100" loading="lazy"><span><b data-i18n="r1">Telefon zaryadlovchisi qanday ishlaydi?</b><small>3D video · 0:43</small></span></a>
+      <a class="rel glass" href="../../kir-mashina/"><img src="../../img/kir-mashina.jpg" alt="" width="56" height="100" loading="lazy"><span><b data-i18n="r2">Kir mashina qanday ishlaydi?</b><small>3D video · 0:30</small></span></a>
+    </div>
+  </section>
+
+  <footer>© <span id="y"></span> <a href="../../">Bu qanday ishlaydi?</a></footer>
+</main>
+<nav class="tabbar" aria-label="Asosiy menyu" data-current="videolar">
+  <span class="blob" aria-hidden="true"></span>
+  <a href="../../#videolar" data-tab="videolar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3z"/></svg>Videolar</a>
+  <a href="../../#mavzular" data-tab="mavzular"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Mavzular</a>
+  <a href="../../#haqida" data-tab="haqida"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>Biz haqimizda</a>
+  <a href="../../#aloqa" data-tab="aloqa"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l7 2 2 7z"/><path d="m10 13 4-4"/></svg>Aloqa</a>
+</nav>
+<script src="../../app.js"></script>
+<script type="module" src="engine.js"></script>
+</body>
+</html>
