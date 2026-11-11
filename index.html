@@ -179,6 +179,33 @@
     </div>
   </section>
 
+
+  <!-- 4. Yordamchi: jonli ovozli suhbat (ElevenLabs, lib/elevenlabs.js faqat bosilganda yuklanadi) -->
+  <section class="panel" id="yordamchi" aria-labelledby="y-title">
+    <div class="panel-head">
+      <div><h2 id="y-title" data-t="ai.title">Yordamchi</h2><p class="sub" data-t="ai.sub">Ovozli yordamchiga istalgan narsa qanday ishlashini so'rang: u jonli gaplashib tushuntiradi.</p></div>
+    </div>
+    <div class="ai-box glass">
+      <button class="ai-orb" id="ai-orb" type="button" aria-label="Suhbatni boshlash" data-t-aria="ai.start"><canvas aria-hidden="true"></canvas></button>
+      <div class="ai-talk" aria-live="polite">
+        <span class="ai-state" id="ai-state" data-t="ai.ready">Tayyor</span>
+        <p class="ai-you" id="ai-you"></p>
+        <p class="ai-say" id="ai-say" data-t="ai.hello">Doirani yoki pastdagi tugmani bosing va savolingizni ovoz bilan bering.</p>
+      </div>
+      <div class="ai-bar">
+        <button class="ai-ico" id="ai-mute" type="button" aria-pressed="false" aria-label="Mikrofon" hidden><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <button class="gbtn primary ai-go" id="ai-go" type="button" data-t="ai.go">Suhbatni boshlash</button>
+        <button class="gbtn ai-open" id="ai-open" type="button" hidden data-t="ai.browser">Brauzerda ochish</button>
+      </div>
+      <ul class="ai-ideas" aria-label="Misollar">
+        <li data-t="ai.q1">Muzlatgich qanday sovutadi?</li>
+        <li data-t="ai.q2">Samolyot nega qulamaydi?</li>
+        <li data-t="ai.q3">Wi-Fi qanday ishlaydi?</li>
+      </ul>
+      <p class="ai-note" data-t="ai.note">Mikrofonga ruxsat so'raladi. Bitta suhbat 3 daqiqagacha davom etadi.</p>
+    </div>
+  </section>
+
   <!-- 4. Mavzular -->
   <section class="panel" id="mavzular" aria-labelledby="m-title">
     <div class="panel-head">
@@ -215,10 +242,12 @@
   <a href="#bosh" data-tab="bosh"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><span data-t="tab.home">Bosh</span></a>
   <a href="#videolar" data-tab="videolar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3z"/></svg><span data-t="tab.videos">Videolar</span></a>
   <a href="#lab" data-tab="lab"><svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M12 12 20 7.5M12 12 4 7.5M12 12v9"/></svg><span data-t="tab.lab">3D lab</span></a>
+  <a href="#yordamchi" data-tab="yordamchi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 1-6.4 15.4L3 21l1.1-3.6A9 9 0 0 1 12 3z"/><path d="M8.5 10.5v3M12 9v6M15.5 10.5v3"/></svg><span data-t="tab.ai">Yordamchi</span></a>
   <a href="#mavzular" data-tab="mavzular"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><span data-t="tab.topics">Mavzular</span></a>
   <a href="#aloqa" data-tab="aloqa"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l7 2 2 7z"/><path d="m10 13 4-4"/></svg><span data-t="tab.contact">Aloqa</span></a>
 </nav>
 <script src="i18n.js"></script>
 <script src="app.js"></script>
+<script src="assistant.js"></script>
 </body>
 </html>

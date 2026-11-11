@@ -12,6 +12,13 @@ const LANGS = [
 const D = {
 /* ---------- O'zbekcha: faqat skript yozadigan dinamik matnlar ---------- */
 uz: {
+  'ai.ready': 'Tayyor', 'ai.connecting': 'Ulanmoqda', 'ai.listening': 'Tinglayapman', 'ai.speaking': 'Gapiryapman', 'ai.muted': "Mikrofon o'chiq",
+  'ai.go': 'Suhbatni boshlash', 'ai.stop': 'Suhbatni tugatish', 'ai.wait': 'Ulanmoqda…',
+  'ai.ended': "Suhbat tugadi. Yana savol bo'lsa, doirani bosing.", 'ai.timeup': "3 daqiqa tugadi. Yangi suhbatni boshlashingiz mumkin.",
+  'ai.errMic': "Mikrofonga ruxsat berilmadi. Telefon sozlamalarida ruxsat bering yoki saytni brauzerda oching.",
+  'ai.errNoMic': "Bu yerda mikrofon ishlamayapti. Saytni brauzerda oching.",
+  'ai.errNet': "Ulanib bo'lmadi. Internetni tekshiring yoki birozdan keyin urinib ko'ring: yordamchi band bo'lishi mumkin.",
+  'ai.errDrop': "Aloqa uzildi. Qayta urinib ko'ring.",
   'lang.label': 'Til',
   'app.g0': 'Xayrli tun', 'app.g1': 'Xayrli tong', 'app.g2': 'Xayrli kun', 'app.g3': 'Xayrli kech',
   'app.count': '{n} ta video', 'app.countSeen': " · {s} tasi ko'rildi",
@@ -26,6 +33,18 @@ uz: {
 
 /* ---------- English ---------- */
 en: {
+  'tab.ai': 'Assistant',
+  'ai.title': 'Assistant', 'ai.sub': 'Ask the voice assistant how anything works: it explains in a live conversation.',
+  'ai.start': 'Start a conversation', 'ai.hello': 'Tap the circle or the button below and ask your question out loud.',
+  'ai.q1': 'How does a fridge keep cold?', 'ai.q2': "Why doesn't a plane fall?", 'ai.q3': 'How does Wi-Fi work?',
+  'ai.note': 'Microphone access will be requested. One conversation lasts up to 3 minutes.', 'ai.browser': 'Open in browser',
+  'ai.ready': 'Ready', 'ai.connecting': 'Connecting', 'ai.listening': 'Listening', 'ai.speaking': 'Speaking', 'ai.muted': 'Mic off',
+  'ai.go': 'Start conversation', 'ai.stop': 'End conversation', 'ai.wait': 'Connecting…',
+  'ai.ended': 'Conversation ended. Tap the circle if you have another question.', 'ai.timeup': 'The 3 minutes are up. You can start a new conversation.',
+  'ai.errMic': 'Microphone access was denied. Allow it in your phone settings or open the site in a browser.',
+  'ai.errNoMic': "The microphone doesn't work here. Open the site in a browser.",
+  'ai.errNet': "Couldn't connect. Check your connection or try again shortly: the assistant may be busy.",
+  'ai.errDrop': 'The connection dropped. Please try again.',
   'lang.label': 'Language',
   'app.g0': 'Good night', 'app.g1': 'Good morning', 'app.g2': 'Good afternoon', 'app.g3': 'Good evening',
   'app.count': '{n} videos', 'app.countSeen': ' · {s} watched',
@@ -143,6 +162,18 @@ en: {
 
 /* ---------- Русский ---------- */
 ru: {
+  'tab.ai': 'Помощник',
+  'ai.title': 'Помощник', 'ai.sub': 'Спросите голосового помощника, как устроена любая вещь: он объяснит в живом разговоре.',
+  'ai.start': 'Начать разговор', 'ai.hello': 'Нажмите на круг или кнопку ниже и задайте вопрос голосом.',
+  'ai.q1': 'Как холодильник охлаждает?', 'ai.q2': 'Почему самолёт не падает?', 'ai.q3': 'Как работает Wi-Fi?',
+  'ai.note': 'Будет запрошен доступ к микрофону. Один разговор длится до 3 минут.', 'ai.browser': 'Открыть в браузере',
+  'ai.ready': 'Готов', 'ai.connecting': 'Подключение', 'ai.listening': 'Слушаю', 'ai.speaking': 'Говорю', 'ai.muted': 'Микрофон выкл.',
+  'ai.go': 'Начать разговор', 'ai.stop': 'Закончить разговор', 'ai.wait': 'Подключение…',
+  'ai.ended': 'Разговор завершён. Если есть ещё вопрос, нажмите на круг.', 'ai.timeup': '3 минуты истекли. Можно начать новый разговор.',
+  'ai.errMic': 'Доступ к микрофону запрещён. Разрешите его в настройках телефона или откройте сайт в браузере.',
+  'ai.errNoMic': 'Здесь микрофон не работает. Откройте сайт в браузере.',
+  'ai.errNet': 'Не удалось подключиться. Проверьте интернет или попробуйте чуть позже: помощник может быть занят.',
+  'ai.errDrop': 'Связь прервалась. Попробуйте ещё раз.',
   'lang.label': 'Язык',
   'app.g0': 'Доброй ночи', 'app.g1': 'Доброе утро', 'app.g2': 'Добрый день', 'app.g3': 'Добрый вечер',
   'app.count': '{n} видео', 'app.countSeen': ' · просмотрено: {s}',
