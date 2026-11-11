@@ -144,6 +144,11 @@ h2{font:800 22px/1.2 var(--display);margin:0 0 6px}
 .tabbar a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tabbar a[aria-current="page"]{color:#fff}
 .tabbar a[aria-current="page"] svg{stroke:var(--cyan)}
+/* Slot reel: ikonka 22px li darcha ichidagi tasma, bosilganda aylanib o'z ikonkasida to'xtaydi (app.js) */
+.tabbar a .reel{display:block;flex:none;width:22px;height:22px;overflow:hidden}
+.tabbar a .reel-strip{display:flex;flex-direction:column;will-change:transform}
+.tabbar a .reel svg{display:block;flex:none}
+.tabbar a .reel svg.ghost{stroke:var(--muted);opacity:.75}
 
 /* Welcome overlay */
 .welcome{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(3,7,16,.55);

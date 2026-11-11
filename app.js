@@ -50,14 +50,50 @@ const blob = tabbar && tabbar.querySelector('.blob');
 const tabs = tabbar ? [...tabbar.querySelectorAll('a')] : [];
 const panels = [...document.querySelectorAll('.panel')];
 const ALIAS = { haqida: 'bosh' }; // eski havolalar
-function markTab(id){
+/* Slot reel: har bir ikonka baraban. Bosilgani aylanib, o'z ikonkasida to'xtaydi. */
+const REEL_STEP = 22; // ikonka balandligi (style.css bilan bir xil)
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tabIcons = tabs.map(a => a.querySelector('svg'));
+tabs.forEach((a, i) => {
+  const own = tabIcons[i]; if (!own) return;
+  const reel = document.createElement('span'); reel.className = 'reel'; reel.setAttribute('aria-hidden', 'true');
+  const strip = document.createElement('span'); strip.className = 'reel-strip';
+  own.replaceWith(reel); reel.appendChild(strip); strip.appendChild(own);
+  // o'zidan keyingi ikonkalardan boshlab, aylana bo'ylab qolgan ikonkalar, oxirida yana o'zi
+  for (let k = 1; k < tabs.length; k++) {
+    const src = tabIcons[(i + k) % tabs.length]; if (!src) continue;
+    const g = src.cloneNode(true); g.classList.add('ghost'); strip.appendChild(g);
+  }
+  strip.appendChild(own.cloneNode(true));
+  a._strip = strip;
+});
+function spinTab(a){
+  const strip = a && a._strip;
+  if (!strip || calm || !strip.animate) return;
+  const from = -(strip.children.length - 1) * REEL_STEP;
+  strip.getAnimations().forEach(x => x.cancel());
+  strip.animate([
+    { transform: `translateY(${from}px)`, filter: 'blur(0)', easing: 'cubic-bezier(.45,0,.2,1)' },
+    { transform: `translateY(${from * .45}px)`, filter: 'blur(1.4px)', offset: .45, easing: 'cubic-bezier(.1,.7,.3,1)' },
+    { transform: 'translateY(3px)', filter: 'blur(0)', offset: .82, easing: 'ease-out' },
+    { transform: 'translateY(0)', filter: 'blur(0)' }
+  ], { duration: 720 });
+}
+let curTab = null;
+function markTab(id, spin){
   tabs.forEach((a, i) => {
     const on = a.dataset.tab === id;
-    if (on) { a.setAttribute('aria-current', 'page'); if (blob) blob.style.transform = `translateX(${i * 100}%)`; }
+    if (on) {
+      a.setAttribute('aria-current', 'page'); if (blob) blob.style.transform = `translateX(${i * 100}%)`;
+      if (spin && curTab !== id) spinTab(a);
+    }
     else a.removeAttribute('aria-current');
   });
   if (blob) blob.style.opacity = tabs.some(a => a.dataset.tab === id) ? '' : '0';
+  curTab = id;
 }
+// allaqachon ochiq bo'lim qayta bosilsa ham baraban aylanadi
+tabs.forEach(a => a.addEventListener('click', () => { if (a.dataset.tab === curTab) spinTab(a); }));
 function showPanel(id, scroll){
   if (!panels.length) return;
   id = ALIAS[id] || id;
@@ -66,7 +102,7 @@ function showPanel(id, scroll){
     p.hidden = p.id !== id;
     if (p.hidden) p.querySelectorAll('video').forEach(v => v.pause());
   });
-  markTab(id);
+  markTab(id, scroll);
   if (scroll) window.scrollTo({top: 0, behavior: 'smooth'});
 }
 if (panels.length) {
