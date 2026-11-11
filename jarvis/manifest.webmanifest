@@ -1,0 +1,12 @@
+{
+  "name": "Jarvis",
+  "short_name": "Jarvis",
+  "lang": "uz",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#030919",
+  "theme_color": "#030919",
+  "icons": [{"src": "icon.png", "sizes": "512x512", "type": "image/png"}]
+}

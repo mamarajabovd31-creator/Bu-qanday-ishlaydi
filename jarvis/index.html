@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jarvis</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#030919">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jarvis">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap">
+<style>
+/* Jarvis: bitta ekran. Markazda ovozga javob beradigan doira, pastida suhbat matni va boshqaruv. */
+:root{
+  --bg:#030919; --fg:#eef4ff; --muted:#9db0d6; --faint:#62759c;
+  --blue:#3d8bff; --cyan:#5ce1ff; --line:rgba(160,200,255,.18); --glass:rgba(255,255,255,.07);
+  --bad:#ff6b6b;
+  --display:"Unbounded","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:500 16px/1.5 var(--body);overflow:hidden;
+  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.glow{position:fixed;inset:-20vmax;pointer-events:none;filter:blur(70px);opacity:.55;
+  background:radial-gradient(40vmax circle at 30% 25%,#1450ff,transparent 62%),radial-gradient(36vmax circle at 75% 70%,#00a8ff,transparent 62%),radial-gradient(30vmax circle at 55% 45%,#3a1fd8,transparent 62%)}
+.app{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr auto auto;justify-items:center;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+header{width:100%;max-width:560px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.name{font:800 15px/1 var(--display);letter-spacing:.32em;color:var(--cyan)}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;padding:6px 12px;border-radius:999px;
+  background:var(--glass);border:1px solid var(--line);color:var(--muted);font-variant-numeric:tabular-nums}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.pill.on{color:var(--fg)}.pill.on i{background:#3ddc97;box-shadow:0 0 10px #3ddc97}
+.pill.err i{background:var(--bad)}
+
+.stage{width:100%;display:grid;place-items:center;min-height:0}
+.orb{all:unset;position:relative;width:min(78vw,52vh,380px);aspect-ratio:1;border-radius:50%;cursor:pointer;display:grid;place-items:center}
+.orb canvas{position:absolute;inset:0;width:100%;height:100%}
+.orb:focus-visible{outline:2px solid var(--cyan);outline-offset:6px}
+
+.talk{width:100%;max-width:560px;min-height:112px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;text-align:center;padding:6px 4px 14px}
+.state{font:800 12px/1 var(--display);letter-spacing:.22em;text-transform:uppercase;color:var(--cyan)}
+.you{margin:0;color:var(--faint);font-size:14px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ai{margin:0;font-size:17px;font-weight:700;text-wrap:balance;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.ai.err{color:var(--bad);font-size:15px}
+
+.dock{width:100%;max-width:560px}
+.bar{width:100%;display:flex;gap:10px;align-items:center}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;height:54px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font:800 15px/1 var(--body);color:#fff;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.96)}
+.btn:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.btn.main{flex:1;background:linear-gradient(170deg,#6aa6ff,var(--blue) 55%,#1b4fd0);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 12px 30px -12px var(--blue)}
+.btn.main.stop{background:linear-gradient(170deg,#ff8f8f,#e04848 60%,#a82a2a);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 30px -12px #e04848}
+.btn.main[disabled]{opacity:.6;pointer-events:none}
+.btn.ico{width:54px;flex:none;background:var(--glass);border:1px solid var(--line)}
+.btn.ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#kb[aria-pressed="true"]{background:rgba(61,139,255,.22);border-color:var(--cyan);color:var(--cyan)}
+#mute[aria-pressed="true"]{background:rgba(255,107,107,.18);border-color:rgba(255,107,107,.5);color:var(--bad)}
+.type{width:100%;max-width:560px;display:flex;gap:10px;margin-bottom:10px}
+.type input{flex:1;min-width:0;height:48px;border-radius:999px;border:1px solid var(--line);background:var(--glass);color:var(--fg);
+  font:500 16px/1 var(--body);padding:0 18px;outline:none;-webkit-user-select:text;user-select:text}
+.type input:focus{border-color:var(--cyan)}
+.type input::placeholder{color:var(--faint)}
+.type .btn{height:48px;width:48px}
+@media (max-height:620px){.talk{min-height:84px}.ai{-webkit-line-clamp:3;font-size:16px}}
+</style>
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<main class="app">
+  <header>
+    <span class="name">JARVIS</span>
+    <span class="pill" id="pill"><i></i><span id="pillTxt">Uyquda</span></span>
+  </header>
+
+  <div class="stage">
+    <button class="orb" id="orb" type="button" aria-label="Jarvis bilan suhbatni boshlash">
+      <canvas id="cv" aria-hidden="true"></canvas>
+    </button>
+  </div>
+
+  <section class="talk" aria-live="polite">
+    <span class="state" id="state">Tayyor</span>
+    <p class="you" id="you"></p>
+    <p class="ai" id="ai">Assalomu alaykum, Diyor aka. Doirani bosing, men tinglayman.</p>
+  </section>
+
+  <div class="dock">
+    <form class="type" id="type" hidden>
+      <input id="msg" type="text" inputmode="text" enterkeyhint="send" autocomplete="off" placeholder="Yozib ham so'rashingiz mumkin" aria-label="Jarvisga yozish">
+      <button class="btn ico" type="submit" aria-label="Yuborish"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l7 2 2 7z"/><path d="m10 13 4-4"/></svg></button>
+    </form>
+    <div class="bar">
+      <button class="btn ico" id="mute" type="button" aria-pressed="false" aria-label="Mikrofonni o'chirish" hidden>
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+      <button class="btn main" id="go" type="button">Suhbatni boshlash</button>
+      <button class="btn ico" id="kb" type="button" aria-pressed="false" aria-label="Yozish maydoni" hidden>
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg>
+      </button>
+    </div>
+  </div>
+</main>
+<script src="sdk.js"></script>
+<script src="jarvis.js"></script>
+</body>
+</html>
