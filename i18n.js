@@ -119,7 +119,7 @@ en: {
   'v2.tag': '1200 rpm',
 
   /* Bosh sahifa */
-  'meta.home': 'How It Works — 3D explainer videos and interactive models',
+  'meta.home': 'Bu qanday ishlaydi?',
   'w.title': "Welcome! Let's see how things work",
   'w.text': 'We open up everyday technology in 3D animation and show what really happens inside.',
   'w.go': 'Enter', 'w.small': "It'll be fun with us ⚙️",
@@ -273,7 +273,7 @@ ru: {
   'v1.aria': 'Смотреть видео о зарядке', 'v2.aria': 'Смотреть видео о стиральной машине',
   'v2.tag': '1200 об/мин',
 
-  'meta.home': 'Как это работает — 3D-видео и интерактивные модели',
+  'meta.home': 'Bu qanday ishlaydi?',
   'w.title': 'Добро пожаловать! Узнаем, как всё устроено',
   'w.text': 'Показываем в 3D-анимации, что на самом деле происходит внутри привычной техники.',
   'w.go': 'Войти', 'w.small': 'С нами будет интересно ⚙️',
