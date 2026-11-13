@@ -100,7 +100,10 @@ function showPanel(id, scroll){
   if (!panels.some(p => p.id === id)) id = panels[0].id;
   panels.forEach(p => {
     p.hidden = p.id !== id;
+    p.classList.toggle('swap', !!scroll && !p.hidden); // animatsiya faqat bo'lim almashganda
     if (p.hidden) p.querySelectorAll('video').forEach(v => v.pause());
+    // video muqovalari faqat bo'lim ochilganda yuklanadi (bosh sahifa tezroq ochiladi)
+    else p.querySelectorAll('.play[data-bg]').forEach(b => { b.style.backgroundImage = `url(${b.dataset.bg})`; b.removeAttribute('data-bg'); });
   });
   markTab(id, scroll);
   if (scroll) window.scrollTo({top: 0, behavior: 'smooth'});
@@ -130,6 +133,7 @@ document.querySelectorAll('.player').forEach(p => {
   if (!v || !b) return;
   b.addEventListener('click', () => {
     document.querySelectorAll('video').forEach(o => { if (o !== v) o.pause(); });
+    if (v.dataset.poster && !v.poster) v.poster = v.dataset.poster; // muqova faqat kerak bo'lganda yuklanadi
     b.hidden = true; v.play().catch(() => {});
   });
   v.addEventListener('ended', () => {
@@ -255,3 +259,142 @@ document.querySelectorAll('.dl').forEach(btn => {
     finally { btn.disabled = false; }
   });
 });
+
+/* ---------- Qisqa xabar (toast) ---------- */
+let toastEl = null, toastTimer = 0;
+function toast(text){
+  if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'toast'; toastEl.setAttribute('role', 'status'); document.body.appendChild(toastEl); }
+  toastEl.textContent = text;
+  requestAnimationFrame(() => toastEl.classList.add('on'));
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('on'), 2200);
+}
+
+/* ---------- Ulashish: telefonda tizim oynasi, bo'lmasa havola nusxalanadi ---------- */
+document.querySelectorAll('.share[data-share]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const url = new URL(btn.dataset.share, location.href).href;
+    const card = btn.closest('.card');
+    const title = (card && card.querySelector('h3')) ? card.querySelector('h3').textContent.trim() : document.title;
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(url); toast(t('sh.copied')); }
+    catch (e) { toast(t('sh.fail')); }
+  });
+});
+
+/* ---------- Qidiruv: videolar, 3D modellar va kutilayotgan mavzular bo'ylab ---------- */
+const qIn = document.getElementById('q'), qRes = document.getElementById('s-res');
+if (qIn && qRes) {
+  const norm = x => x.toLowerCase().replace(/[ʻʼ’‘`']/g, "'").replace(/ё/g, 'е').trim();
+  const text = (el, sel) => { const n = el.querySelector(sel); return n ? n.textContent.trim() : ''; };
+  const attr = (el, sel, name) => { const n = el.querySelector(sel); return n ? n.getAttribute(name) : ''; };
+  const items = () => [
+    ...[...document.querySelectorAll('#videolar .card')].map(c => ({
+      kind: 's.video', title: text(c, 'h3'), desc: text(c, '.desc'), href: attr(c, 'h3 a', 'href') || '#videolar', key: c.dataset.id || '' })),
+    ...[...document.querySelectorAll('#lab .labcard')].map(c => ({
+      kind: c.classList.contains('soon') ? 's.topic' : 's.lab', title: text(c, 'b'), desc: text(c, 'small'), href: c.getAttribute('href') || '#lab', key: c.getAttribute('href') || '' })),
+    ...[...document.querySelectorAll('#mavzular .topic')].map(c => ({
+      kind: 's.topic', title: text(c, 'b'), desc: text(c, 'small'), href: '#mavzular', key: c.dataset.topic || '' }))
+  ];
+  const esc = x => x.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const paint = () => {
+    const q = norm(qIn.value);
+    if (q.length < 2) { qRes.hidden = true; qRes.innerHTML = ''; return; }
+    const words = q.split(/\s+/);
+    const hits = items().map(it => {
+      const ti = norm(it.title), all = ti + ' ' + norm(it.desc) + ' ' + norm(it.key);
+      if (!words.every(w => all.includes(w))) return null;
+      return { it, score: words.filter(w => ti.includes(w)).length };
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 6);
+    qRes.innerHTML = hits.length
+      ? hits.map(({ it }) => `<li><a href="${esc(it.href)}"><span><b>${esc(it.title)}</b><small>${esc(it.desc)}</small></span><span class="tag${it.kind === 's.topic' ? ' gold' : ''}">${esc(t(it.kind))}</span></a></li>`).join('')
+      : `<li class="s-none">${esc(t('s.none'))}</li>`;
+    qRes.hidden = false;
+  };
+  qIn.addEventListener('input', paint);
+  qIn.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { qIn.value = ''; paint(); }
+    if (e.key === 'Enter') { const a = qRes.querySelector('a'); if (a) a.click(); }
+  });
+  // bo'limga o'tadigan natija bosilganda qidiruv tozalanadi
+  qRes.addEventListener('click', e => { if (e.target.closest('a[href^="#"]')) { qIn.value = ''; paint(); } });
+  I.on(paint);
+}
+
+/* ---------- "Bilasizmi?": har kuni boshqa fakt, tugma bilan keyingisi ---------- */
+const factEl = document.getElementById('fact-text'), factBtn = document.getElementById('fact-next');
+if (factEl && factBtn) {
+  const FACTS = 8;
+  let fi = Math.floor(Date.now() / 864e5) % FACTS;
+  const show = anim => {
+    const k = 'f.' + (fi + 1);
+    factEl.dataset.t = k; // til almashganda i18n.js shu kalit bo'yicha tarjima qiladi
+    factEl.textContent = t(k);
+    if (anim && !calm) { factEl.classList.remove('flip'); void factEl.offsetWidth; factEl.classList.add('flip'); }
+  };
+  show(false);
+  factBtn.addEventListener('click', () => { fi = (fi + 1) % FACTS; show(true); });
+}
+
+/* ---------- Test: 5 savol, eng yaxshi natija shu qurilmada saqlanadi ---------- */
+const quiz = document.getElementById('quiz');
+if (quiz) {
+  const RIGHT = [0, 1, 1, 2, 0]; // har bir savolda to'g'ri javob tartib raqami (matnlar i18n.js da: qz.N.q/a/b/c/x)
+  const N = RIGHT.length, L = ['a', 'b', 'c'];
+  const $ = id => document.getElementById(id);
+  const step = $('qz-step'), qEl = $('qz-q'), opts = $('qz-opts'), why = $('qz-why'), next = $('qz-next'), best = $('qz-best'), bar = quiz.querySelector('.qz-bar i');
+  qEl.removeAttribute('data-t');
+  let i = 0, score = 0, picked = -1, done = false;
+  const fill = (k, o) => t(k).replace(/\{(\w+)\}/g, (m, x) => o[x]);
+  const paintBest = () => {
+    const b = store.get('bqi-quiz', null);
+    best.hidden = b == null;
+    if (b != null) best.textContent = fill('qz.best', { s: b, n: N });
+  };
+  const render = () => {
+    paintBest();
+    if (done) {
+      bar.style.width = '100%';
+      step.textContent = fill('qz.result', { s: score, n: N });
+      qEl.innerHTML = `<span class="qz-score">${score}/${N}</span>`;
+      opts.innerHTML = '';
+      why.hidden = false; why.textContent = t(score === N ? 'qz.top' : score >= 3 ? 'qz.mid' : 'qz.low');
+      next.hidden = false; next.textContent = t('qz.again');
+      return;
+    }
+    const n = i + 1;
+    bar.style.width = ((i + (picked >= 0 ? 1 : 0)) / N * 100) + '%';
+    step.textContent = fill('qz.step', { i: n, n: N });
+    qEl.textContent = t(`qz.${n}.q`);
+    opts.innerHTML = '';
+    L.forEach((l, k) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = t(`qz.${n}.${l}`);
+      if (picked >= 0) {
+        b.disabled = true;
+        if (k === RIGHT[i]) b.className = 'ok'; else if (k === picked) b.className = 'bad';
+      } else b.addEventListener('click', () => {
+        picked = k; if (k === RIGHT[i]) score++;
+        render();
+        next.focus({ preventScroll: true });
+      });
+      opts.appendChild(b);
+    });
+    why.hidden = picked < 0;
+    if (picked >= 0) why.textContent = t(picked === RIGHT[i] ? 'qz.right' : 'qz.wrong') + ' ' + t(`qz.${n}.x`);
+    next.hidden = picked < 0;
+    next.textContent = t(i === N - 1 ? 'qz.finish' : 'qz.next');
+  };
+  next.addEventListener('click', () => {
+    if (done) { i = 0; score = 0; picked = -1; done = false; }
+    else if (i === N - 1) {
+      done = true;
+      const b = store.get('bqi-quiz', null);
+      if (b == null || score > b) store.set('bqi-quiz', score);
+    } else { i++; picked = -1; }
+    render();
+  });
+  onLang(render);
+}

@@ -12,6 +12,30 @@ const LANGS = [
 const D = {
 /* ---------- O'zbekcha: faqat skript yozadigan dinamik matnlar ---------- */
 uz: {
+  /* Qidiruv, fakt, test, ulashish */
+  's.none': "Hech narsa topilmadi. Boshqa so'z bilan urinib ko'ring.", 's.video': 'Video', 's.lab': '3D model', 's.topic': 'Tez kunda',
+  'f.1': "Kir mashina barabani siqish paytida daqiqasiga 1200 marta aylanadi. Bu sekundiga 20 marta degani.",
+  'f.2': "Zaryadlovchi ichidagi tranzistor tokni sekundiga o'n minglab marta ulab-uzadi. Shuning uchun undagi transformator tirnoqdek kichkina bo'la oladi.",
+  'f.3': "Bankomat sizning PIN-kodingizni bilmaydi: klaviatura uni darhol shifrlaydi va tekshirish uchun bank serveriga yuboradi.",
+  'f.4': "4 taktli dvigatelda tirsakli val ikki marta to'liq aylanganda har bir silindrda faqat bitta ish takti bo'ladi.",
+  'f.5': "Mikroto'lqinli pech ham, Wi-Fi ham taxminan 2,4 GGs chastotada ishlaydi. Farqi quvvatda: pech minglab marta kuchliroq.",
+  'f.6': "Muzlatgich sovuq «ishlab chiqarmaydi»: u ichidagi issiqlikni yig'ib, orqa tomondagi panjara orqali xonaga chiqarib yuboradi.",
+  'f.7': "Dvigatel daqiqasiga 3000 marta aylanayotganda har bir porshen sekundiga 100 marta yo'nalishini o'zgartiradi.",
+  'f.8': "Bankomat kupyuralarni bittalab tortib oladi, sensor esa ikkita kupyura yopishib chiqqanini qalinligidan sezadi.",
+  'qz.step': '{i}-savol / {n}', 'qz.next': 'Keyingi savol', 'qz.finish': "Natijani ko'rish", 'qz.again': 'Qayta boshlash',
+  'qz.right': "To'g'ri!", 'qz.wrong': "Noto'g'ri.", 'qz.result': "{n} tadan {s} tasi to'g'ri", 'qz.best': 'Eng yaxshi: {s}/{n}',
+  'qz.low': "Videolarni yana bir bor ko'rib chiqing va qayta urinib ko'ring.", 'qz.mid': "Yaxshi natija! Ozgina qoldi.", 'qz.top': "A'lo! Hammasi to'g'ri.",
+  'qz.1.q': "Zaryadlovchi rozetkadagi 220 voltni necha voltga tushiradi?", 'qz.1.a': '5 V', 'qz.1.b': '12 V', 'qz.1.c': '110 V',
+  'qz.1.x': "Diod ko'prigi, tranzistor va transformator 220 V ni telefon uchun xavfsiz 5 V ga tushiradi.",
+  'qz.2.q': "Kir mashina siqish paytida baraban daqiqasiga taxminan necha marta aylanadi?", 'qz.2.a': '120 marta', 'qz.2.b': '1200 marta', 'qz.2.c': '12 000 marta',
+  'qz.2.x': "Siqishda baraban daqiqasiga 1200 marta aylanadi va suv kiyimdan baraban teshiklari orqali otilib chiqadi.",
+  'qz.3.q': "Bankomat PIN-kod to'g'riligini qanday tekshiradi?", 'qz.3.a': "Kartaga yozib qo'yilgan PIN-kodni o'qiydi", 'qz.3.b': "Shifrlab, bank serveriga yuboradi", 'qz.3.c': "O'z xotirasidagi ro'yxatdan qidiradi",
+  'qz.3.x': "Klaviatura PIN-kodni darhol shifrlaydi, uni bank serveri tekshiradi. Bankomatning o'zi PIN-kodni bilmaydi.",
+  'qz.4.q': "4 taktli dvigatelda taktlar qaysi tartibda keladi?", 'qz.4.a': "Siqish → so'rish → chiqarish → ish takti", 'qz.4.b': "So'rish → ish takti → siqish → chiqarish", 'qz.4.c': "So'rish → siqish → ish takti → chiqarish",
+  'qz.4.x': "Avval aralashma so'riladi, keyin siqiladi, sham uni yondiradi (ish takti) va oxirida gazlar chiqarib yuboriladi.",
+  'qz.5.q': "Zaryadlovchida o'zgaruvchan tokni o'zgarmas tokka nima aylantiradi?", 'qz.5.a': "Diod ko'prigi", 'qz.5.b': 'Transformator', 'qz.5.c': 'Tranzistor',
+  'qz.5.x': "Diod ko'prigi tokni faqat bir yo'nalishda o'tkazadi, kondensator esa uni tekislaydi.",
+  'sh.copied': 'Havola nusxalandi', 'sh.fail': "Havolani nusxalab bo'lmadi",
   'ai.ready': 'Tayyor', 'ai.connecting': 'Ulanmoqda', 'ai.listening': 'Tinglayapman', 'ai.speaking': 'Gapiryapman', 'ai.muted': "Mikrofon o'chiq",
   'ai.go': 'Suhbatni boshlash', 'ai.stop': 'Suhbatni tugatish', 'ai.wait': 'Ulanmoqda…',
   'ai.ended': "Suhbat tugadi. Yana savol bo'lsa, doirani bosing.", 'ai.timeup': "3 daqiqa tugadi. Yangi suhbatni boshlashingiz mumkin.",
@@ -33,6 +57,32 @@ uz: {
 
 /* ---------- English ---------- */
 en: {
+  /* Search, fact, quiz, share */
+  's.ph': 'Search: ATM, engine…', 's.aria': 'Search the site', 's.none': 'Nothing found. Try another word.', 's.video': 'Video', 's.lab': '3D model', 's.topic': 'Coming soon',
+  'f.t': 'Did you know?', 'f.next': 'Another fact',
+  'f.1': "A washing machine drum spins 1,200 times a minute during the spin cycle. That is 20 turns every second.",
+  'f.2': "The transistor inside a phone charger switches the current on and off tens of thousands of times a second. That is why its transformer can be as small as a fingernail.",
+  'f.3': "An ATM never knows your PIN: the keypad encrypts it at once and sends it to the bank's server to be checked.",
+  'f.4': "In a four-stroke engine the crankshaft makes two full turns for a single power stroke in each cylinder.",
+  'f.5': "A microwave oven and Wi-Fi both work at about 2.4 GHz. The difference is power: the oven is thousands of times stronger.",
+  'f.6': "A fridge does not “make cold”: it collects the heat inside and releases it into the room through the grille at the back.",
+  'f.7': "With an engine running at 3,000 rpm, each piston changes direction 100 times a second.",
+  'f.8': "An ATM pulls out banknotes one at a time, and a sensor notices two stuck together by their thickness.",
+  'qz.t': 'Test yourself', 'qz.sub': '5 questions about the videos. How many can you get right?', 'qz.nojs': 'The quiz needs JavaScript to run.',
+  'qz.step': 'Question {i} of {n}', 'qz.next': 'Next question', 'qz.finish': 'See result', 'qz.again': 'Try again',
+  'qz.right': 'Correct!', 'qz.wrong': 'Not quite.', 'qz.result': '{s} of {n} correct', 'qz.best': 'Best: {s}/{n}',
+  'qz.low': 'Watch the videos once more and try again.', 'qz.mid': 'Good result! Almost there.', 'qz.top': 'Excellent! All correct.',
+  'qz.1.q': 'A charger turns the 220 volts from the socket into how many volts?', 'qz.1.a': '5 V', 'qz.1.b': '12 V', 'qz.1.c': '110 V',
+  'qz.1.x': 'The diode bridge, transistor and transformer bring 220 V down to 5 V, which is safe for a phone.',
+  'qz.2.q': 'About how many times a minute does a washing machine drum turn during the spin cycle?', 'qz.2.a': '120 times', 'qz.2.b': '1,200 times', 'qz.2.c': '12,000 times',
+  'qz.2.x': 'During the spin cycle the drum turns 1,200 times a minute and the water flies out of the clothes through the holes in the drum.',
+  'qz.3.q': 'How does an ATM check that your PIN is correct?', 'qz.3.a': 'It reads the PIN written on the card', 'qz.3.b': "It encrypts it and sends it to the bank's server", 'qz.3.c': 'It looks it up in a list in its own memory',
+  'qz.3.x': "The keypad encrypts the PIN at once and the bank's server checks it. The ATM itself never knows your PIN.",
+  'qz.4.q': 'In what order do the strokes of a four-stroke engine come?', 'qz.4.a': 'Compression → intake → exhaust → power', 'qz.4.b': 'Intake → power → compression → exhaust', 'qz.4.c': 'Intake → compression → power → exhaust',
+  'qz.4.x': 'First the mixture is drawn in, then compressed, the spark plug ignites it (the power stroke), and finally the gases are pushed out.',
+  'qz.5.q': 'What turns alternating current into direct current in a charger?', 'qz.5.a': 'The diode bridge', 'qz.5.b': 'The transformer', 'qz.5.c': 'The transistor',
+  'qz.5.x': 'The diode bridge lets current through in one direction only, and the capacitor smooths it out.',
+  'sh.aria': 'Share', 'sh.copied': 'Link copied', 'sh.fail': 'Could not copy the link',
   'tab.ai': 'Assistant',
   'ai.title': 'Assistant', 'ai.sub': 'Ask the voice assistant how anything works: it explains in a live conversation.',
   'ai.start': 'Start a conversation', 'ai.hello': 'Tap the circle or the button below and ask your question out loud.',
@@ -162,6 +212,32 @@ en: {
 
 /* ---------- Русский ---------- */
 ru: {
+  /* Поиск, факт, тест, поделиться */
+  's.ph': 'Поиск: банкомат, двигатель…', 's.aria': 'Поиск по сайту', 's.none': 'Ничего не найдено. Попробуйте другое слово.', 's.video': 'Видео', 's.lab': '3D-модель', 's.topic': 'Скоро',
+  'f.t': 'А вы знали?', 'f.next': 'Ещё один факт',
+  'f.1': "Барабан стиральной машины при отжиме делает 1200 оборотов в минуту. Это 20 оборотов каждую секунду.",
+  'f.2': "Транзистор внутри зарядного устройства включает и выключает ток десятки тысяч раз в секунду. Поэтому трансформатор в нём может быть размером с ноготь.",
+  'f.3': "Банкомат не знает ваш ПИН-код: клавиатура сразу шифрует его и отправляет на сервер банка для проверки.",
+  'f.4': "В четырёхтактном двигателе коленчатый вал делает два полных оборота на один рабочий ход в каждом цилиндре.",
+  'f.5': "Микроволновая печь и Wi-Fi работают на частоте около 2,4 ГГц. Разница в мощности: печь в тысячи раз сильнее.",
+  'f.6': "Холодильник не «производит холод»: он собирает тепло внутри и отдаёт его в комнату через решётку на задней стенке.",
+  'f.7': "Когда двигатель делает 3000 оборотов в минуту, каждый поршень меняет направление 100 раз в секунду.",
+  'f.8': "Банкомат вытягивает купюры по одной, а датчик по толщине замечает, если две купюры слиплись.",
+  'qz.t': 'Проверьте себя', 'qz.sub': '5 вопросов по видео. На сколько вы ответите правильно?', 'qz.nojs': 'Для теста нужен JavaScript.',
+  'qz.step': 'Вопрос {i} из {n}', 'qz.next': 'Следующий вопрос', 'qz.finish': 'Показать результат', 'qz.again': 'Начать заново',
+  'qz.right': 'Верно!', 'qz.wrong': 'Неверно.', 'qz.result': 'Правильно: {s} из {n}', 'qz.best': 'Лучший: {s}/{n}',
+  'qz.low': 'Посмотрите видео ещё раз и попробуйте снова.', 'qz.mid': 'Хороший результат! Осталось совсем немного.', 'qz.top': 'Отлично! Всё верно.',
+  'qz.1.q': 'До скольких вольт зарядное устройство понижает 220 вольт из розетки?', 'qz.1.a': '5 В', 'qz.1.b': '12 В', 'qz.1.c': '110 В',
+  'qz.1.x': 'Диодный мост, транзистор и трансформатор понижают 220 В до безопасных для телефона 5 В.',
+  'qz.2.q': 'Сколько примерно оборотов в минуту делает барабан стиральной машины при отжиме?', 'qz.2.a': '120 оборотов', 'qz.2.b': '1200 оборотов', 'qz.2.c': '12 000 оборотов',
+  'qz.2.x': 'При отжиме барабан делает 1200 оборотов в минуту, и вода вылетает из белья через отверстия барабана.',
+  'qz.3.q': 'Как банкомат проверяет, что ПИН-код верный?', 'qz.3.a': 'Читает ПИН-код, записанный на карте', 'qz.3.b': 'Шифрует его и отправляет на сервер банка', 'qz.3.c': 'Ищет его в списке в своей памяти',
+  'qz.3.x': 'Клавиатура сразу шифрует ПИН-код, а проверяет его сервер банка. Сам банкомат ПИН-код не знает.',
+  'qz.4.q': 'В каком порядке идут такты четырёхтактного двигателя?', 'qz.4.a': 'Сжатие → впуск → выпуск → рабочий ход', 'qz.4.b': 'Впуск → рабочий ход → сжатие → выпуск', 'qz.4.c': 'Впуск → сжатие → рабочий ход → выпуск',
+  'qz.4.x': 'Сначала смесь всасывается, затем сжимается, свеча её поджигает (рабочий ход), и в конце газы выталкиваются наружу.',
+  'qz.5.q': 'Что в зарядном устройстве превращает переменный ток в постоянный?', 'qz.5.a': 'Диодный мост', 'qz.5.b': 'Трансформатор', 'qz.5.c': 'Транзистор',
+  'qz.5.x': 'Диодный мост пропускает ток только в одном направлении, а конденсатор его сглаживает.',
+  'sh.aria': 'Поделиться', 'sh.copied': 'Ссылка скопирована', 'sh.fail': 'Не удалось скопировать ссылку',
   'tab.ai': 'Помощник',
   'ai.title': 'Помощник', 'ai.sub': 'Спросите голосового помощника, как устроена любая вещь: он объяснит в живом разговоре.',
   'ai.start': 'Начать разговор', 'ai.hello': 'Нажмите на круг или кнопку ниже и задайте вопрос голосом.',
@@ -303,6 +379,7 @@ function t(key){
 function apply(){
   root.lang = lang;
   document.querySelectorAll('[data-t]').forEach(el => {
+    if (el.tagName === 'SCRIPT') return; // JSON-LD va boshqa skriptlar tarjima qilinmaydi
     if (el._uz == null) el._uz = el.innerHTML;
     const k = el.dataset.t;
     const v = D[lang][k] != null ? D[lang][k] : (D.uz[k] != null && lang === 'uz' ? D.uz[k] : null);
@@ -312,6 +389,11 @@ function apply(){
     if (el._uzAria == null) el._uzAria = el.getAttribute('aria-label') || '';
     const v = D[lang][el.dataset.tAria];
     el.setAttribute('aria-label', lang !== 'uz' && v != null ? v : el._uzAria);
+  });
+  document.querySelectorAll('[data-t-ph]').forEach(el => {
+    if (el._uzPh == null) el._uzPh = el.getAttribute('placeholder') || '';
+    const v = D[lang][el.dataset.tPh];
+    el.setAttribute('placeholder', lang !== 'uz' && v != null ? v : el._uzPh);
   });
   const tk = document.body && document.body.dataset.title;
   if (tk) document.title = lang !== 'uz' && D[lang][tk] ? D[lang][tk] : origTitle;
@@ -353,7 +435,7 @@ function paintPicker(){
   const btn = pick.querySelector('.lp-btn');
   btn.querySelector('img').src = `${base}img/flags/${cur.flag}.svg`;
   btn.querySelector('span').textContent = cur.id.toUpperCase();
-  btn.setAttribute('aria-label', `${t('lang.label')}: ${cur.name}`);
+  btn.setAttribute('aria-label', `${cur.id.toUpperCase()}, ${t('lang.label')}: ${cur.name}`);
   pick.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-checked', b.dataset.lang === lang));
 }
 

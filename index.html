@@ -23,13 +23,15 @@
 <meta property="og:locale:alternate" content="ru_RU">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="img/favicon.png">
-<link rel="apple-touch-icon" href="img/avatar.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@500;700;800&display=swap">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="preload" href="fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/unbounded-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <script>(function(d){d.classList.add('js');var l;try{l=localStorage.getItem('bqi-lang')}catch(e){}if(l!=='uz'){d.classList.add('i18n-wait');setTimeout(function(){d.classList.remove('i18n-wait')},2500)}})(document.documentElement)</script>
-<script src="tg.js"></script>
+<script src="tg.js" defer></script>
+<script src="i18n.js" defer></script>
+<script src="app.js" defer></script>
+<script src="assistant.js" defer></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"WebSite","name":"Bu qanday ishlaydi?","url":"https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/","inLanguage":["en","uz","ru"]},
@@ -49,7 +51,7 @@
 <!-- Kutib olish oynasi: JS bo'lmasa ko'rinmaydi, shuning uchun Google hamma matnni ko'radi -->
 <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="w-title" hidden>
   <div class="welcome-card glass">
-    <img class="w-logo" src="img/avatar.jpg" alt="" width="104" height="104">
+    <img class="w-logo" src="img/avatar-208.webp" alt="" width="104" height="104" fetchpriority="high">
     <p class="w-hi">Assalomu alaykum!</p>
     <h2 class="w-title" id="w-title" data-t="w.title">"Bu qanday ishlaydi?" saytiga xush kelibsiz</h2>
     <p class="w-text" data-t="w.text">Har kuni ishlatadigan texnikamiz sirlarini 3D animatsiyada ochib beramiz.</p>
@@ -60,7 +62,7 @@
 
 <main class="wrap">
   <div class="top glass">
-    <a class="brand" href="./#bosh"><img src="img/avatar.jpg" alt="" width="36" height="36">Bu qanday ishlaydi?</a>
+    <a class="brand" href="./#bosh"><img src="img/avatar-208.webp" alt="" width="36" height="36">Bu qanday ishlaydi?</a>
   </div>
 
   <!-- 1. Bosh sahifa -->
@@ -70,6 +72,20 @@
       <h1 id="hero-title" data-t="hero.h1">Bu qanday <em>ishlaydi?</em></h1>
       <p class="lead" data-t="hero.lead">Texnika ichida aslida nima bo'ladi? Har bir qismni 3D animatsiyada, qisqa va tushunarli qilib ko'rsatamiz.</p>
     </header>
+
+    <div class="search-wrap">
+      <label class="search glass">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="Qidirish: bankomat, dvigatel…" data-t-ph="s.ph" aria-label="Sayt bo'ylab qidirish" data-t-aria="s.aria">
+      </label>
+      <ul class="s-res" id="s-res" aria-live="polite" hidden></ul>
+    </div>
+
+    <div class="didyou glass" id="didyou">
+      <span class="eyebrow" data-t="f.t">Bilasizmi?</span>
+      <p id="fact-text" data-t="f.1">Kir mashina barabani siqish paytida daqiqasiga 1200 marta aylanadi. Bu sekundiga 20 marta degani.</p>
+      <button class="gbtn" id="fact-next" type="button" data-t="f.next">Yana bir fakt</button>
+    </div>
 
     <div class="doors">
       <a class="door glass" href="#videolar">
@@ -84,6 +100,21 @@
         <small data-t="door.l.d">Buyumlarni o'zingiz aylantirib, ochib o'rganing</small>
         <span class="go" data-t="door.go">Ochish →</span>
       </a>
+    </div>
+
+    <div id="test">
+      <div class="panel-head">
+        <div><h2 data-t="qz.t">O'zingizni sinang</h2><p class="sub" data-t="qz.sub">Videolar bo'yicha 5 ta savol. Nechtasiga to'g'ri javob berasiz?</p></div>
+        <span class="count" id="qz-best" hidden></span>
+      </div>
+      <div class="quiz glass" id="quiz">
+        <div class="qz-bar" aria-hidden="true"><i></i></div>
+        <p class="qz-step" id="qz-step"></p>
+        <h3 class="qz-q" id="qz-q" data-t="qz.nojs">Test ishlashi uchun JavaScript kerak.</h3>
+        <div class="qz-opts" id="qz-opts"></div>
+        <p class="qz-why" id="qz-why" aria-live="polite" hidden></p>
+        <button class="gbtn primary" id="qz-next" type="button" hidden></button>
+      </div>
     </div>
 
     <div>
@@ -111,40 +142,40 @@
       <article class="card glass" data-id="bankomat">
         <div class="player">
           <div class="badges"><span class="badge new" data-t="badge.new">Yangi</span><span class="badge seen" hidden data-t="badge.seen">✓ Ko'rildi</span></div>
-          <video src="videos/bankomat.mp4" poster="img/bankomat.jpg" playsinline controls preload="none"></video>
-          <button class="play" style="background-image:url(img/bankomat.jpg)" aria-label="Bankomat videosini ko'rish" data-t-aria="v3.aria"></button>
+          <video src="videos/bankomat.mp4" data-poster="img/bankomat.jpg" playsinline controls preload="none"></video>
+          <button class="play" data-bg="img/bankomat.jpg" aria-label="Bankomat videosini ko'rish" data-t-aria="v3.aria"></button>
         </div>
         <div class="meta">
           <h3><a href="bankomat/" data-t="v3.t">Bankomat qanday ishlaydi?</a></h3>
           <p class="desc" data-t="v3.d">Kartadan pulgacha: chip, shifrlangan PIN-kod, bank serveri, kassetalar, roliklar va kupyurani tekshiruvchi sensor.</p>
           <div class="row"><span class="tag">0:30</span><span class="tag gold" data-t="v3.tag">5 bosqich</span><span class="tag" data-t="ad.dcard">Hamkor: Dcard</span></div>
-          <a class="more" href="bankomat/" data-t="more">Batafsil tushuntirish →</a>
+          <div class="acts"><a class="more" href="bankomat/" data-t="more">Batafsil tushuntirish →</a><button class="share" type="button" data-share="bankomat/" aria-label="Ulashish" data-t-aria="sh.aria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div>
         </div>
       </article>
       <article class="card glass" data-id="zaryadlovchi">
         <div class="player">
           <div class="badges"><span class="badge new" data-t="badge.new">Yangi</span><span class="badge seen" hidden data-t="badge.seen">✓ Ko'rildi</span></div>
-          <video src="videos/zaryadlovchi.mp4" poster="img/zaryadlovchi.jpg" playsinline controls preload="none"></video>
-          <button class="play" style="background-image:url(img/zaryadlovchi.jpg)" aria-label="Zaryadlovchi videosini ko'rish" data-t-aria="v1.aria"></button>
+          <video src="videos/zaryadlovchi.mp4" data-poster="img/zaryadlovchi.jpg" playsinline controls preload="none"></video>
+          <button class="play" data-bg="img/zaryadlovchi.jpg" aria-label="Zaryadlovchi videosini ko'rish" data-t-aria="v1.aria"></button>
         </div>
         <div class="meta">
           <h3><a href="zaryadlovchi/" data-t="v1.t">Telefon zaryadlovchisi qanday ishlaydi?</a></h3>
           <p class="desc" data-t="v1.d">220 V qanday qilib xavfsiz 5 V ga aylanadi: diod ko'prigi, kondensator, tranzistor va transformator.</p>
           <div class="row"><span class="tag">0:43</span><span class="tag gold">220 V → 5 V</span></div>
-          <a class="more" href="zaryadlovchi/" data-t="more">Batafsil tushuntirish →</a>
+          <div class="acts"><a class="more" href="zaryadlovchi/" data-t="more">Batafsil tushuntirish →</a><button class="share" type="button" data-share="zaryadlovchi/" aria-label="Ulashish" data-t-aria="sh.aria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div>
         </div>
       </article>
       <article class="card glass" data-id="kir-mashina">
         <div class="player">
           <div class="badges"><span class="badge seen" hidden data-t="badge.seen">✓ Ko'rildi</span></div>
-          <video src="videos/kir-mashina.mp4" poster="img/kir-mashina.jpg" playsinline controls preload="none"></video>
-          <button class="play" style="background-image:url(img/kir-mashina.jpg)" aria-label="Kir mashina videosini ko'rish" data-t-aria="v2.aria"></button>
+          <video src="videos/kir-mashina.mp4" data-poster="img/kir-mashina.jpg" playsinline controls preload="none"></video>
+          <button class="play" data-bg="img/kir-mashina.jpg" aria-label="Kir mashina videosini ko'rish" data-t-aria="v2.aria"></button>
         </div>
         <div class="meta">
           <h3><a href="kir-mashina/" data-t="v2.t">Kir mashina qanday ishlaydi?</a></h3>
           <p class="desc" data-t="v2.d">Suv olishdan siqishgacha: klapan, isitgich, baraban qovurg'alari, nasos va daqiqasiga 1200 marta aylanish.</p>
           <div class="row"><span class="tag">0:30</span><span class="tag gold" data-t="v2.tag">1200 ayl/daq</span></div>
-          <a class="more" href="kir-mashina/" data-t="more">Batafsil tushuntirish →</a>
+          <div class="acts"><a class="more" href="kir-mashina/" data-t="more">Batafsil tushuntirish →</a><button class="share" type="button" data-share="kir-mashina/" aria-label="Ulashish" data-t-aria="sh.aria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div>
         </div>
       </article>
     </div>
@@ -246,8 +277,5 @@
   <a href="#mavzular" data-tab="mavzular"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><span data-t="tab.topics">Mavzular</span></a>
   <a href="#aloqa" data-tab="aloqa"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l7 2 2 7z"/><path d="m10 13 4-4"/></svg><span data-t="tab.contact">Aloqa</span></a>
 </nav>
-<script src="i18n.js"></script>
-<script src="app.js"></script>
-<script src="assistant.js"></script>
 </body>
 </html>
