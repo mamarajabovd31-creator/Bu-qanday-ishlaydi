@@ -92,8 +92,8 @@ const AI_MODELS = {
     name: 'Veo 3.1 Fast', kind: 'video', tier: 'std', desc: 'Video · Google, ovozli',
     text: 'fal-ai/veo3.1/fast', img: 'fal-ai/veo3.1/fast/image-to-video',
     aspects: ['9:16', '16:9'], durations: ['4', '6', '8'], audio: true,
-    cost: b => (b.audio === false ? 0.10 : 0.15) * sec(b, 8),
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '720p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
+    cost: b => (b.audio === false ? 0.10 : 0.15) * sec(b, 8), // 720p va 1080p narxi bir xil
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '1080p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
   },
   /* ---------- Premium ---------- */
   'nano-pro': {
@@ -131,7 +131,7 @@ const AI_MODELS = {
     text: 'fal-ai/veo3.1', img: 'fal-ai/veo3.1/image-to-video',
     aspects: ['9:16', '16:9'], durations: ['4', '6', '8'], audio: true,
     cost: b => (b.audio === false ? 0.20 : 0.40) * sec(b, 8),
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '720p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '1080p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
   },
   'sora': {
     name: 'Sora 2 Pro', kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya',
