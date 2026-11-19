@@ -212,13 +212,16 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
 async function api(path, opt = {}){
-  const r = await fetch(API + path, { ...opt, headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData, ...(opt.headers || {}) } });
-  const d = await r.json().catch(() => ({}));
+  let r;
+  try { r = await fetch(API + path, { ...opt, headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData, ...(opt.headers || {}) } }); }
+  catch (e) { throw Object.assign(new Error("Serverga ulanib bo'lmadi. Internetni tekshirib, qayta urinib ko'ring."), { code: 'net' }); }
+  const d = await r.json().catch(() => null);
+  if (d === null) throw Object.assign(new Error("Server eski versiyada — bot egasi server kodini yangilashi kerak"), { code: 'old' });
   if (!r.ok) throw Object.assign(new Error(d.msg || d.error || ('Xato ' + r.status)), { code: d.error });
   return d;
 }
 
-function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); }
+function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); $('balBar').classList.add('hide'); $('sheet').classList.add('hide'); }
 
 /* ---------- Forma ---------- */
 function render(){
@@ -399,6 +402,7 @@ $('sheet').addEventListener('click', async e => {
   $('payNote').textContent = "To'lov oynasi ochilmoqda…";
   try {
     const d = await api('/ai/invoice', { method: 'POST', body: JSON.stringify({ initData, amount: Number(b.dataset.pack) }) });
+    if (!d.link) throw new Error("To'lov havolasi kelmadi");
     tgApp.openInvoice(d.link, async st => {
       if (st === 'paid') {
         haptic('success'); $('payNote').textContent = "✅ To'landi! Balans yangilanmoqda…";
