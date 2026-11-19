@@ -76,12 +76,41 @@ textarea:focus{border-color:var(--blue2)}
 .empty{text-align:center;color:var(--muted);padding:30px 10px}
 .gate{text-align:center;padding:28px 18px;margin-top:30px}
 .hide{display:none!important}
+.bal{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;margin:0 0 12px;
+  background:linear-gradient(135deg,rgba(255,211,77,.16),rgba(47,123,255,.12));border-color:rgba(255,211,77,.3)}
+.bal .v{flex:1}
+.bal .v small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.bal .v b{font:700 22px Unbounded,sans-serif}
+.bal button{border:0;border-radius:14px;padding:11px 14px;font:800 14px Manrope;color:#1a1300;background:linear-gradient(135deg,#ffd34d,#ffb02e);box-shadow:0 8px 20px rgba(255,176,46,.35);cursor:pointer;white-space:nowrap}
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;background:rgba(0,0,0,.55)}
+.sheet .in{width:100%;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;background:#0b1428;border:1px solid var(--line)}
+.packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 10px}
+.pack{border:1px solid rgba(255,211,77,.35);background:rgba(255,211,77,.08);color:var(--fg);border-radius:16px;padding:14px;font:inherit;cursor:pointer;text-align:left}
+.pack b{display:block;font:700 20px Unbounded,sans-serif;color:#ffd34d}
+.pack span{font-size:12px;color:var(--muted)}
+.pack.best{grid-column:1/-1;background:linear-gradient(135deg,rgba(255,211,77,.2),rgba(47,123,255,.15))}
+.close{width:100%;border:1px solid var(--line);background:none;color:var(--muted);border-radius:14px;padding:12px;font:700 14px Manrope;cursor:pointer}
+.topup-cta{margin-top:10px;border:0;border-radius:12px;padding:10px 14px;font:800 13px Manrope;color:#1a1300;background:#ffd34d;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="top">
   <div><h1>AI studiya</h1><p class="sub">Matn yoki rasmdan video va rasm</p></div>
-  <span class="pill" id="left">…</span>
+</div>
+
+<div class="glass bal" id="balBar">
+  <div class="v"><small>💰 Balansingiz</small><b id="balV">…</b><small id="left"></small></div>
+  <button id="topBtn">➕ To'ldirish</button>
+</div>
+
+<div class="sheet hide" id="sheet">
+  <div class="in">
+    <h1 style="font-size:19px">⭐ Balansni to'ldirish</h1>
+    <p class="sub" style="margin:4px 0 0">Telegram Stars orqali xavfsiz to'lov. Stars ilovaning o'zida sotib olinadi.</p>
+    <div class="packs" id="packs"></div>
+    <p class="hint" id="payNote" style="margin:0 0 10px"></p>
+    <button class="close" id="sheetClose">Yopish</button>
+  </div>
 </div>
 
 <div class="glass gate hide" id="gate"></div>
@@ -118,6 +147,10 @@ textarea:focus{border-color:var(--blue2)}
       <div id="durBox">
         <p class="lbl" style="margin-top:14px">Davomiyligi</p>
         <div class="row" id="durs"></div>
+      </div>
+      <div id="resBox">
+        <p class="lbl" style="margin-top:14px">Sifat</p>
+        <div class="row" id="resList"></div>
       </div>
       <div id="audBox">
         <p class="lbl" style="margin-top:14px">Ovoz</p>
@@ -165,14 +198,16 @@ let MODELS = {
 };
 const ETA = { image: 25, video: 130, 'veo': 150, 'sora': 180, 'seedance-pro': 160 };
 const etaOf = k => ETA[k] || (MODELS[k] ? ETA[MODELS[k].kind] : 120);
-function priceOf(k, dur, audio){
+function priceOf(k, dur, audio, res){
   const m = MODELS[k]; if (!m || !m.prices) return 0;
-  const d = m.durations && m.durations.length ? dur : '0';
-  return m.prices[d + (audio === false ? ':mute' : '')] || m.prices[d] || 0;
+  const d = m.durations && m.durations.length ? (m.durations.includes(dur) ? dur : m.durations[0]) : '0';
+  const r = m.res && m.res.length ? (m.res.includes(res) ? res : m.res[0]) : '';
+  return m.prices[`${d}|${r}|${audio === false ? 0 : 1}`] || 0;
 }
+const curPrice = () => { const m = MODELS[S.model]; return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
 const AL = { auto: 'Avto', '1:1': '1:1 kvadrat', '9:16': '9:16 Reels', '16:9': '16:9 YouTube', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
 
-const S = { model: 'kling', aspect: '9:16', duration: '5', audio: true, image: null, busy: false };
+const S = { model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, packs: [100, 300, 500, 1000, 2500] };
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
@@ -189,7 +224,7 @@ function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hid
 function render(){
   const m = MODELS[S.model];
   const card = ([k, v]) => {
-    const p = priceOf(k, v.durations.length ? (v.durations.includes(S.duration) ? S.duration : v.durations[0]) : '0', v.audio ? S.audio : undefined);
+    const p = priceOf(k, S.duration, v.audio ? S.audio : true, '');
     return `<button class="model ${v.tier === 'pro' ? 'pro' : ''} ${k === S.model ? 'on' : ''}" data-m="${k}"><b>${v.kind === 'video' ? '🎬' : '🖼'} ${esc(v.name)}</b><span>${esc(v.desc)}</span>${p ? `<span class="pr">⭐ ${p}${v.durations.length ? ' dan' : ''}</span>` : ''}</button>`;
   };
   const list = Object.entries(MODELS);
@@ -204,15 +239,21 @@ function render(){
   $('durBox').classList.toggle('hide', !m.durations.length);
   $('durs').innerHTML = m.durations.map(d => `<button class="chip ${d === S.duration ? 'on' : ''}" data-d="${d}">${d} soniya</button>`).join('');
   $('audBox').classList.toggle('hide', !m.audio);
+  const rl = m.res || [];
+  if (rl.length && !rl.includes(S.res)) S.res = rl[0];
+  $('resBox').classList.toggle('hide', !rl.length);
+  $('resList').innerHTML = rl.map(r => `<button class="chip ${r === S.res ? 'on' : ''}" data-r="${r}">${r}${r === rl[0] ? '' : ' ✨'}</button>`).join('');
+  $('balV').textContent = S.balance == null ? '…' : (S.free ? '👑 Bepul' : S.balance + ' ⭐');
   document.querySelectorAll('[data-aud]').forEach(b => b.classList.toggle('on', (b.dataset.aud === '1') === S.audio));
   $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
   $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
-  const price = priceOf(S.model, m.durations.length ? S.duration : '0', m.audio ? S.audio : undefined);
+  const price = curPrice();
   $('go').textContent = S.busy ? '⏳ Yaratilmoqda…' : (m.kind === 'video' ? '🎬 Video yaratish' : '🖼 Rasm yaratish') + (price ? ` · ${price} ⭐` : '');
   $('go').disabled = S.busy;
 }
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab]'); if (!t) return;
+  const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab],[data-r]'); if (!t) return;
+  if (t.dataset.r) S.res = t.dataset.r;
   if (t.dataset.m) S.model = t.dataset.m;
   if (t.dataset.a) S.aspect = t.dataset.a;
   if (t.dataset.d) S.duration = t.dataset.d;
@@ -295,15 +336,17 @@ $('go').onclick = async () => {
     const d = await api('/ai/gen', { method: 'POST', body: JSON.stringify({
       initData, model: S.model, prompt, image: S.image,
       aspect: MODELS[S.model].imgAspect === false && S.image ? undefined : S.aspect,
-      duration: MODELS[S.model].durations.length ? S.duration : undefined, audio: MODELS[S.model].audio ? S.audio : undefined
+      duration: MODELS[S.model].durations.length ? S.duration : undefined, res: S.res || undefined, audio: MODELS[S.model].audio ? S.audio : undefined
     }) });
     const created = Date.now();
     try { localStorage.setItem('ai_cur', JSON.stringify({ id: d.id, model: S.model, created })); } catch (e) {}
-    $('left').textContent = `Bugun: ${d.left} ta qoldi`;
+    setInfo(d);
     poll(d.id, created);
   } catch (e) {
     S.busy = false; render(); haptic('error');
-    $('pTitle').textContent = '❌ Xato'; $('pPct').textContent = ''; $('pNote').innerHTML = `<span class="err">${esc(e.message)}</span>`;
+    $('pTitle').textContent = e.code === 'balance' ? '💰 Balans yetmaydi' : '❌ Xato'; $('pPct').textContent = '';
+    $('pNote').innerHTML = `<span class="err">${esc(e.message)}</span>` + (e.code === 'balance' ? `<br><button class="topup-cta" id="ctaTop">➕ Balansni to'ldirish</button>` : '');
+    if (e.code === 'balance') $('ctaTop').onclick = openSheet;
   }
 };
 
@@ -312,7 +355,7 @@ async function loadHist(){
   $('histList').innerHTML = '<p class="empty">Yuklanmoqda…</p>';
   try {
     const d = await api('/ai/history');
-    $('left').textContent = `Bugun: ${d.left} ta qoldi`;
+    setInfo(d);
     if (!d.jobs.length) { $('histList').innerHTML = '<p class="empty" style="grid-column:1/-1">Hali hech narsa yaratilmagan</p>'; return; }
     $('histList').innerHTML = d.jobs.map(j => {
       const u = j.urls[0];
@@ -326,7 +369,47 @@ async function loadHist(){
     });
   } catch (e) { $('histList').innerHTML = `<p class="empty err" style="grid-column:1/-1">${esc(e.message)}</p>`; }
 }
-async function refreshLeft(){ try { const d = await api('/ai/history'); $('left').textContent = `Bugun: ${d.left} ta qoldi`; } catch (e) {} }
+async function refreshLeft(){ try { const d = await api('/ai/history'); setInfo(d); } catch (e) {} }
+function setInfo(d){
+  if (d.balance != null) S.balance = d.balance;
+  if (d.free != null) S.free = d.free;
+  if (d.packs) S.packs = d.packs;
+  if (d.left != null) $('left').textContent = `Bugun yana ${d.left} ta yaratish mumkin`;
+  render();
+}
+
+/* ---------- Hisob to'ldirish (Telegram Stars) ---------- */
+function openSheet(){
+  $('packs').innerHTML = S.packs.map((n, i) => `<button class="pack ${i === S.packs.length - 1 ? 'best' : ''}" data-pack="${n}"><b>${n} ⭐</b><span>${packHint(n)}</span></button>`).join('');
+  $('payNote').textContent = '';
+  $('sheet').classList.remove('hide');
+}
+function packHint(n){
+  const kl = MODELS.kling && priceOf('kling', '5', true, ''), nb = MODELS.nano && priceOf('nano', '0', true, '');
+  const parts = [];
+  if (kl) parts.push(`≈ ${Math.floor(n / kl)} ta video`);
+  if (nb) parts.push(`yoki ${Math.floor(n / nb)} ta rasm`);
+  return parts.join(' ') || 'Stars';
+}
+$('topBtn').onclick = openSheet;
+$('sheetClose').onclick = () => $('sheet').classList.add('hide');
+$('sheet').addEventListener('click', async e => {
+  if (e.target === $('sheet')) return $('sheet').classList.add('hide');
+  const b = e.target.closest('[data-pack]'); if (!b) return;
+  $('payNote').textContent = "To'lov oynasi ochilmoqda…";
+  try {
+    const d = await api('/ai/invoice', { method: 'POST', body: JSON.stringify({ initData, amount: Number(b.dataset.pack) }) });
+    tgApp.openInvoice(d.link, async st => {
+      if (st === 'paid') {
+        haptic('success'); $('payNote').textContent = "✅ To'landi! Balans yangilanmoqda…";
+        const before = S.balance;
+        for (let i = 0; i < 8; i++) { await new Promise(r => setTimeout(r, 1500)); await refreshLeft(); if (S.balance !== before) break; }
+        $('sheet').classList.add('hide');
+      } else if (st === 'failed') { haptic('error'); $('payNote').textContent = "❌ To'lov amalga oshmadi"; }
+      else $('payNote').textContent = '';
+    });
+  } catch (err) { $('payNote').textContent = '❌ ' + err.message; }
+});
 
 /* ---------- Boshlash ---------- */
 (async function start(){
@@ -339,11 +422,12 @@ async function refreshLeft(){ try { const d = await api('/ai/history'); $('left'
   if (!API) return gate('<h1>⚙️ Server ulanmagan</h1><p class="sub">Botga /start yozib, «AI studiya» tugmasi orqali qayta oching.</p>');
   try {
     const d = await api('/ai/history');
-    $('left').textContent = `Bugun: ${d.left} ta qoldi`;
+    setInfo(d);
   } catch (e) {
     if (e.code === 'denied' || e.code === 'auth') return gate(`<h1>🔒 Hozircha yopiq</h1><p class="sub">${esc(e.message)}</p>`);
-    $('left').textContent = '—';
+    $('balV').textContent = '—';
   }
+  if (qs.get('topup') === '1') openSheet();
   // Oldingi tugallanmagan ishni davom ettirish
   try {
     const cur = JSON.parse(localStorage.getItem('ai_cur') || 'null');

@@ -4,7 +4,8 @@
    - Bot ichida rasm va video yaratadi (fal.ai orqali):
        Oddiy:   Nano Banana 2, Kling 2.5 Turbo, Veo 3.1 Fast
        Premium: Nano Banana Pro, Kling 3.0 Pro, Seedance 2.0 (Fast va to'liq), Veo 3.1, Sora 2 Pro
-   - Har bir ishning narxi Telegram Stars'da hisoblanadi (keyin to'lov qo'shiladi).
+   - Har bir ishning narxi Telegram Stars'da. Foydalanuvchi balansni Stars bilan to'ldiradi, har bir ish uchun yechiladi,
+     xato bo'lsa avtomatik qaytariladi. /balans — balans, /paysupport — to'lov bo'yicha yordam.
    - /start yoki /ai — «🎬 AI studiya» Mini App'ini ochadi (sayt/ai/).
    - Tayyor rasm/video botga ham yuboriladi (Mini App yopilgan bo'lsa ham).
    - /id — Telegram ID raqamingizni aytadi (ADMIN_ID uchun kerak).
@@ -19,6 +20,8 @@
      DAILY_LIMIT     — (ixtiyoriy) bir kishi kuniga nechta yarata oladi, standart 30 (Text)
      MARKUP_STD      — (ixtiyoriy) oddiy modellar ustamasi, standart 1.6 = +60% (Text)
      MARKUP_PRO      — (ixtiyoriy) premium modellar ustamasi, standart 2.2 = +120% (Text)
+     PUBLIC          — (ixtiyoriy) 1 qilsangiz hamma ishlata oladi (balansdan to'lab). Bo'lmasa faqat ADMIN_ID va ALLOWED_IDS (Text)
+     ADMIN_PAYS      — (ixtiyoriy) 1 qilsangiz egasi ham balansdan to'laydi (sinash uchun). Standart: egasi bepul (Text)
      STAR_USD        — (ixtiyoriy) 1 Star sizga necha dollar bo'lib qaytadi, standart 0.01 (Text)
    Bindings → KV namespace: nomi VOTES (ishlar tarixi shu yerda saqlanadi)
 
@@ -76,8 +79,8 @@ const AI_MODELS = {
     name: 'Nano Banana 2', kind: 'image', tier: 'std', desc: 'Rasm · tez va arzon',
     text: 'fal-ai/nano-banana-2', img: 'fal-ai/nano-banana-2/edit',
     aspects: ['auto', '1:1', '9:16', '16:9', '4:5', '3:4', '4:3'],
-    cost: () => 0.04,
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', num_images: 1, resolution: '1K', output_format: 'jpeg', ...(img ? { image_urls: [img] } : {}) })
+    res: ['1K', '2K'], cost: b => b.res === '2K' ? 0.06 : 0.04,
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', num_images: 1, resolution: b.res || '1K', output_format: 'jpeg', ...(img ? { image_urls: [img] } : {}) })
   },
   'kling': {
     name: 'Kling 2.5 Turbo', kind: 'video', tier: 'std', desc: 'Video · arzon, ovozsiz',
@@ -123,8 +126,8 @@ const AI_MODELS = {
     name: 'Seedance 2.0', kind: 'video', tier: 'pro', desc: 'Video · eng yaxshi sifat',
     text: 'bytedance/seedance-2.0/text-to-video', img: 'bytedance/seedance-2.0/image-to-video',
     aspects: ['auto', '9:16', '16:9', '1:1', '3:4', '4:3'], durations: ['5', '8', '10'],
-    cost: b => 0.304 * sec(b, 5),
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', duration: b.duration || '5', resolution: '720p', generate_audio: true, ...(img ? { image_url: img } : {}) })
+    res: ['720p', '1080p'], cost: b => (b.res === '1080p' ? 0.682 : 0.304) * sec(b, 5),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', duration: b.duration || '5', resolution: b.res || '720p', generate_audio: true, ...(img ? { image_url: img } : {}) })
   },
   'veo': {
     name: 'Veo 3.1', kind: 'video', tier: 'pro', desc: 'Video · Google, eng real',
@@ -137,8 +140,8 @@ const AI_MODELS = {
     name: 'Sora 2 Pro', kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya',
     text: 'fal-ai/sora-2/text-to-video/pro', img: 'fal-ai/sora-2/image-to-video/pro',
     aspects: ['9:16', '16:9'], durations: ['4', '8', '12'],
-    cost: b => 0.30 * sec(b, 4),
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: Number(b.duration || 4), resolution: '720p', ...(img ? { image_url: img } : {}) })
+    res: ['720p', '1080p'], cost: b => (b.res === '1080p' ? 0.50 : 0.30) * sec(b, 4),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: Number(b.duration || 4), resolution: b.res || '720p', ...(img ? { image_url: img } : {}) })
   }
 };
 
@@ -150,6 +153,13 @@ function priceStars(env, m, b){
   return Math.max(1, Math.ceil(m.cost(b) * mk / starUsd));
 }
 
+const isAdmin = (env, uid) => String(uid) === String(env.ADMIN_ID || '');
+const getBal = async (env, uid) => Number(await env.VOTES.get('bal:' + uid) || 0);
+const setBal = (env, uid, v) => env.VOTES.put('bal:' + uid, String(Math.max(0, Math.round(v))));
+async function addBal(env, uid, delta){ const v = (await getBal(env, uid)) + delta; await setBal(env, uid, v); return Math.max(0, v); }
+// To'ldirish paketlari (Stars)
+const PACKS = [100, 300, 500, 1000, 2500];
+
 function allowedIds(env){
   return new Set([env.ADMIN_ID, ...String(env.ALLOWED_IDS || '').split(',')].map(s => String(s || '').trim()).filter(Boolean));
 }
@@ -157,7 +167,7 @@ function allowedIds(env){
 async function aiUser(req, env, bodyInit){
   const user = await verifyInitData(bodyInit || req.headers.get('X-Init-Data'), env.BOT_TOKEN);
   if (!user || !user.id) return { err: json({ error: 'auth', msg: "Telegram ichida oching" }, 401) };
-  if (!allowedIds(env).has(String(user.id))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
+  if (env.PUBLIC !== '1' && !allowedIds(env).has(String(user.id))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
   return { user };
 }
 
@@ -184,6 +194,13 @@ async function sendResult(env, job){
   }
 }
 
+// Xato bo'lsa: yechilgan Stars balansga qaytadi va foydalanuvchiga xabar boradi
+async function failNotice(env, job){
+  let back = '';
+  if (job.charged && !job.refunded) { job.refunded = true; await addBal(env, job.uid, job.charged); back = `\n↩️ ${job.charged} ⭐ balansingizga qaytarildi.`; }
+  await tg(env, 'sendMessage', { chat_id: job.uid, text: `❌ Yaratib bo'lmadi: ${String(job.error).slice(0, 300)}${back}` });
+}
+
 const saveJob = (env, job) => env.VOTES.put('job:' + job.id, JSON.stringify(job), { expirationTtl: 86400 * 30 });
 
 // Natijani fal'dan olib, saqlab, botga yuboradi
@@ -199,7 +216,7 @@ async function finishJob(env, job, out){
     if (job.urls.length) { job.status = 'done'; await sendResult(env, job); }
     else { job.status = 'error'; job.error = "Natija topilmadi (balki xavfsizlik filtri to'xtatdi)"; }
   }
-  if (job.status === 'error') await tg(env, 'sendMessage', { chat_id: job.uid, text: `❌ Yaratib bo'lmadi: ${String(job.error).slice(0, 300)}` });
+  if (job.status === 'error') await failNotice(env, job);
   job.done_at = Date.now();
   await saveJob(env, job);
   return job;
@@ -214,12 +231,24 @@ async function aiGenerate(req, env, origin){
   if (!b.prompt) return json({ error: 'prompt', msg: 'Tavsif yozing' }, 400);
   if (b.aspect && !m.aspects.includes(b.aspect)) b.aspect = m.aspects[0];
   if (b.duration && !(m.durations || []).includes(String(b.duration))) b.duration = (m.durations || [])[0];
+  if (!m.res || !m.res.includes(b.res)) b.res = m.res ? m.res[0] : undefined;
+  if (!m.audio) delete b.audio;
   const img = typeof b.image === 'string' && /^data:image\/(png|jpe?g|webp);base64,/.test(b.image) && b.image.length < 7e6 ? b.image : null;
 
   // Kunlik limit (pul tejash uchun)
   const day = new Date().toISOString().slice(0, 10), lk = `lim:${a.user.id}:${day}`;
   const used = Number(await env.VOTES.get(lk) || 0), limit = Number(env.DAILY_LIMIT || 30);
   if (used >= limit) return json({ error: 'limit', msg: `Bugungi limit tugadi (${limit} ta)` }, 429);
+
+  // To'lov: egasi bepul, boshqalar balansdan to'laydi
+  const price = priceStars(env, m, b);
+  const free = isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1';
+  if (!free) {
+    const bal = await getBal(env, a.user.id);
+    if (bal < price) return json({ error: 'balance', msg: `Balans yetmaydi: kerak ${price} ⭐, sizda ${bal} ⭐`, need: price, balance: bal }, 402);
+    await setBal(env, a.user.id, bal - price);
+  }
+  const refund = async () => { if (!free) await addBal(env, a.user.id, price); };
 
   const endpoint = img ? m.img : m.text;
   const hook = `${origin}/fal?k=${encodeURIComponent(env.WEBHOOK_SECRET || '')}`;
@@ -231,23 +260,24 @@ async function aiGenerate(req, env, origin){
   const d = await r.json().catch(() => ({}));
   if (!r.ok || !d.request_id) {
     const msg = r.status === 401 || r.status === 403 ? "FAL_KEY noto'g'ri" : r.status === 402 || /balance|credit|locked/i.test(JSON.stringify(d)) ? "fal.ai balansi tugagan" : (d.detail ? JSON.stringify(d.detail).slice(0, 300) : 'fal xatosi ' + r.status);
+    await refund();
     return json({ error: 'fal', msg }, 502);
   }
   await env.VOTES.put(lk, String(used + 1), { expirationTtl: 86400 * 2 });
   const job = {
     id: d.request_id, uid: a.user.id, model: b.model, kind: m.kind, prompt: b.prompt,
     aspect: b.aspect || '', duration: b.duration || '', withImage: !!img,
-    cost: Math.round(m.cost(b) * 1000) / 1000, stars: priceStars(env, m, b),
+    cost: Math.round(m.cost(b) * 1000) / 1000, stars: price, charged: free ? 0 : price, res: b.res || '',
     status: 'queue', status_url: d.status_url, response_url: d.response_url, created: Date.now()
   };
   await saveJob(env, job);
   const lkey = 'hist:' + a.user.id;
   const hist = (await env.VOTES.get(lkey, 'json')) || [];
   hist.unshift(job.id); await env.VOTES.put(lkey, JSON.stringify(hist.slice(0, 40)));
-  return json({ id: job.id, kind: m.kind, left: limit - used - 1 });
+  return json({ id: job.id, kind: m.kind, left: limit - used - 1, balance: await getBal(env, a.user.id), free });
 }
 
-const pub = j => ({ stars: j.stars || 0, id: j.id, model: j.model, name: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: j.prompt, status: j.status, urls: j.urls || [], error: j.error || '', created: j.created, done_at: j.done_at || 0, queue: j.queue_position, aspect: j.aspect, duration: j.duration });
+const pub = j => ({ stars: j.stars || 0, res: j.res || '', id: j.id, model: j.model, name: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: j.prompt, status: j.status, urls: j.urls || [], error: j.error || '', created: j.created, done_at: j.done_at || 0, queue: j.queue_position, aspect: j.aspect, duration: j.duration });
 
 async function aiJob(req, env, id){
   const a = await aiUser(req, env); if (a.err) return a.err;
@@ -264,13 +294,30 @@ async function aiJob(req, env, id){
   return json(pub(job));
 }
 
+// Hisob to'ldirish: Telegram Stars to'lov havolasini yaratadi
+async function aiInvoice(req, env){
+  let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
+  const a = await aiUser(req, env, b.initData); if (a.err) return a.err;
+  const amount = Number(b.amount);
+  if (!PACKS.includes(amount)) return json({ error: 'pack', msg: "Noto'g'ri paket" }, 400);
+  const r = await tg(env, 'createInvoiceLink', {
+    title: `AI studiya — ${amount} ⭐`,
+    description: `AI studiya balansini ${amount} Stars'ga to'ldirish. Rasm va video yaratish uchun.`,
+    payload: `topup:${a.user.id}:${amount}`,
+    currency: 'XTR', prices: [{ label: `${amount} ⭐`, amount }]
+  });
+  if (!r.ok) return json({ error: 'invoice', msg: "To'lov havolasini yaratib bo'lmadi" }, 502);
+  return json({ link: r.result });
+}
+
 async function aiHistory(req, env){
   const a = await aiUser(req, env); if (a.err) return a.err;
   const ids = (await env.VOTES.get('hist:' + a.user.id, 'json')) || [];
   const jobs = (await Promise.all(ids.slice(0, 30).map(id => env.VOTES.get('job:' + id, 'json')))).filter(Boolean);
   const day = new Date().toISOString().slice(0, 10);
   const used = Number(await env.VOTES.get(`lim:${a.user.id}:${day}`) || 0);
-  return json({ jobs: jobs.map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used) });
+  return json({ jobs: jobs.map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
+    balance: await getBal(env, a.user.id), free: isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1', packs: PACKS });
 }
 
 // fal.ai tayyor bo'lganda shu yerga xabar beradi — Mini App yopiq bo'lsa ham natija botga keladi
@@ -285,8 +332,8 @@ async function falWebhook(req, env){
   else if (d.status === 'ERROR' && job.status !== 'done' && job.status !== 'error') {
     job.status = 'error'; job.done_at = Date.now();
     job.error = (d.payload && d.payload.detail && JSON.stringify(d.payload.detail)) || d.error || 'xato';
+    await failNotice(env, job);
     await saveJob(env, job);
-    await tg(env, 'sendMessage', { chat_id: job.uid, text: `❌ Yaratib bo'lmadi: ${String(job.error).slice(0, 300)}` });
   }
   return new Response('ok');
 }
@@ -294,8 +341,34 @@ async function falWebhook(req, env){
 /* ---------------- Bot (webhook) ---------------- */
 async function onUpdate(update, env, origin){
   const appUrl = AI_APP + '?api=' + encodeURIComponent(origin);
+
+  // To'lovdan oldingi tekshiruv: Telegram 10 soniya ichida javob kutadi
+  if (update.pre_checkout_query) {
+    const q = update.pre_checkout_query;
+    const ok = /^topup:\d+:\d+$/.test(q.invoice_payload || '') && q.currency === 'XTR';
+    await tg(env, 'answerPreCheckoutQuery', ok ? { pre_checkout_query_id: q.id, ok: true } : { pre_checkout_query_id: q.id, ok: false, error_message: "To'lovni qabul qilib bo'lmadi" });
+    return;
+  }
+
   const m = update.message;
-  if (!m || !m.text) return;
+  if (!m) return;
+
+  // Muvaffaqiyatli to'lov: Stars balansga qo'shiladi
+  if (m.successful_payment) {
+    const sp = m.successful_payment;
+    const key = 'pay:' + sp.telegram_payment_charge_id;
+    if (await env.VOTES.get(key)) return; // takroriy xabar
+    await env.VOTES.put(key, JSON.stringify({ uid: m.from.id, amount: sp.total_amount, at: Date.now() }));
+    const bal = await addBal(env, m.from.id, sp.total_amount);
+    await tg(env, 'sendMessage', { chat_id: m.chat.id, parse_mode: 'HTML',
+      text: `✅ Balans to'ldirildi: <b>+${sp.total_amount} ⭐</b>\nHozirgi balans: <b>${bal} ⭐</b>`,
+      reply_markup: { inline_keyboard: [[{ text: '🎬 AI studiya', web_app: { url: appUrl } }]] } });
+    if (env.ADMIN_ID && !isAdmin(env, m.from.id))
+      await tg(env, 'sendMessage', { chat_id: env.ADMIN_ID, parse_mode: 'HTML',
+        text: `💰 <b>Yangi to'lov!</b> ${esc(m.from.first_name || '')}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''} — <b>${sp.total_amount} ⭐</b>` });
+    return;
+  }
+  if (!m.text) return;
   const chat = m.chat.id;
   const cmd = m.text.trim().split(/[\s@]/)[0].toLowerCase();
 
@@ -305,6 +378,12 @@ async function onUpdate(update, env, origin){
       text: "🎬 <b>AI studiya</b>\n\nMatn yoki rasmdan video va rasm yarating:\n• <b>Nano Banana</b> — rasm yaratish va tahrirlash\n• <b>Kling, Veo, Seedance, Sora</b> — video\n⭐ Premium modellar — eng yuqori sifat\n\nTayyor natija shu chatga ham keladi.\n\n👇 «AI studiya» tugmasini bosing.",
       reply_markup: { inline_keyboard: [[{ text: '🎬 AI studiya', web_app: { url: appUrl } }], [{ text: '📢 Kanal', url: CHANNEL }]] }
     });
+  } else if (cmd === '/balans' || cmd === '/balance') {
+    await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `💰 Balansingiz: <b>${await getBal(env, m.from.id)} ⭐</b>`,
+      reply_markup: { inline_keyboard: [[{ text: "➕ To'ldirish", web_app: { url: appUrl + '&topup=1' } }]] } });
+  } else if (cmd === '/paysupport') {
+    await tg(env, 'sendMessage', { chat_id: chat, text: "💬 To'lov bo'yicha savol yoki muammo bo'lsa, shu yerga yozing — egasi ko'rib chiqadi. Xato bilan yaratilmagan ishlar uchun Stars avtomatik qaytariladi." });
+    if (env.ADMIN_ID) await tg(env, 'sendMessage', { chat_id: env.ADMIN_ID, text: `🆘 /paysupport: ${m.from.first_name || ''} (id ${m.from.id})` });
   } else if (cmd === '/id') {
     await tg(env, 'sendMessage', { chat_id: chat, text: `🆔 ${m.from.id}` });
   }
@@ -325,13 +404,16 @@ export default {
           name: m.name, kind: m.kind, tier: m.tier, desc: m.desc, aspects: m.aspects, durations: m.durations || [],
           audio: !!m.audio, imgAspect: m.imgAspect !== false,
           // narx jadvali: har bir davomiylik (va ovoz) uchun Stars
+          res: m.res || [],
+          // narx jadvali: "davomiylik|sifat|ovoz" → Stars
           prices: Object.fromEntries((m.durations && m.durations.length ? m.durations : ['0']).flatMap(d =>
-            [[d, priceStars(env, m, { duration: d })], [d + ':mute', priceStars(env, m, { duration: d, audio: false })]]))
+            (m.res || ['']).flatMap(rs => [true, false].map(au => [`${d}|${rs}|${au ? 1 : 0}`, priceStars(env, m, { duration: d, res: rs || undefined, audio: au })]))))
         }]))
       });
     if (url.pathname === '/ai/gen' && req.method === 'POST') return aiGenerate(req, env, url.origin);
     if (url.pathname === '/ai/job' && req.method === 'GET') return aiJob(req, env, url.searchParams.get('id') || '');
     if (url.pathname === '/ai/history' && req.method === 'GET') return aiHistory(req, env);
+    if (url.pathname === '/ai/invoice' && req.method === 'POST') return aiInvoice(req, env);
     if (url.pathname === '/fal' && req.method === 'POST') return falWebhook(req, env);
 
     if (url.pathname === '/tg' && req.method === 'POST') {
@@ -343,10 +425,12 @@ export default {
     // Bir martalik sozlash: botni shu serverga ulaydi
     if (url.pathname === '/setup') {
       if (!env.WEBHOOK_SECRET || url.searchParams.get('key') !== env.WEBHOOK_SECRET) return new Response('Kalit noto\'g\'ri', { status: 403 });
-      const hook = await tg(env, 'setWebhook', { url: url.origin + '/tg', secret_token: env.WEBHOOK_SECRET, allowed_updates: ['message'] });
+      const hook = await tg(env, 'setWebhook', { url: url.origin + '/tg', secret_token: env.WEBHOOK_SECRET, allowed_updates: ['message', 'pre_checkout_query'] });
       const cmds = await tg(env, 'setMyCommands', { commands: [
         { command: 'start', description: 'Boshlash' },
         { command: 'ai', description: 'AI studiya — video va rasm yaratish' },
+        { command: 'balans', description: 'Balansim' },
+        { command: 'paysupport', description: "To'lov bo'yicha yordam" },
         { command: 'id', description: 'Telegram ID raqamim' }
       ] });
       await tg(env, 'setChatMenuButton', { menu_button: { type: 'web_app', text: '🎬 AI studiya', web_app: { url: AI_APP + '?api=' + encodeURIComponent(url.origin) } } });
