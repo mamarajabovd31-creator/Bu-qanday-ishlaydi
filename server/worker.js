@@ -1,3 +1,4 @@
+// ★★★ VERSIYA 3 — to'lov, balans, premium modellar ★★★
 /* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -440,6 +441,6 @@ export default {
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 3)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };
