@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI studiya</title>
+<meta name="robots" content="noindex">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050a16;--fg:#f2f6ff;--muted:#a3b1cc;--line:rgba(255,255,255,.14);
+  --blue:#2f7bff;--blue2:#4fb2ff;--cyan:#4fe3ff;--bad:#ff6b7a;--ok:#46e3a0;
+  --glass:linear-gradient(140deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 55%,rgba(255,255,255,.06));
+  --edge:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(255,255,255,.06);
+  --r:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--fg);font:500 15px/1.5 Manrope,system-ui,-apple-system,sans-serif;
+  background:radial-gradient(120% 70% at 85% -10%,rgba(47,123,255,.35),transparent 60%),
+             radial-gradient(90% 60% at -10% 30%,rgba(79,227,255,.14),transparent 60%),var(--bg);
+  background-attachment:fixed;padding:16px 16px calc(110px + env(safe-area-inset-bottom,0px))}
+h1{font:700 22px/1.2 Unbounded,sans-serif;margin:4px 0 2px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.glass{background:var(--glass);border:1px solid var(--line);box-shadow:var(--edge),0 14px 40px rgba(0,0,0,.35);
+  -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);border-radius:var(--r)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pill{font-size:12px;color:var(--muted);padding:6px 10px;border-radius:99px;border:1px solid var(--line);white-space:nowrap}
+.tabs{display:flex;gap:6px;padding:5px;margin:0 0 14px}
+.tabs button{flex:1;border:0;background:none;color:var(--muted);font:700 14px Manrope;padding:10px;border-radius:14px;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 6px 20px rgba(47,123,255,.4)}
+.card{padding:14px;margin-bottom:12px}
+.lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+.models{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.model{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--fg);border-radius:14px;padding:10px 12px;cursor:pointer;font:inherit}
+.model b{display:block;font-size:14px}
+.model span{font-size:11.5px;color:var(--muted)}
+.model.on{border-color:var(--blue2);background:rgba(47,123,255,.18);box-shadow:0 0 0 1px var(--blue2) inset}
+textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--fg);
+  border-radius:14px;padding:12px;font:500 15px/1.5 Manrope,sans-serif;outline:none}
+textarea:focus{border-color:var(--blue2)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--fg);border-radius:99px;padding:7px 12px;font:600 13px Manrope;cursor:pointer}
+.chip.on{background:var(--fg);color:#07101f;border-color:var(--fg)}
+.up{display:flex;align-items:center;gap:12px}
+.up label{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px dashed var(--line);border-radius:14px;padding:14px;color:var(--muted);cursor:pointer;font-weight:600;font-size:14px}
+.up img{width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.x{border:0;background:rgba(255,107,122,.15);color:var(--bad);border-radius:10px;padding:8px 10px;font:700 13px Manrope;cursor:pointer}
+.hint{font-size:12px;color:var(--muted);margin:8px 0 0}
+.go{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));border:0;border-radius:18px;padding:16px;
+  font:700 16px Manrope;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow:0 12px 30px rgba(47,123,255,.45);cursor:pointer}
+.go:disabled{opacity:.5}
+.prog{padding:16px}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .8s ease}
+.pct{font:700 26px Unbounded,sans-serif}
+.res img,.res video{width:100%;border-radius:14px;display:block;background:#000;margin-top:10px}
+.acts{display:flex;gap:8px;margin-top:10px}
+.acts a,.acts button{flex:1;text-align:center;text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--fg);border-radius:12px;padding:10px;font:700 13px Manrope;cursor:pointer}
+.err{color:var(--bad);font-weight:600}
+.hist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.h{overflow:hidden;cursor:pointer}
+.h .m{aspect-ratio:1;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;padding:6px}
+.h .m img,.h .m video{width:100%;height:100%;object-fit:cover}
+.h .t{padding:8px 10px;font-size:12px}
+.h .t b{display:block;font-size:12px}
+.h .t span{color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.gate{text-align:center;padding:28px 18px;margin-top:30px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="top">
+  <div><h1>AI studiya</h1><p class="sub">Matn yoki rasmdan video va rasm</p></div>
+  <span class="pill" id="left">…</span>
+</div>
+
+<div class="glass gate hide" id="gate"></div>
+
+<div id="app">
+  <div class="tabs glass"><button class="on" data-tab="make">✨ Yaratish</button><button data-tab="hist">🗂 Tarix</button></div>
+
+  <section id="make">
+    <div class="glass card">
+      <p class="lbl">Model</p>
+      <div class="models" id="models"></div>
+    </div>
+
+    <div class="glass card">
+      <p class="lbl">Tavsif (prompt)</p>
+      <textarea id="prompt" placeholder="Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik"></textarea>
+      <p class="hint">Ingliz tilida yozsangiz natija aniqroq chiqadi.</p>
+    </div>
+
+    <div class="glass card">
+      <p class="lbl" id="upLbl">Rasm (ixtiyoriy)</p>
+      <div class="up">
+        <label for="file" id="upBtn">📷 Rasm tanlash</label>
+        <img id="thumb" class="hide" alt="">
+        <button class="x hide" id="rm">✕</button>
+      </div>
+      <input type="file" id="file" accept="image/*" class="hide">
+      <p class="hint" id="upHint"></p>
+    </div>
+
+    <div class="glass card">
+      <p class="lbl">O'lcham</p>
+      <div class="row" id="aspects"></div>
+      <div id="durBox">
+        <p class="lbl" style="margin-top:14px">Davomiyligi</p>
+        <div class="row" id="durs"></div>
+      </div>
+      <div id="audBox">
+        <p class="lbl" style="margin-top:14px">Ovoz</p>
+        <div class="row"><button class="chip on" data-aud="1">🔊 Bilan</button><button class="chip" data-aud="0">🔇 Ovozsiz</button></div>
+      </div>
+    </div>
+
+    <div class="glass prog hide" id="prog">
+      <div class="top"><b id="pTitle">Yaratilmoqda…</b><span class="pct" id="pPct">0%</span></div>
+      <div class="bar"><i id="pBar"></i></div>
+      <p class="hint" id="pNote">Ilovani yopsangiz ham natija botga keladi.</p>
+      <div class="res" id="res"></div>
+    </div>
+  </section>
+
+  <section id="hist" class="hide">
+    <div class="hist" id="histList"></div>
+  </section>
+</div>
+
+<button class="go" id="go">✨ Yaratish</button>
+
+<script>
+const tgApp = window.Telegram && Telegram.WebApp;
+try { tgApp.ready(); tgApp.expand(); tgApp.setHeaderColor('#050a16'); tgApp.setBackgroundColor('#050a16'); } catch (e) {}
+const initData = (tgApp && tgApp.initData) || '';
+const haptic = t => { try { tgApp.HapticFeedback.notificationOccurred(t); } catch (e) {} };
+
+// Server manzili: bot havolasidagi ?api= dan olinadi va eslab qolinadi
+const qs = new URLSearchParams(location.search);
+let API = qs.get('api') || '';
+try { if (API) localStorage.setItem('ai_api', API); else API = localStorage.getItem('ai_api') || ''; } catch (e) {}
+
+const MODELS = {
+  'nano':     { name: 'Nano Banana 2',   kind: 'image', desc: 'Rasm · tez', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], eta: 25 },
+  'nano-pro': { name: 'Nano Banana Pro', kind: 'image', desc: 'Rasm · eng sifatli', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], eta: 45 },
+  'kling':    { name: 'Kling 2.5',       kind: 'video', desc: 'Video · kinematografik', aspects: ['9:16','16:9','1:1'], durations: ['5','10'], eta: 140 },
+  'seedance': { name: 'Seedance 2.0',    kind: 'video', desc: 'Video · ovozli', aspects: ['auto','9:16','16:9','1:1','3:4','4:3'], durations: ['5','8','10'], eta: 110 }
+};
+const AL = { auto: 'Avto', '1:1': '1:1 kvadrat', '9:16': '9:16 Reels', '16:9': '16:9 YouTube', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
+
+const S = { model: 'kling', aspect: '9:16', duration: '5', audio: true, image: null, busy: false };
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+async function api(path, opt = {}){
+  const r = await fetch(API + path, { ...opt, headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData, ...(opt.headers || {}) } });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.msg || d.error || ('Xato ' + r.status)), { code: d.error });
+  return d;
+}
+
+function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); }
+
+/* ---------- Forma ---------- */
+function render(){
+  const m = MODELS[S.model];
+  $('models').innerHTML = Object.entries(MODELS).map(([k, v]) =>
+    `<button class="model ${k === S.model ? 'on' : ''}" data-m="${k}"><b>${v.kind === 'video' ? '🎬' : '🖼'} ${v.name}</b><span>${v.desc}</span></button>`).join('');
+  if (!m.aspects.includes(S.aspect)) S.aspect = m.aspects[0];
+  if (m.durations.length && !m.durations.includes(S.duration)) S.duration = m.durations[0];
+  const hideAspect = m.kind === 'video' && S.model === 'kling' && S.image; // Kling rasmdan videoda o'lcham rasmga qarab
+  $('aspects').innerHTML = hideAspect ? '<span class="hint">Rasm o\'lchamiga qarab</span>' :
+    m.aspects.map(a => `<button class="chip ${a === S.aspect ? 'on' : ''}" data-a="${a}">${AL[a] || a}</button>`).join('');
+  $('durBox').classList.toggle('hide', !m.durations.length);
+  $('durs').innerHTML = m.durations.map(d => `<button class="chip ${d === S.duration ? 'on' : ''}" data-d="${d}">${d} soniya</button>`).join('');
+  $('audBox').classList.toggle('hide', S.model !== 'seedance');
+  document.querySelectorAll('[data-aud]').forEach(b => b.classList.toggle('on', (b.dataset.aud === '1') === S.audio));
+  $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
+  $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
+  $('go').textContent = S.busy ? '⏳ Yaratilmoqda…' : (m.kind === 'video' ? '🎬 Video yaratish' : '🖼 Rasm yaratish');
+  $('go').disabled = S.busy;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab]'); if (!t) return;
+  if (t.dataset.m) S.model = t.dataset.m;
+  if (t.dataset.a) S.aspect = t.dataset.a;
+  if (t.dataset.d) S.duration = t.dataset.d;
+  if (t.dataset.aud) S.audio = t.dataset.aud === '1';
+  if (t.dataset.tab) {
+    document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b === t));
+    $('make').classList.toggle('hide', t.dataset.tab !== 'make');
+    $('hist').classList.toggle('hide', t.dataset.tab !== 'hist');
+    $('go').classList.toggle('hide', t.dataset.tab !== 'make');
+    if (t.dataset.tab === 'hist') loadHist();
+  }
+  try { tgApp.HapticFeedback.selectionChanged(); } catch (e) {}
+  render();
+});
+
+/* ---------- Rasm yuklash (telefonda kichraytiriladi) ---------- */
+$('file').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image(); img.src = URL.createObjectURL(f);
+  await img.decode().catch(() => {});
+  const max = 1536, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  S.image = c.toDataURL('image/jpeg', 0.88);
+  $('thumb').src = S.image; $('thumb').classList.remove('hide'); $('rm').classList.remove('hide');
+  $('upBtn').textContent = '🔁 Almashtirish';
+  e.target.value = ''; render();
+});
+$('rm').onclick = () => { S.image = null; $('thumb').classList.add('hide'); $('rm').classList.add('hide'); $('upBtn').textContent = '📷 Rasm tanlash'; render(); };
+
+/* ---------- Yaratish va jarayon ---------- */
+let timer = null;
+function showProg(job){
+  $('prog').classList.remove('hide');
+  const m = MODELS[job.model] || MODELS[S.model];
+  if (job.status === 'done') {
+    setPct(100); $('pTitle').textContent = '✅ Tayyor!'; $('pNote').textContent = 'Natija botga ham yuborildi.';
+    const u = job.urls[0];
+    $('res').innerHTML = (job.kind === 'video' ? `<video src="${esc(u)}" controls playsinline autoplay loop muted></video>` : `<img src="${esc(u)}" alt="">`) +
+      `<div class="acts"><a href="${esc(u)}" target="_blank" rel="noopener">⬇️ Yuklab olish</a><button id="again">✨ Yana yaratish</button></div>`;
+    $('again').onclick = () => { $('prog').classList.add('hide'); $('res').innerHTML = ''; scrollTo({ top: 0, behavior: 'smooth' }); };
+    return;
+  }
+  if (job.status === 'error') {
+    $('pTitle').textContent = '❌ Xato'; $('pPct').textContent = '';
+    $('pNote').innerHTML = `<span class="err">${esc(job.error || 'Yaratib bo\'lmadi')}</span>`; $('res').innerHTML = ''; return;
+  }
+  // Taxminiy foiz: o'tgan vaqt / modelning odatiy vaqti
+  const el = (Date.now() - (job.created || Date.now())) / 1000;
+  setPct(Math.min(95, Math.round(el / m.eta * 100)));
+  $('pTitle').textContent = job.status === 'queue' ? `Navbatda${job.queue ? ' (' + job.queue + ')' : ''}…` : (m.kind === 'video' ? '🎬 Video yaratilmoqda…' : '🖼 Rasm yaratilmoqda…');
+  $('pNote').textContent = 'Ilovani yopsangiz ham natija botga keladi.';
+}
+function setPct(p){ $('pPct').textContent = p + '%'; $('pBar').style.width = p + '%'; }
+
+async function poll(id, created){
+  clearInterval(timer);
+  let job = { id, model: S.model, created, status: 'queue' };
+  const tick = async () => {
+    try { job = { ...job, ...(await api('/ai/job?id=' + encodeURIComponent(id))) }; } catch (e) {}
+    showProg(job);
+    if (job.status === 'done' || job.status === 'error') {
+      clearInterval(timer); S.busy = false; render();
+      try { localStorage.removeItem('ai_cur'); } catch (e) {}
+      haptic(job.status === 'done' ? 'success' : 'error');
+      refreshLeft();
+    }
+  };
+  showProg(job);
+  timer = setInterval(tick, 4000); tick();
+}
+
+$('go').onclick = async () => {
+  const prompt = $('prompt').value.trim();
+  if (!prompt) { $('prompt').focus(); haptic('warning'); return; }
+  S.busy = true; render();
+  $('prog').classList.remove('hide'); $('res').innerHTML = ''; setPct(0); $('pTitle').textContent = 'Yuborilmoqda…'; $('pNote').textContent = '';
+  $('prog').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  try {
+    const d = await api('/ai/gen', { method: 'POST', body: JSON.stringify({
+      initData, model: S.model, prompt, image: S.image,
+      aspect: S.model === 'kling' && S.image ? undefined : S.aspect,
+      duration: MODELS[S.model].durations.length ? S.duration : undefined, audio: S.audio
+    }) });
+    const created = Date.now();
+    try { localStorage.setItem('ai_cur', JSON.stringify({ id: d.id, model: S.model, created })); } catch (e) {}
+    $('left').textContent = `Bugun: ${d.left} ta qoldi`;
+    poll(d.id, created);
+  } catch (e) {
+    S.busy = false; render(); haptic('error');
+    $('pTitle').textContent = '❌ Xato'; $('pPct').textContent = ''; $('pNote').innerHTML = `<span class="err">${esc(e.message)}</span>`;
+  }
+};
+
+/* ---------- Tarix ---------- */
+async function loadHist(){
+  $('histList').innerHTML = '<p class="empty">Yuklanmoqda…</p>';
+  try {
+    const d = await api('/ai/history');
+    $('left').textContent = `Bugun: ${d.left} ta qoldi`;
+    if (!d.jobs.length) { $('histList').innerHTML = '<p class="empty" style="grid-column:1/-1">Hali hech narsa yaratilmagan</p>'; return; }
+    $('histList').innerHTML = d.jobs.map(j => {
+      const u = j.urls[0];
+      const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
+        : j.status === 'error' ? '❌ Xato' : '⏳ Jarayonda';
+      return `<div class="glass h" data-u="${esc(u || '')}"><div class="m">${media}</div><div class="t"><b>${j.kind === 'video' ? '🎬' : '🖼'} ${esc(j.name)}</b><span>${esc(j.prompt)}</span></div></div>`;
+    }).join('');
+    document.querySelectorAll('.h[data-u]').forEach(el => el.onclick = () => {
+      const u = el.dataset.u; if (!u) return;
+      try { tgApp.openLink(u); } catch (e) { open(u, '_blank'); }
+    });
+  } catch (e) { $('histList').innerHTML = `<p class="empty err" style="grid-column:1/-1">${esc(e.message)}</p>`; }
+}
+async function refreshLeft(){ try { const d = await api('/ai/history'); $('left').textContent = `Bugun: ${d.left} ta qoldi`; } catch (e) {} }
+
+/* ---------- Boshlash ---------- */
+(async function start(){
+  render();
+  if (!initData) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@bu_qandayishlaydi_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/bu_qandayishlaydi_bot">Botni ochish</a>');
+  if (!API) return gate('<h1>⚙️ Server ulanmagan</h1><p class="sub">Botga /start yozib, «AI studiya» tugmasi orqali qayta oching.</p>');
+  try {
+    const d = await api('/ai/history');
+    $('left').textContent = `Bugun: ${d.left} ta qoldi`;
+  } catch (e) {
+    if (e.code === 'denied' || e.code === 'auth') return gate(`<h1>🔒 Hozircha yopiq</h1><p class="sub">${esc(e.message)}</p>`);
+    $('left').textContent = '—';
+  }
+  // Oldingi tugallanmagan ishni davom ettirish
+  try {
+    const cur = JSON.parse(localStorage.getItem('ai_cur') || 'null');
+    if (cur && Date.now() - cur.created < 3600e3) { S.model = cur.model; S.busy = true; render(); poll(cur.id, cur.created); }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
