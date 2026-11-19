@@ -1,7 +1,10 @@
 /* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
-   - Bot ichida rasm va video yaratadi: Nano Banana 2, Nano Banana Pro, Kling 2.5, Seedance 2.0 (fal.ai orqali).
+   - Bot ichida rasm va video yaratadi (fal.ai orqali):
+       Oddiy:   Nano Banana 2, Kling 2.5 Turbo, Veo 3.1 Fast
+       Premium: Nano Banana Pro, Kling 3.0 Pro, Seedance 2.0 (Fast va to'liq), Veo 3.1, Sora 2 Pro
+   - Har bir ishning narxi Telegram Stars'da hisoblanadi (keyin to'lov qo'shiladi).
    - /start yoki /ai — «🎬 AI studiya» Mini App'ini ochadi (sayt/ai/).
    - Tayyor rasm/video botga ham yuboriladi (Mini App yopilgan bo'lsa ham).
    - /id — Telegram ID raqamingizni aytadi (ADMIN_ID uchun kerak).
@@ -14,6 +17,9 @@
      FAL_KEY         — fal.ai'dan olingan API kalit (Secret)  ← busiz AI ishlamaydi
      ALLOWED_IDS     — (ixtiyoriy) vergul bilan Telegram ID'lar, masalan: 111,222 (Text)
      DAILY_LIMIT     — (ixtiyoriy) bir kishi kuniga nechta yarata oladi, standart 30 (Text)
+     MARKUP_STD      — (ixtiyoriy) oddiy modellar ustamasi, standart 1.6 = +60% (Text)
+     MARKUP_PRO      — (ixtiyoriy) premium modellar ustamasi, standart 2.2 = +120% (Text)
+     STAR_USD        — (ixtiyoriy) 1 Star sizga necha dollar bo'lib qaytadi, standart 0.01 (Text)
    Bindings → KV namespace: nomi VOTES (ishlar tarixi shu yerda saqlanadi)
 
    Keyin brauzerda bir marta oching: https://<worker-manzili>/setup?key=<WEBHOOK_SECRET>
@@ -61,34 +67,88 @@ const AI_APP = SITE + 'ai/';
 const FAL_QUEUE = 'https://queue.fal.run/';
 
 // Modellar: Mini App shu kalitlarni yuboradi. Rasm yuklangan bo'lsa "img" yo'li ishlatiladi.
+// cost(b) — fal.ai sizdan oladigan taxminiy narx (dollar). Sotuv narxi Stars'da shundan hisoblanadi.
+// tier: 'std' — oddiy, 'pro' — premium (ustamasi kattaroq).
+const sec = (b, d) => Number(String(b.duration || d).replace('s', '')) || Number(d);
 const AI_MODELS = {
+  /* ---------- Oddiy ---------- */
   'nano': {
-    name: 'Nano Banana 2', kind: 'image',
+    name: 'Nano Banana 2', kind: 'image', tier: 'std', desc: 'Rasm · tez va arzon',
     text: 'fal-ai/nano-banana-2', img: 'fal-ai/nano-banana-2/edit',
     aspects: ['auto', '1:1', '9:16', '16:9', '4:5', '3:4', '4:3'],
+    cost: () => 0.04,
     build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', num_images: 1, resolution: '1K', output_format: 'jpeg', ...(img ? { image_urls: [img] } : {}) })
   },
-  'nano-pro': {
-    name: 'Nano Banana Pro', kind: 'image',
-    text: 'fal-ai/nano-banana-pro', img: 'fal-ai/nano-banana-pro/edit',
-    aspects: ['auto', '1:1', '9:16', '16:9', '4:5', '3:4', '4:3'],
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', num_images: 1, output_format: 'jpeg', ...(img ? { image_urls: [img] } : {}) })
-  },
   'kling': {
-    name: 'Kling 2.5 Turbo Pro', kind: 'video',
+    name: 'Kling 2.5 Turbo', kind: 'video', tier: 'std', desc: 'Video · arzon, ovozsiz',
     text: 'fal-ai/kling-video/v2.5-turbo/pro/text-to-video', img: 'fal-ai/kling-video/v2.5-turbo/pro/image-to-video',
-    aspects: ['16:9', '9:16', '1:1'], durations: ['5', '10'],
+    aspects: ['9:16', '16:9', '1:1'], durations: ['5', '10'], imgAspect: false,
+    cost: b => 0.07 * sec(b, 5),
     build: (b, img) => img
       ? { prompt: b.prompt, image_url: img, duration: b.duration || '5' }
       : { prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: b.duration || '5' }
   },
+  'veo-fast': {
+    name: 'Veo 3.1 Fast', kind: 'video', tier: 'std', desc: 'Video · Google, ovozli',
+    text: 'fal-ai/veo3.1/fast', img: 'fal-ai/veo3.1/fast/image-to-video',
+    aspects: ['9:16', '16:9'], durations: ['4', '6', '8'], audio: true,
+    cost: b => (b.audio === false ? 0.10 : 0.15) * sec(b, 8),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '720p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
+  },
+  /* ---------- Premium ---------- */
+  'nano-pro': {
+    name: 'Nano Banana Pro', kind: 'image', tier: 'pro', desc: 'Rasm · eng sifatli',
+    text: 'fal-ai/nano-banana-pro', img: 'fal-ai/nano-banana-pro/edit',
+    aspects: ['auto', '1:1', '9:16', '16:9', '4:5', '3:4', '4:3'],
+    cost: () => 0.15,
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', num_images: 1, output_format: 'jpeg', ...(img ? { image_urls: [img] } : {}) })
+  },
+  'kling3': {
+    name: 'Kling 3.0 Pro', kind: 'video', tier: 'pro', desc: 'Video · kinematografik, ovozli',
+    text: 'fal-ai/kling-video/v3/pro/text-to-video', img: 'fal-ai/kling-video/v3/pro/image-to-video',
+    aspects: ['9:16', '16:9', '1:1'], durations: ['5', '10', '15'], audio: true, imgAspect: false,
+    cost: b => (b.audio === false ? 0.112 : 0.168) * sec(b, 5),
+    build: (b, img) => img
+      ? { prompt: b.prompt, start_image_url: img, duration: b.duration || '5', generate_audio: b.audio !== false }
+      : { prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: b.duration || '5', generate_audio: b.audio !== false }
+  },
   'seedance': {
-    name: 'Seedance 2.0 Fast', kind: 'video',
+    name: 'Seedance 2.0 Fast', kind: 'video', tier: 'pro', desc: 'Video · ovozli, harakat zo\'r',
     text: 'bytedance/seedance-2.0/fast/text-to-video', img: 'bytedance/seedance-2.0/fast/image-to-video',
     aspects: ['auto', '9:16', '16:9', '1:1', '3:4', '4:3'], durations: ['5', '8', '10'],
-    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', duration: b.duration || '5', resolution: '720p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
+    cost: b => 0.242 * sec(b, 5),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', duration: b.duration || '5', resolution: '720p', generate_audio: true, ...(img ? { image_url: img } : {}) })
+  },
+  'seedance-pro': {
+    name: 'Seedance 2.0', kind: 'video', tier: 'pro', desc: 'Video · eng yaxshi sifat',
+    text: 'bytedance/seedance-2.0/text-to-video', img: 'bytedance/seedance-2.0/image-to-video',
+    aspects: ['auto', '9:16', '16:9', '1:1', '3:4', '4:3'], durations: ['5', '8', '10'],
+    cost: b => 0.304 * sec(b, 5),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', duration: b.duration || '5', resolution: '720p', generate_audio: true, ...(img ? { image_url: img } : {}) })
+  },
+  'veo': {
+    name: 'Veo 3.1', kind: 'video', tier: 'pro', desc: 'Video · Google, eng real',
+    text: 'fal-ai/veo3.1', img: 'fal-ai/veo3.1/image-to-video',
+    aspects: ['9:16', '16:9'], durations: ['4', '6', '8'], audio: true,
+    cost: b => (b.audio === false ? 0.20 : 0.40) * sec(b, 8),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '720p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
+  },
+  'sora': {
+    name: 'Sora 2 Pro', kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya',
+    text: 'fal-ai/sora-2/text-to-video/pro', img: 'fal-ai/sora-2/image-to-video/pro',
+    aspects: ['9:16', '16:9'], durations: ['4', '8', '12'],
+    cost: b => 0.30 * sec(b, 4),
+    build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: Number(b.duration || 4), resolution: '720p', ...(img ? { image_url: img } : {}) })
   }
 };
+
+// Sotuv narxi (Telegram Stars). 1 Star sizga taxminan STAR_USD dollar bo'lib qaytadi.
+// Ustama: oddiy modellarga MARKUP_STD (standart 1.6), premiumga MARKUP_PRO (standart 2.2).
+function priceStars(env, m, b){
+  const starUsd = Number(env.STAR_USD || 0.01);
+  const mk = Number(m.tier === 'pro' ? (env.MARKUP_PRO || 2.2) : (env.MARKUP_STD || 1.6));
+  return Math.max(1, Math.ceil(m.cost(b) * mk / starUsd));
+}
 
 function allowedIds(env){
   return new Set([env.ADMIN_ID, ...String(env.ALLOWED_IDS || '').split(',')].map(s => String(s || '').trim()).filter(Boolean));
@@ -177,6 +237,7 @@ async function aiGenerate(req, env, origin){
   const job = {
     id: d.request_id, uid: a.user.id, model: b.model, kind: m.kind, prompt: b.prompt,
     aspect: b.aspect || '', duration: b.duration || '', withImage: !!img,
+    cost: Math.round(m.cost(b) * 1000) / 1000, stars: priceStars(env, m, b),
     status: 'queue', status_url: d.status_url, response_url: d.response_url, created: Date.now()
   };
   await saveJob(env, job);
@@ -186,7 +247,7 @@ async function aiGenerate(req, env, origin){
   return json({ id: job.id, kind: m.kind, left: limit - used - 1 });
 }
 
-const pub = j => ({ id: j.id, model: j.model, name: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: j.prompt, status: j.status, urls: j.urls || [], error: j.error || '', created: j.created, done_at: j.done_at || 0, queue: j.queue_position, aspect: j.aspect, duration: j.duration });
+const pub = j => ({ stars: j.stars || 0, id: j.id, model: j.model, name: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: j.prompt, status: j.status, urls: j.urls || [], error: j.error || '', created: j.created, done_at: j.done_at || 0, queue: j.queue_position, aspect: j.aspect, duration: j.duration });
 
 async function aiJob(req, env, id){
   const a = await aiUser(req, env); if (a.err) return a.err;
@@ -241,7 +302,7 @@ async function onUpdate(update, env, origin){
   if (cmd === '/start' || cmd === '/ai') {
     await tg(env, 'sendMessage', {
       chat_id: chat, parse_mode: 'HTML',
-      text: "🎬 <b>AI studiya</b>\n\nMatn yoki rasmdan video va rasm yarating:\n• <b>Nano Banana</b> — rasm yaratish va tahrirlash\n• <b>Kling</b> — kinematografik video\n• <b>Seedance</b> — ovozli video\n\nTayyor natija shu chatga ham keladi.\n\n👇 «AI studiya» tugmasini bosing.",
+      text: "🎬 <b>AI studiya</b>\n\nMatn yoki rasmdan video va rasm yarating:\n• <b>Nano Banana</b> — rasm yaratish va tahrirlash\n• <b>Kling, Veo, Seedance, Sora</b> — video\n⭐ Premium modellar — eng yuqori sifat\n\nTayyor natija shu chatga ham keladi.\n\n👇 «AI studiya» tugmasini bosing.",
       reply_markup: { inline_keyboard: [[{ text: '🎬 AI studiya', web_app: { url: appUrl } }], [{ text: '📢 Kanal', url: CHANNEL }]] }
     });
   } else if (cmd === '/id') {
@@ -257,7 +318,17 @@ export default {
 
     // AI studiya
     if (url.pathname === '/ai/models' && req.method === 'GET')
-      return json(Object.fromEntries(Object.entries(AI_MODELS).map(([k, m]) => [k, { name: m.name, kind: m.kind, aspects: m.aspects, durations: m.durations || [] }])));
+      return json({
+        starUsd: Number(env.STAR_USD || 0.01),
+        markup: { std: Number(env.MARKUP_STD || 1.6), pro: Number(env.MARKUP_PRO || 2.2) },
+        models: Object.fromEntries(Object.entries(AI_MODELS).map(([k, m]) => [k, {
+          name: m.name, kind: m.kind, tier: m.tier, desc: m.desc, aspects: m.aspects, durations: m.durations || [],
+          audio: !!m.audio, imgAspect: m.imgAspect !== false,
+          // narx jadvali: har bir davomiylik (va ovoz) uchun Stars
+          prices: Object.fromEntries((m.durations && m.durations.length ? m.durations : ['0']).flatMap(d =>
+            [[d, priceStars(env, m, { duration: d })], [d + ':mute', priceStars(env, m, { duration: d, audio: false })]]))
+        }]))
+      });
     if (url.pathname === '/ai/gen' && req.method === 'POST') return aiGenerate(req, env, url.origin);
     if (url.pathname === '/ai/job' && req.method === 'GET') return aiJob(req, env, url.searchParams.get('id') || '');
     if (url.pathname === '/ai/history' && req.method === 'GET') return aiHistory(req, env);

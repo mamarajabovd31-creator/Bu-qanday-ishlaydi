@@ -37,6 +37,12 @@ h1{font:700 22px/1.2 Unbounded,sans-serif;margin:4px 0 2px;letter-spacing:-.01em
 .model{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--fg);border-radius:14px;padding:10px 12px;cursor:pointer;font:inherit}
 .model b{display:block;font-size:14px}
 .model span{font-size:11.5px;color:var(--muted)}
+.grp{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 8px;display:flex;align-items:center;gap:6px}
+.grp:first-child{margin-top:0}
+.grp.pro{color:#ffd34d}
+.model{position:relative}
+.model .pr{display:block;margin-top:4px;font-size:12px;font-weight:800;color:#ffd34d}
+.model.pro{border-color:rgba(255,211,77,.28)}
 .model.on{border-color:var(--blue2);background:rgba(47,123,255,.18);box-shadow:0 0 0 1px var(--blue2) inset}
 textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--fg);
   border-radius:14px;padding:12px;font:500 15px/1.5 Manrope,sans-serif;outline:none}
@@ -86,7 +92,7 @@ textarea:focus{border-color:var(--blue2)}
   <section id="make">
     <div class="glass card">
       <p class="lbl">Model</p>
-      <div class="models" id="models"></div>
+      <div id="models"></div>
     </div>
 
     <div class="glass card">
@@ -145,12 +151,25 @@ const qs = new URLSearchParams(location.search);
 let API = qs.get('api') || '';
 try { if (API) localStorage.setItem('ai_api', API); else API = localStorage.getItem('ai_api') || ''; } catch (e) {}
 
-const MODELS = {
-  'nano':     { name: 'Nano Banana 2',   kind: 'image', desc: 'Rasm · tez', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], eta: 25 },
-  'nano-pro': { name: 'Nano Banana Pro', kind: 'image', desc: 'Rasm · eng sifatli', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], eta: 45 },
-  'kling':    { name: 'Kling 2.5',       kind: 'video', desc: 'Video · kinematografik', aspects: ['9:16','16:9','1:1'], durations: ['5','10'], eta: 140 },
-  'seedance': { name: 'Seedance 2.0',    kind: 'video', desc: 'Video · ovozli', aspects: ['auto','9:16','16:9','1:1','3:4','4:3'], durations: ['5','8','10'], eta: 110 }
+// Modellar va narxlar serverdan keladi (/ai/models). Bu — server javob bermaguncha zaxira ro'yxat.
+let MODELS = {
+  'nano':         { name: 'Nano Banana 2',     kind: 'image', tier: 'std', desc: 'Rasm · tez va arzon', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], prices: {} },
+  'kling':        { name: 'Kling 2.5 Turbo',   kind: 'video', tier: 'std', desc: 'Video · arzon, ovozsiz', aspects: ['9:16','16:9','1:1'], durations: ['5','10'], imgAspect: false, prices: {} },
+  'veo-fast':     { name: 'Veo 3.1 Fast',      kind: 'video', tier: 'std', desc: 'Video · Google, ovozli', aspects: ['9:16','16:9'], durations: ['4','6','8'], audio: true, prices: {} },
+  'nano-pro':     { name: 'Nano Banana Pro',   kind: 'image', tier: 'pro', desc: 'Rasm · eng sifatli', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], prices: {} },
+  'kling3':       { name: 'Kling 3.0 Pro',     kind: 'video', tier: 'pro', desc: 'Video · kinematografik, ovozli', aspects: ['9:16','16:9','1:1'], durations: ['5','10','15'], audio: true, imgAspect: false, prices: {} },
+  'seedance':     { name: 'Seedance 2.0 Fast', kind: 'video', tier: 'pro', desc: "Video · ovozli, harakat zo'r", aspects: ['auto','9:16','16:9','1:1','3:4','4:3'], durations: ['5','8','10'], prices: {} },
+  'seedance-pro': { name: 'Seedance 2.0',      kind: 'video', tier: 'pro', desc: 'Video · eng yaxshi sifat', aspects: ['auto','9:16','16:9','1:1','3:4','4:3'], durations: ['5','8','10'], prices: {} },
+  'veo':          { name: 'Veo 3.1',           kind: 'video', tier: 'pro', desc: 'Video · Google, eng real', aspects: ['9:16','16:9'], durations: ['4','6','8'], audio: true, prices: {} },
+  'sora':         { name: 'Sora 2 Pro',        kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya', aspects: ['9:16','16:9'], durations: ['4','8','12'], prices: {} }
 };
+const ETA = { image: 25, video: 130, 'veo': 150, 'sora': 180, 'seedance-pro': 160 };
+const etaOf = k => ETA[k] || (MODELS[k] ? ETA[MODELS[k].kind] : 120);
+function priceOf(k, dur, audio){
+  const m = MODELS[k]; if (!m || !m.prices) return 0;
+  const d = m.durations && m.durations.length ? dur : '0';
+  return m.prices[d + (audio === false ? ':mute' : '')] || m.prices[d] || 0;
+}
 const AL = { auto: 'Avto', '1:1': '1:1 kvadrat', '9:16': '9:16 Reels', '16:9': '16:9 YouTube', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
 
 const S = { model: 'kling', aspect: '9:16', duration: '5', audio: true, image: null, busy: false };
@@ -169,20 +188,27 @@ function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hid
 /* ---------- Forma ---------- */
 function render(){
   const m = MODELS[S.model];
-  $('models').innerHTML = Object.entries(MODELS).map(([k, v]) =>
-    `<button class="model ${k === S.model ? 'on' : ''}" data-m="${k}"><b>${v.kind === 'video' ? '🎬' : '🖼'} ${v.name}</b><span>${v.desc}</span></button>`).join('');
+  const card = ([k, v]) => {
+    const p = priceOf(k, v.durations.length ? (v.durations.includes(S.duration) ? S.duration : v.durations[0]) : '0', v.audio ? S.audio : undefined);
+    return `<button class="model ${v.tier === 'pro' ? 'pro' : ''} ${k === S.model ? 'on' : ''}" data-m="${k}"><b>${v.kind === 'video' ? '🎬' : '🖼'} ${esc(v.name)}</b><span>${esc(v.desc)}</span>${p ? `<span class="pr">⭐ ${p}${v.durations.length ? ' dan' : ''}</span>` : ''}</button>`;
+  };
+  const list = Object.entries(MODELS);
+  $('models').innerHTML =
+    `<p class="grp">Oddiy</p><div class="models">${list.filter(([, v]) => v.tier !== 'pro').map(card).join('')}</div>` +
+    `<p class="grp pro">⭐ Premium</p><div class="models">${list.filter(([, v]) => v.tier === 'pro').map(card).join('')}</div>`;
   if (!m.aspects.includes(S.aspect)) S.aspect = m.aspects[0];
   if (m.durations.length && !m.durations.includes(S.duration)) S.duration = m.durations[0];
-  const hideAspect = m.kind === 'video' && S.model === 'kling' && S.image; // Kling rasmdan videoda o'lcham rasmga qarab
+  const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image; // Kling rasmdan videoda o'lcham rasmga qarab
   $('aspects').innerHTML = hideAspect ? '<span class="hint">Rasm o\'lchamiga qarab</span>' :
     m.aspects.map(a => `<button class="chip ${a === S.aspect ? 'on' : ''}" data-a="${a}">${AL[a] || a}</button>`).join('');
   $('durBox').classList.toggle('hide', !m.durations.length);
   $('durs').innerHTML = m.durations.map(d => `<button class="chip ${d === S.duration ? 'on' : ''}" data-d="${d}">${d} soniya</button>`).join('');
-  $('audBox').classList.toggle('hide', S.model !== 'seedance');
+  $('audBox').classList.toggle('hide', !m.audio);
   document.querySelectorAll('[data-aud]').forEach(b => b.classList.toggle('on', (b.dataset.aud === '1') === S.audio));
   $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
   $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
-  $('go').textContent = S.busy ? '⏳ Yaratilmoqda…' : (m.kind === 'video' ? '🎬 Video yaratish' : '🖼 Rasm yaratish');
+  const price = priceOf(S.model, m.durations.length ? S.duration : '0', m.audio ? S.audio : undefined);
+  $('go').textContent = S.busy ? '⏳ Yaratilmoqda…' : (m.kind === 'video' ? '🎬 Video yaratish' : '🖼 Rasm yaratish') + (price ? ` · ${price} ⭐` : '');
   $('go').disabled = S.busy;
 }
 document.addEventListener('click', e => {
@@ -236,7 +262,7 @@ function showProg(job){
   }
   // Taxminiy foiz: o'tgan vaqt / modelning odatiy vaqti
   const el = (Date.now() - (job.created || Date.now())) / 1000;
-  setPct(Math.min(95, Math.round(el / m.eta * 100)));
+  setPct(Math.min(95, Math.round(el / etaOf(job.model) * 100)));
   $('pTitle').textContent = job.status === 'queue' ? `Navbatda${job.queue ? ' (' + job.queue + ')' : ''}…` : (m.kind === 'video' ? '🎬 Video yaratilmoqda…' : '🖼 Rasm yaratilmoqda…');
   $('pNote').textContent = 'Ilovani yopsangiz ham natija botga keladi.';
 }
@@ -268,8 +294,8 @@ $('go').onclick = async () => {
   try {
     const d = await api('/ai/gen', { method: 'POST', body: JSON.stringify({
       initData, model: S.model, prompt, image: S.image,
-      aspect: S.model === 'kling' && S.image ? undefined : S.aspect,
-      duration: MODELS[S.model].durations.length ? S.duration : undefined, audio: S.audio
+      aspect: MODELS[S.model].imgAspect === false && S.image ? undefined : S.aspect,
+      duration: MODELS[S.model].durations.length ? S.duration : undefined, audio: MODELS[S.model].audio ? S.audio : undefined
     }) });
     const created = Date.now();
     try { localStorage.setItem('ai_cur', JSON.stringify({ id: d.id, model: S.model, created })); } catch (e) {}
@@ -292,7 +318,7 @@ async function loadHist(){
       const u = j.urls[0];
       const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
         : j.status === 'error' ? '❌ Xato' : '⏳ Jarayonda';
-      return `<div class="glass h" data-u="${esc(u || '')}"><div class="m">${media}</div><div class="t"><b>${j.kind === 'video' ? '🎬' : '🖼'} ${esc(j.name)}</b><span>${esc(j.prompt)}</span></div></div>`;
+      return `<div class="glass h" data-u="${esc(u || '')}"><div class="m">${media}</div><div class="t"><b>${j.kind === 'video' ? '🎬' : '🖼'} ${esc(j.name)}${j.stars ? ' · ' + j.stars + ' ⭐' : ''}</b><span>${esc(j.prompt)}</span></div></div>`;
     }).join('');
     document.querySelectorAll('.h[data-u]').forEach(el => el.onclick = () => {
       const u = el.dataset.u; if (!u) return;
@@ -306,6 +332,10 @@ async function refreshLeft(){ try { const d = await api('/ai/history'); $('left'
 (async function start(){
   render();
   if (!initData) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@bu_qandayishlaydi_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/bu_qandayishlaydi_bot">Botni ochish</a>');
+  if (API) try {
+    const md = await api('/ai/models');
+    if (md && md.models) { for (const k in md.models) MODELS[k] = { ...(MODELS[k] || {}), ...md.models[k] }; render(); }
+  } catch (e) {}
   if (!API) return gate('<h1>⚙️ Server ulanmagan</h1><p class="sub">Botga /start yozib, «AI studiya» tugmasi orqali qayta oching.</p>');
   try {
     const d = await api('/ai/history');
