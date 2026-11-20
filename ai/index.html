@@ -22,6 +22,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--win)}
+body:after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(100px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(22,22,22,0),rgba(22,22,22,.92) 45%);pointer-events:none;z-index:6}
 body{margin:0;min-height:100vh;color:var(--text);font:500 14px/1.45 var(--fb);background:var(--win);
   padding:0 0 calc(92px + env(safe-area-inset-bottom,0px));-webkit-font-smoothing:antialiased}
 .hide{display:none!important}
@@ -52,6 +53,7 @@ svg.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-wid
 .ws button.on:after{content:"";position:absolute;left:12px;right:12px;top:0;height:2px;border-radius:2px;background:var(--sel)}
 
 /* ---------- 3D viewport ---------- */
+.vp:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(110% 80% at 50% 45%,transparent 55%,rgba(0,0,0,.45))}
 .vp{position:relative;height:clamp(250px,44vh,380px);overflow:hidden;border-bottom:1px solid var(--sep);
   background:radial-gradient(120% 90% at 50% 40%,#3a3a3a 0%,#2b2b2b 55%,#1f1f1f 100%);touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .vp canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -80,7 +82,7 @@ svg.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-wid
 .frame.rendering .tiles{opacity:1}
 .frame.rendering,.frame.done{border-style:solid;border-color:var(--sel)}
 .frame.error{border-color:var(--red);border-style:solid}
-.vp-status{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;padding:6px 12px;font:600 11.5px var(--fm);
+.vp-status{z-index:2;position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;padding:6px 12px;font:600 11.5px var(--fm);
   color:#cfcfcf;background:linear-gradient(transparent,rgba(0,0,0,.55))}
 .vp-status .vb{flex:1;height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
 .vp-status .vb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sel2),var(--sel));transition:width .7s ease;box-shadow:0 0 10px rgba(255,160,51,.6)}
@@ -126,6 +128,36 @@ svg.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-wid
 .model.on .pr small{color:#dce6f7}
 .model.pro.on{background:linear-gradient(#6b5420,#4f3d14);box-shadow:inset 0 0 0 1px rgba(242,193,78,.7)}
 
+/* model kartochkalari */
+.kseg{margin:0 0 10px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mc{position:relative;display:flex;flex-direction:column;border:1px solid #1b1b1b;background:linear-gradient(#272727,#222);border-radius:9px;overflow:hidden;cursor:pointer;text-align:left;color:var(--text);font:inherit;padding:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .15s,box-shadow .2s,border-color .2s}
+.mc:active{transform:scale(.97)}
+.mc .ban{position:relative;height:62px;background:var(--g);overflow:hidden}
+.mc .ban:after{content:"";position:absolute;inset:0;background:radial-gradient(90% 130% at 90% -10%,rgba(255,255,255,.45),transparent 55%),linear-gradient(transparent 35%,rgba(0,0,0,.4))}
+.mc .ban .lt{position:absolute;right:6px;bottom:-16px;font:800 62px/1 var(--fb);color:rgba(255,255,255,.2);letter-spacing:-.05em;z-index:1}
+.mc .ban .ki{position:absolute;left:8px;top:8px;z-index:2;width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,.32);display:grid;place-items:center;color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18)}
+.mc .ban .tag{position:absolute;right:8px;top:8px;z-index:2;font:800 9.5px var(--fb);letter-spacing:.1em;padding:3px 6px;border-radius:4px;background:linear-gradient(var(--gold2),var(--gold));color:#2a1c00;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.mc .bd{padding:9px 10px 10px;display:flex;flex-direction:column;gap:6px;flex:1}
+.mc .bd b{font-size:13.5px;font-weight:700;line-height:1.2;padding-right:18px}
+.mc .fe{display:flex;flex-wrap:wrap;gap:4px}
+.mc .fe i{font:600 10px var(--fb);font-style:normal;color:#d2d2d2;background:#323232;border:1px solid #3e3e3e;padding:2px 6px;border-radius:4px}
+.mc .pr{margin-top:auto;display:flex;align-items:center;gap:4px;font:600 12.5px var(--fm);color:var(--gold2)}
+.mc .pr small{font:500 10.5px var(--fb);color:var(--muted)}
+.mc .ck{position:absolute;right:8px;top:70px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--sel);color:#2a1300;transform:scale(0);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.mc .ck svg{width:11px;height:11px;stroke-width:3.4}
+.mc.on{border-color:var(--sel);box-shadow:0 0 0 1.5px var(--sel),0 10px 26px rgba(255,160,51,.2)}
+.mc.on .ck{transform:scale(1)}
+.mgrid>.mc:last-child:nth-child(odd){grid-column:1/-1}
+
+/* viewport ko'rinish rejimlari (Blender shading) */
+.shade{position:absolute;left:10px;top:52px;display:flex;gap:1px;background:#111;border-radius:7px;padding:1px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.shade button{width:34px;height:30px;border:0;background:#3a3a3a;display:grid;place-items:center;cursor:pointer}
+.shade button:first-child{border-radius:6px 0 0 6px}.shade button:last-child{border-radius:0 6px 6px 0}
+.shade button.on{background:linear-gradient(#5a88cf,#4772b3)}
+.shade svg{width:17px;height:17px}
+
 /* matn maydoni */
 textarea{width:100%;min-height:104px;resize:vertical;border:1px solid #141414;background:var(--field);color:var(--text);border-radius:6px;
   padding:10px 11px;font:500 15px/1.5 var(--fb);outline:none;box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
@@ -149,7 +181,6 @@ textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(90,136,207,.3
 .enum button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border:0;background:var(--wid);color:#ddd;
   padding:7px 10px;font:600 12.5px var(--fb);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
 .enum button{border-radius:0}
-.enum button:only-child{grid-column:1/-1}
 .enum button.on{background:linear-gradient(#5a88cf,#4772b3);color:#fff}
 .enum .ar{display:inline-block;border:1.5px solid currentColor;border-radius:2px;opacity:.85}
 .enum .ic{width:14px;height:14px}
@@ -265,6 +296,7 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
     <div class="vp" id="vp">
       <canvas id="vp3d"></canvas>
       <div class="vp-info" id="vpInfo"><b>Kamera ko'rinishi</b><span>(1) Video | Kling 2.5 Turbo</span></div>
+      <div class="shade" id="shade" aria-label="Ko'rinish rejimi"><button data-sh="wire" aria-label="Sim karkas"><svg viewBox="0 0 20 20" fill="none" stroke="#ddd" stroke-width="1.2"><circle cx="10" cy="10" r="7.5"/><ellipse cx="10" cy="10" rx="7.5" ry="3"/><ellipse cx="10" cy="10" rx="3" ry="7.5"/></svg></button><button data-sh="solid" aria-label="Tekis"><svg viewBox="0 0 20 20"><defs><radialGradient id="sg1" cx=".35" cy=".3"><stop offset="0" stop-color="#f2f2f2"/><stop offset="1" stop-color="#7a7a7a"/></radialGradient></defs><circle cx="10" cy="10" r="7.5" fill="url(#sg1)"/></svg></button><button class="on" data-sh="render" aria-label="Render"><svg viewBox="0 0 20 20"><defs><radialGradient id="sg2" cx=".35" cy=".3"><stop offset="0" stop-color="#ffe6b0"/><stop offset=".5" stop-color="#ff9a3c"/><stop offset="1" stop-color="#5a2a8a"/></radialGradient></defs><circle cx="10" cy="10" r="7.5" fill="url(#sg2)"/></svg></button></div>
       <svg class="gizmo" id="giz" viewBox="0 0 70 70" aria-hidden="true"></svg>
       <div class="frame" id="frame"><div class="fart" id="fart"></div><div class="tiles" id="tiles"></div><span class="flabel" id="fLabel">9:16</span></div>
       <div class="vp-hint" id="vpHint">☝ Aylantirish uchun suring</div>
@@ -356,6 +388,17 @@ function priceOf(k, dur, audio, res){
 const curPrice = () => { const m = MODELS[S.model]; return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
 const AL = { auto: 'Avto', '1:1': '1:1', '9:16': '9:16', '16:9': '16:9', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
 const AW = { '9:16': 'Reels', '16:9': 'YouTube', '1:1': 'Kvadrat' };
+const BRAND = {
+  'nano':         { g: 'linear-gradient(135deg,#ffd84d,#f08a24)', l: 'N', f: ['Tez', 'Tahrirlaydi'] },
+  'nano-pro':     { g: 'linear-gradient(135deg,#7a5410,#f2c14e 60%,#fff0b8)', l: 'N', f: ['Eng sifatli', 'Matn yozadi'] },
+  'kling':        { g: 'linear-gradient(135deg,#0f8f74,#26d39a)', l: 'K', f: ['Arzon', '10 s gacha'] },
+  'veo-fast':     { g: 'linear-gradient(135deg,#2f6fe4,#8a5cf6)', l: 'V', f: ['Ovozli', '1080p'] },
+  'kling3':       { g: 'linear-gradient(135deg,#064e45,#15b98a 70%,#9cf5d4)', l: 'K', f: ['Ovozli', '15 s gacha'] },
+  'seedance':     { g: 'linear-gradient(135deg,#ff4f8b,#7b5cff)', l: 'S', f: ['Ovozli', 'Harakat'] },
+  'seedance-pro': { g: 'linear-gradient(135deg,#3a1d8f,#c24bd6 60%,#ff8fb1)', l: 'S', f: ['Ovozli', '1080p'] },
+  'veo':          { g: 'linear-gradient(135deg,#0d3a8a,#3c7cf0 55%,#b78cff)', l: 'V', f: ['Ovozli', 'Eng real'] },
+  'sora':         { g: 'linear-gradient(135deg,#0b0b0b,#4a4a4a 60%,#d9d9d9)', l: 'S', f: ['Hikoya', '12 s gacha'] }
+};
 const IDEAS = [
   "Kosmonavt mushuk Oy yuzasida sakramoqda, kinematografik, sekin harakat",
   "Toshkent kechasi, yomg'ir, neon chiroqlar, kamera sekin oldinga suriladi",
@@ -399,21 +442,23 @@ function goLabel(){
 }
 function render(){
   const m = MODELS[S.model];
-  const row = ([k, v]) => {
+  const card = ([k, v]) => {
     const p = priceOf(k, S.duration, v.audio ? S.audio : true, '');
-    const desc = String(v.desc || '').replace(/^(Rasm|Video)\s*·\s*/, '');
-    return `<button class="model ${v.tier === 'pro' ? 'pro' : ''} ${k === S.model ? 'on' : ''}" data-m="${k}"><span class="mi ${v.kind}">${IC[v.kind] || IC.video}</span><span class="mt"><b>${esc(v.name)}</b><span>${v.kind === 'video' ? 'Video' : 'Rasm'} · ${esc(desc)}</span></span>${p ? `<span class="pr">${IC.star}${p}${v.durations.length ? ' <small>dan</small>' : ''}</span>` : '<span></span>'}</button>`;
+    const b = BRAND[k] || { g: 'linear-gradient(135deg,#444,#777)', l: v.name[0], f: [] };
+    return `<button class="mc ${k === S.model ? 'on' : ''}" data-m="${k}" style="--g:${b.g}"><span class="ban"><span class="ki">${IC[v.kind] || IC.video}</span>${v.tier === 'pro' ? '<span class="tag">PRO</span>' : ''}<span class="lt">${b.l}</span></span><span class="bd"><b>${esc(v.name)}</b><span class="fe">${b.f.map(x => `<i>${esc(x)}</i>`).join('')}</span>${p ? `<span class="pr">${IC.star}${p}${v.durations.length ? ' <small>dan</small>' : ''}</span>` : ''}</span><i class="ck"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i></button>`;
   };
-  const list = Object.entries(MODELS);
+  const kf = m.kind;
+  const list = Object.entries(MODELS).filter(([, v]) => v.kind === kf).sort((a, b) => (a[1].tier === 'pro') - (b[1].tier === 'pro'));
   $('models').innerHTML =
-    `<p class="grp">${IC.spark}Oddiy</p><div class="mlist">${list.filter(([, v]) => v.tier !== 'pro').map(row).join('')}</div>` +
-    `<p class="grp pro">${IC.crown}Premium</p><div class="mlist">${list.filter(([, v]) => v.tier === 'pro').map(row).join('')}</div>`;
+    `<div class="enum kseg" style="grid-template-columns:1fr 1fr"><button class="${kf === 'video' ? 'on' : ''}" data-k="video">${IC.video}Video</button><button class="${kf === 'image' ? 'on' : ''}" data-k="image">${IC.image}Rasm</button></div>` +
+    `<div class="mgrid">${list.map(card).join('')}</div>`;
   $('modelSum').textContent = m.name;
   if (!m.aspects.includes(S.aspect)) S.aspect = m.aspects[0];
   if (m.durations.length && !m.durations.includes(S.duration)) S.duration = m.durations[0];
   const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image; // Kling rasmdan videoda o'lcham rasmga qarab
   $('aspects').innerHTML = hideAspect ? '<button class="on" disabled>Rasm o\'lchamiga qarab</button>' :
     m.aspects.map(a => `<button class="${a === S.aspect ? 'on' : ''}" data-a="${a}">${AR(a)}${AL[a] || a}</button>`).join('');
+  fitEnum($('aspects'));
   $('durBox').classList.toggle('hide', !m.durations.length);
   $('durs').innerHTML = m.durations.map(d => `<button class="${d === S.duration ? 'on' : ''}" data-d="${d}">${d} s</button>`).join('');
   $('audBox').classList.toggle('hide', !m.audio);
@@ -421,6 +466,7 @@ function render(){
   if (rl.length && !rl.includes(S.res)) S.res = rl[0];
   $('resBox').classList.toggle('hide', !rl.length);
   $('resList').innerHTML = rl.map(r => `<button class="${r === S.res ? 'on' : ''}" data-r="${r}">${r}</button>`).join('');
+  fitEnum($('durs')); fitEnum($('resList'));
   $('outSum').textContent = [hideAspect ? 'rasm o\'lchami' : (AL[S.aspect] || S.aspect), m.durations.length ? S.duration + ' s' : '', S.res].filter(Boolean).join(' · ');
   $('balV').textContent = S.balance == null ? '…' : (S.free ? 'Bepul' : S.balance);
   $('balChip').classList.toggle('free', S.free);
@@ -433,8 +479,19 @@ function render(){
   $('go').disabled = S.busy;
   vpSync();
 }
+// Enum tugmalarini bo'sh joysiz teng taqsimlash
+function fitEnum(el){
+  const n = el.children.length; if (!n) return;
+  const cols = n <= 4 ? n : Math.ceil(n / 2), last = n - (Math.ceil(n / cols) - 1) * cols, total = cols * last;
+  el.style.gridTemplateColumns = `repeat(${total},1fr)`;
+  [...el.children].forEach((b, i) => { b.style.gridColumn = `span ${i >= n - last && last !== cols ? total / last : total / cols}`; });
+}
 $('ideas').innerHTML = IDEAS.map((t, i) => `<button class="idea" data-idea="${i}">${IC.spark}${esc(t.split(',')[0])}</button>`).join('');
 document.addEventListener('click', e => {
+  const sh = e.target.closest('[data-sh]');
+  if (sh) { document.querySelectorAll('[data-sh]').forEach(b => b.classList.toggle('on', b === sh)); if (VP.ok) VP.shade(sh.dataset.sh); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
+  const kb = e.target.closest('[data-k]');
+  if (kb) { if (MODELS[S.model].kind !== kb.dataset.k) { const f = Object.entries(MODELS).find(([, v]) => v.kind === kb.dataset.k && v.tier !== 'pro') || Object.entries(MODELS).find(([, v]) => v.kind === kb.dataset.k); if (f) S.model = f[0]; } try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
   const idea = e.target.closest('[data-idea]');
   if (idea) { $('prompt').value = IDEAS[+idea.dataset.idea]; $('prompt').dispatchEvent(new Event('input')); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab],[data-r]'); if (!t) return;
@@ -591,7 +648,7 @@ new ResizeObserver(() => { layoutFrame(); if (VP.ok) VP.resize(); }).observe(vpE
       s.moveTo(x, y - r); s.lineTo(x + ww, y - r); s.quadraticCurveTo(x + ww + r, y - r, x + ww + r, y); s.lineTo(x + ww + r, y + hh);
       s.quadraticCurveTo(x + ww + r, y + hh + r, x + ww, y + hh + r); s.lineTo(x, y + hh + r); s.quadraticCurveTo(x - r, y + hh + r, x - r, y + hh);
       s.lineTo(x - r, y); s.quadraticCurveTo(x - r, y - r, x, y - r);
-      const b = Math.min(r, .05);
+      const b = Math.min(r, .05, d * .3);
       const g = new THREE.ExtrudeGeometry(s, { depth: d - 2 * b, bevelEnabled: true, bevelThickness: b, bevelSize: b * .8, bevelSegments: 3, curveSegments: 8 });
       g.center(); return g;
     }
@@ -633,55 +690,88 @@ new ResizeObserver(() => { layoutFrame(); if (VP.ok) VP.resize(); }).observe(vpE
       return g;
     }
     // --- Rasm ramkasi (rasm modellar uchun) ---
-    function artTexture(){
+    function artTexture(v){
       const c = document.createElement('canvas'); c.width = 256; c.height = 320; const x = c.getContext('2d');
-      const sky = x.createLinearGradient(0, 0, 0, 320); sky.addColorStop(0, '#1d1a5c'); sky.addColorStop(.45, '#7b4bd6'); sky.addColorStop(.75, '#ff8a5c'); sky.addColorStop(1, '#ffc46b');
+      const P = [
+        { sky: ['#1d1a5c', '#7b4bd6', '#ff8a5c', '#ffc46b'], sun: [170, 175, '#fff3c4'], hills: ['#5a2f86', '#3b1f63', '#1f1238'] },
+        { sky: ['#03122e', '#0d3b73', '#1d77a8', '#7fd3e8'], sun: [80, 90, '#f5f7ff'], hills: ['#0c5a7a', '#083d57', '#04223a'] },
+        { sky: ['#12051f', '#3b0d5c', '#c2185b', '#ff7a3d'], sun: [128, 150, '#ffd0e4'], hills: ['#2b0f45', '#1a0a2e', '#0b0614'] }
+      ][v % 3];
+      const sky = x.createLinearGradient(0, 0, 0, 320); P.sky.forEach((col, i) => sky.addColorStop(i / 3, col));
       x.fillStyle = sky; x.fillRect(0, 0, 256, 320);
-      for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,255,255,${Math.random() * .7})`; x.fillRect(Math.random() * 256, Math.random() * 120, 1.5, 1.5); }
-      const sun = x.createRadialGradient(170, 175, 4, 170, 175, 70); sun.addColorStop(0, '#fff3c4'); sun.addColorStop(.35, '#ffd27a'); sun.addColorStop(1, 'rgba(255,200,120,0)');
-      x.fillStyle = sun; x.fillRect(0, 80, 256, 200);
-      [['#5a2f86', 210, 1.2], ['#3b1f63', 240, 1.6], ['#1f1238', 275, 2.2]].forEach(([col, base, amp]) => {
+      for (let i = 0; i < 50; i++) { x.fillStyle = `rgba(255,255,255,${Math.random() * .8})`; x.fillRect(Math.random() * 256, Math.random() * 130, 1.5, 1.5); }
+      const sun = x.createRadialGradient(P.sun[0], P.sun[1], 3, P.sun[0], P.sun[1], 70); sun.addColorStop(0, P.sun[2]); sun.addColorStop(.3, P.sun[2] + 'aa'); sun.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sun; x.fillRect(0, 0, 256, 320);
+      P.hills.forEach((col, k) => {
+        const base = 205 + k * 35, amp = 1.1 + k * .5;
         x.fillStyle = col; x.beginPath(); x.moveTo(0, 320);
-        for (let px = 0; px <= 256; px += 16) x.lineTo(px, base - Math.abs(Math.sin(px * .02 * amp + amp)) * 50 * amp / 1.6);
+        for (let px = 0; px <= 256; px += 8) x.lineTo(px, base - Math.abs(Math.sin(px * .018 * amp + k * 2 + v)) * 46 * amp / 1.6 - (v === 2 && k === 2 && px % 32 < 16 ? 30 : 0));
         x.lineTo(256, 320); x.fill();
       });
-      const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+      if (v % 3 === 2) for (let i = 0; i < 26; i++) { x.fillStyle = Math.random() < .5 ? '#ffd27a' : '#7ef0ff'; x.fillRect(Math.random() * 256, 250 + Math.random() * 60, 2, 3); }
+      const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
     }
-    function buildFrame(){
+    function buildPhotos(){
       const g = new THREE.Group(), parts = { main: [] };
       turntable(g);
-      const stand = new THREE.Group(); stand.position.y = .1; g.add(stand);
-      const holder = new THREE.Group(); holder.position.set(0, 1.5, 0); holder.rotation.x = -.12; stand.add(holder);
-      const W = 1.5, H = 1.9, T = .12, D = .14;
-      [[0, H / 2, W + T, T], [0, -H / 2, W + T, T], [-W / 2, 0, T, H + T], [W / 2, 0, T, H + T]].forEach(([x, y, w, h]) => {
-        const b = mesh(new THREE.BoxGeometry(w, h, D), MAT.clay, x, y, 0, holder); parts.main.push(b);
+      const st = new THREE.Group(); st.position.y = .1; g.add(st);
+      mesh(rgeo(2.1, .16, .8, .07), MAT.dark, 0, .1, -.05, st);
+      const W = 1.25, H = 1.58;
+      [[-.5, .2, -.28, 1], [.5, -.18, -.16, 2], [0, 0, .06, 0]].forEach(([x, rz, z, v], i) => {
+        const c = new THREE.Group(); c.position.set(x, 1.05, z); c.rotation.z = rz; c.rotation.x = -.08; st.add(c);
+        const body = mesh(rgeo(W + .14, H + .14, .07, .07), MAT.clay, 0, 0, 0, c); parts.main.push(body);
+        if (i === 2) outline(body, 1.035);
+        mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshStandardMaterial({ map: artTexture(v), roughness: .35, metalness: .05, emissive: 0xffffff, emissiveMap: artTexture(v), emissiveIntensity: .18 }), 0, 0, .04, c);
       });
-      const ol = new THREE.Mesh(new THREE.PlaneGeometry(W + T * 2 + .1, H + T * 2 + .1), new THREE.MeshBasicMaterial({ color: 0xffa033 })); ol.position.z = -.075; holder.add(ol);
-      mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshStandardMaterial({ map: artTexture(), roughness: .6, emissive: 0xffffff, emissiveIntensity: .12, emissiveMap: null }), 0, 0, .02, holder);
-      mesh(new THREE.BoxGeometry(W, H, .04), MAT.dark, 0, 0, -.03, holder);
-      // tayanch
-      const leg = mesh(new THREE.BoxGeometry(.08, 1.7, .08), MAT.dark, 0, .75, -.45, stand); leg.rotation.x = .38;
-      mesh(new THREE.BoxGeometry(1.2, .08, .3), MAT.dark, 0, .5, .12, stand);
-      const spark = mesh(new THREE.OctahedronGeometry(.17, 0), MAT.spark, 1.05, 2.55, .2, g);
-      const spark2 = mesh(new THREE.OctahedronGeometry(.1, 0), MAT.spark, -1.05, 2.3, .3, g);
+      const spark = mesh(new THREE.OctahedronGeometry(.17, 0), MAT.spark, 1.15, 2.45, .3, g);
+      const spark2 = mesh(new THREE.OctahedronGeometry(.1, 0), MAT.spark, -1.15, 2.25, .35, g);
       g.userData = { parts, sparks: [spark, spark2] };
       return g;
     }
-    const OBJ = { video: buildCamera(), image: buildFrame() };
+    const OBJ = { video: buildCamera(), image: buildPhotos() };
+    // Ko'rinish rejimlari: sim karkas / tekis / render
+    const WIRE = new THREE.MeshBasicMaterial({ color: 0xdedede, wireframe: true });
+    const SOLID = new THREE.MeshStandardMaterial({ color: 0xb8b8b8, roughness: .75, metalness: 0 });
+    const MESHES = []; Object.values(OBJ).forEach(o => o.traverse(m => { if (m.isMesh) { m.userData.orig = m.material; MESHES.push(m); } }));
+    let shadeMode = 'render';
+    function applyShade(){
+      MESHES.forEach(m => {
+        const o = m.userData.orig, out = o === MAT.outline;
+        m.visible = !(out && shadeMode === 'wire');
+        m.material = shadeMode === 'render' || out ? o : shadeMode === 'solid' ? SOLID : WIRE;
+      });
+      catcher.visible = shadeMode !== 'wire';
+    }
+    VP.shade = mode => { shadeMode = mode; applyShade(); };
+
+    // Orqa fondagi yumshoq nur va havodagi zarrachalar
+    const gc = document.createElement('canvas'); gc.width = gc.height = 128; const gx = gc.getContext('2d');
+    const rg = gx.createRadialGradient(64, 64, 0, 64, 64, 64); rg.addColorStop(0, 'rgba(255,255,255,1)'); rg.addColorStop(.4, 'rgba(255,255,255,.35)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+    gx.fillStyle = rg; gx.fillRect(0, 0, 128, 128);
+    const glowTex = new THREE.CanvasTexture(gc);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0x4a6cff, transparent: true, opacity: .5, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+    glow.scale.set(9, 9, 1); scene.add(glow);
+    const DN = 80, dpos = new Float32Array(DN * 3), dspd = [];
+    for (let i = 0; i < DN; i++) { const a = Math.random() * 6.28, r = .4 + Math.random() * 2.2; dpos[i * 3] = Math.cos(a) * r; dpos[i * 3 + 1] = Math.random() * 3.4; dpos[i * 3 + 2] = Math.sin(a) * r; dspd.push(.08 + Math.random() * .25); }
+    const dgeo = new THREE.BufferGeometry(); dgeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
+    const dust = new THREE.Points(dgeo, new THREE.PointsMaterial({ map: glowTex, color: 0xffcf8a, size: .09, transparent: true, opacity: .35, depthWrite: false, blending: THREE.AdditiveBlending }));
+    scene.add(dust);
+    const cGlowIdle = new THREE.Color(0x4a6cff), cGlowBusy = new THREE.Color(0xff8a2a), tmpV = new THREE.Vector3();
     Object.values(OBJ).forEach(o => { o.visible = false; o.scale.setScalar(.001); scene.add(o); });
     let cur = null, curKey = '';
     VP.setObject = (kind, pro) => {
       const k = kind + (pro ? '+' : '');
       if (k === curKey) return; curKey = k;
       const o = OBJ[kind] || OBJ.video;
-      o.userData.parts.main.forEach(m => { m.material = pro ? MAT.gold : MAT.clay; });
+      o.userData.parts.main.forEach(m => { m.userData.orig = pro ? MAT.gold : MAT.clay; });
+      applyShade();
       if (cur !== o) { if (cur) { cur.visible = false; cur.scale.setScalar(.001); } cur = o; o.visible = true; o.scale.setScalar(.6); }
       else o.scale.setScalar(.85);
     };
 
     // Kamera boshqaruvi (barmoq bilan aylantirish)
-    let yaw = .75, pitch = .3, dist = 9, drag = null, lastTouch = 0;
-    vpEl.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw, pitch }; lastTouch = performance.now(); });
+    let yaw = .55, pitch = .3, dist = 9, drag = null, lastTouch = 0, autoT = 0;
+    vpEl.addEventListener('pointerdown', e => { if (e.target.closest('.shade')) return; drag = { x: e.clientX, y: e.clientY, yaw, pitch }; lastTouch = performance.now(); });
     window.addEventListener('pointermove', e => {
       if (!drag) return;
       yaw = drag.yaw - (e.clientX - drag.x) * .012;
@@ -721,14 +811,23 @@ new ResizeObserver(() => { layoutFrame(); if (VP.ok) VP.resize(); }).observe(vpE
       const dt = Math.min(.05, (now - last) / 1000); last = now;
       if (!visible || document.hidden || S.tab !== 'make' || $('app').classList.contains('hide')) return;
       const t = now / 1000, busy = VP.state === 'run';
-      if (!drag && now - lastTouch > 2500 && !reduce) yaw += dt * (busy ? .45 : .18);
+      if (!drag && now - lastTouch > 2500 && !reduce) { autoT += dt * (busy ? 2.2 : 1); const goal = .5 + Math.sin(autoT * .32) * .62; yaw += (goal - yaw) * Math.min(1, dt * 1.2); }
       const tgt = new THREE.Vector3(0, 1.35, 0);
       cam.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, tgt.y + Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist);
       cam.lookAt(tgt);
+      // nur doim ob'ekt ortida turadi
+      glow.position.copy(tgt).add(tmpV.copy(tgt).sub(cam.position).normalize().multiplyScalar(3.2));
+      glow.material.color.lerp(busy ? cGlowBusy : cGlowIdle, Math.min(1, dt * 2));
+      glow.material.opacity = (busy ? .7 : .5) + Math.sin(t * 2) * .05;
+      glow.visible = shadeMode !== 'wire';
+      const dp = dgeo.attributes.position.array;
+      for (let i = 0; i < DN; i++) { dp[i * 3 + 1] += dt * dspd[i] * (busy ? 3 : 1); if (dp[i * 3 + 1] > 3.6) dp[i * 3 + 1] = 0; }
+      dgeo.attributes.position.needsUpdate = true;
+      dust.material.opacity += ((busy ? .85 : .3) - dust.material.opacity) * Math.min(1, dt * 2);
       if (cur) {
         const s = cur.scale.x; if (s < 1) cur.scale.setScalar(Math.min(1, s + (1 - s) * Math.min(1, dt * 9) + .002));
         const u = cur.userData;
-        if (u.reels) { u.reels.forEach((r, i) => r.rotation.z -= dt * (busy ? 7 : .6) * (i ? 1.2 : 1)); u.rec.visible = busy ? Math.sin(t * 6) > 0 : true; u.rec.material.color.setHex(busy ? 0xff2d2d : 0x7a1f1f); u.head.position.y = 1.55 + Math.sin(t * 1.6) * .02; }
+        if (u.reels) { u.reels.forEach((r, i) => r.rotation.z -= dt * (busy ? 7 : .6) * (i ? 1.2 : 1)); u.rec.visible = busy ? Math.sin(t * 6) > 0 : true; MAT.rec.color.setHex(busy ? 0xff2d2d : 0x7a1f1f); u.head.position.y = 1.55 + Math.sin(t * 1.6) * .02; }
         if (u.sparks) u.sparks.forEach((s2, i) => { s2.rotation.y += dt * (busy ? 4 : 1.2); s2.position.y = (i ? 2.3 : 2.55) + Math.sin(t * 2 + i) * .08; });
       }
       R.render(scene, cam);
