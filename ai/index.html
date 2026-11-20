@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AI studiya</title>
+<title>Protos AI</title>
 <meta name="robots" content="noindex">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,42 +76,52 @@ textarea:focus{border-color:var(--blue2)}
 .empty{text-align:center;color:var(--muted);padding:30px 10px}
 .gate{text-align:center;padding:28px 18px;margin-top:30px}
 .hide{display:none!important}
-.bal{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;margin:0 0 12px;
-  background:linear-gradient(135deg,rgba(255,211,77,.16),rgba(47,123,255,.12));border-color:rgba(255,211,77,.3)}
-.bal .v{flex:1}
-.bal .v small{display:block;font-size:12px;color:var(--muted);font-weight:600}
-.bal .v b{font:700 22px Unbounded,sans-serif}
-.bal button{border:0;border-radius:14px;padding:11px 14px;font:800 14px Manrope;color:#1a1300;background:linear-gradient(135deg,#ffd34d,#ffb02e);box-shadow:0 8px 20px rgba(255,176,46,.35);cursor:pointer;white-space:nowrap}
-.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;background:rgba(0,0,0,.55)}
-.sheet .in{width:100%;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;background:#0b1428;border:1px solid var(--line)}
-.packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 10px}
+/* Balans — tepada ixcham chip */
+.balchip{display:flex;align-items:center;gap:6px;border:1px solid rgba(255,211,77,.4);background:linear-gradient(135deg,rgba(255,211,77,.18),rgba(255,176,46,.08));
+  color:var(--fg);border-radius:99px;padding:6px 6px 6px 12px;font:800 14px Manrope;cursor:pointer;white-space:nowrap;box-shadow:var(--edge)}
+.balchip b{font:700 15px Unbounded,sans-serif;color:#ffd34d}
+.balchip .plus{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,#ffd34d,#ffb02e);color:#1a1300;font:800 17px/1 Manrope}
+.balchip.free .plus{display:none}
+.balchip.free{padding-right:12px}
+/* To'ldirish sahifasi */
+.tp-head{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.back{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--fg);border-radius:12px;padding:8px 12px;font:700 14px Manrope;cursor:pointer}
+.tp-bal{padding:18px 16px;margin-bottom:14px;text-align:center;background:linear-gradient(135deg,rgba(255,211,77,.16),rgba(47,123,255,.12));border-color:rgba(255,211,77,.3)}
+.tp-bal small{display:block;font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.tp-bal b{display:block;font:700 34px/1.2 Unbounded,sans-serif;color:#ffd34d;margin:6px 0 2px}
+.tp-bal span{font-size:12px;color:var(--muted)}
+.packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
 .pack{border:1px solid rgba(255,211,77,.35);background:rgba(255,211,77,.08);color:var(--fg);border-radius:16px;padding:14px;font:inherit;cursor:pointer;text-align:left}
 .pack b{display:block;font:700 20px Unbounded,sans-serif;color:#ffd34d}
 .pack span{font-size:12px;color:var(--muted)}
 .pack.best{grid-column:1/-1;background:linear-gradient(135deg,rgba(255,211,77,.2),rgba(47,123,255,.15))}
-.close{width:100%;border:1px solid var(--line);background:none;color:var(--muted);border-radius:14px;padding:12px;font:700 14px Manrope;cursor:pointer}
+.howto{padding:14px;margin-bottom:12px}
+.howto ol{margin:0;padding-left:20px;display:grid;gap:6px;font-size:13.5px;color:var(--muted)}
 .topup-cta{margin-top:10px;border:0;border-radius:12px;padding:10px 14px;font:800 13px Manrope;color:#1a1300;background:#ffd34d;cursor:pointer}
 </style>
 </head>
 <body>
-<div class="top">
-  <div><h1>AI studiya</h1><p class="sub">Matn yoki rasmdan video va rasm</p></div>
+<div class="top" id="mainHead">
+  <div><h1>Protos AI</h1><p class="sub">Matn yoki rasmdan video va rasm</p></div>
+  <button class="balchip" id="balChip" aria-label="Balans va to'ldirish">⭐ <b id="balV">…</b><span class="plus">+</span></button>
 </div>
 
-<div class="glass bal" id="balBar">
-  <div class="v"><small>💰 Balansingiz</small><b id="balV">…</b><small id="left"></small></div>
-  <button id="topBtn">➕ To'ldirish</button>
-</div>
-
-<div class="sheet hide" id="sheet">
-  <div class="in">
-    <h1 style="font-size:19px">⭐ Balansni to'ldirish</h1>
-    <p class="sub" style="margin:4px 0 0">Telegram Stars orqali xavfsiz to'lov. Stars ilovaning o'zida sotib olinadi.</p>
-    <div class="packs" id="packs"></div>
-    <p class="hint" id="payNote" style="margin:0 0 10px"></p>
-    <button class="close" id="sheetClose">Yopish</button>
+<section id="topup" class="hide">
+  <div class="tp-head"><button class="back" id="tpBack">← Orqaga</button><h1 style="font-size:19px;margin:0">Balansni to'ldirish</h1></div>
+  <div class="glass tp-bal"><small>Hozirgi balans</small><b id="tpBal">…</b><span id="left"></span></div>
+  <p class="lbl">Paketni tanlang</p>
+  <div class="packs" id="packs"></div>
+  <p class="hint" id="payNote" style="margin:0 0 12px"></p>
+  <div class="glass howto">
+    <p class="lbl">Qanday ishlaydi</p>
+    <ol>
+      <li>Paketni tanlang — Telegram to'lov oynasi ochiladi.</li>
+      <li>Telegram Stars bilan to'lang. Stars yetmasa, Telegram o'zi sotib olishni taklif qiladi.</li>
+      <li>Balans bir necha soniyada yangilanadi.</li>
+    </ol>
   </div>
-</div>
+</section>
 
 <div class="glass gate hide" id="gate"></div>
 
@@ -207,7 +217,7 @@ function priceOf(k, dur, audio, res){
 const curPrice = () => { const m = MODELS[S.model]; return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
 const AL = { auto: 'Avto', '1:1': '1:1 kvadrat', '9:16': '9:16 Reels', '16:9': '16:9 YouTube', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
 
-const S = { model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, packs: [100, 300, 500, 1000, 2500] };
+const S = { tab: 'make', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, packs: [100, 300, 500, 1000, 2500] };
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
@@ -221,7 +231,7 @@ async function api(path, opt = {}){
   return d;
 }
 
-function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); $('balBar').classList.add('hide'); $('sheet').classList.add('hide'); }
+function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); $('balChip').classList.add('hide'); $('topup').classList.add('hide'); }
 
 /* ---------- Forma ---------- */
 function render(){
@@ -246,7 +256,9 @@ function render(){
   if (rl.length && !rl.includes(S.res)) S.res = rl[0];
   $('resBox').classList.toggle('hide', !rl.length);
   $('resList').innerHTML = rl.map(r => `<button class="chip ${r === S.res ? 'on' : ''}" data-r="${r}">${r}${r === rl[0] ? '' : ' ✨'}</button>`).join('');
-  $('balV').textContent = S.balance == null ? '…' : (S.free ? '👑 Bepul' : S.balance + ' ⭐');
+  $('balV').textContent = S.balance == null ? '…' : (S.free ? 'Bepul' : S.balance);
+  $('balChip').classList.toggle('free', S.free);
+  $('tpBal').textContent = S.balance == null ? '…' : (S.free ? '👑 Bepul' : S.balance + ' ⭐');
   document.querySelectorAll('[data-aud]').forEach(b => b.classList.toggle('on', (b.dataset.aud === '1') === S.audio));
   $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
   $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
@@ -265,6 +277,7 @@ document.addEventListener('click', e => {
     document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b === t));
     $('make').classList.toggle('hide', t.dataset.tab !== 'make');
     $('hist').classList.toggle('hide', t.dataset.tab !== 'hist');
+    S.tab = t.dataset.tab;
     $('go').classList.toggle('hide', t.dataset.tab !== 'make');
     if (t.dataset.tab === 'hist') loadHist();
   }
@@ -349,7 +362,7 @@ $('go').onclick = async () => {
     S.busy = false; render(); haptic('error');
     $('pTitle').textContent = e.code === 'balance' ? '💰 Balans yetmaydi' : '❌ Xato'; $('pPct').textContent = '';
     $('pNote').innerHTML = `<span class="err">${esc(e.message)}</span>` + (e.code === 'balance' ? `<br><button class="topup-cta" id="ctaTop">➕ Balansni to'ldirish</button>` : '');
-    if (e.code === 'balance') $('ctaTop').onclick = openSheet;
+    if (e.code === 'balance') $('ctaTop').onclick = openTopup;
   }
 };
 
@@ -377,15 +390,26 @@ function setInfo(d){
   if (d.balance != null) S.balance = d.balance;
   if (d.free != null) S.free = d.free;
   if (d.packs) S.packs = d.packs;
-  if (d.left != null) $('left').textContent = `Bugun yana ${d.left} ta yaratish mumkin`;
+  if (d.left != null) $('left').textContent = `Bugungi limit: yana ${d.left} ta yaratish`;
   render();
 }
 
-/* ---------- Hisob to'ldirish (Telegram Stars) ---------- */
-function openSheet(){
+/* ---------- Hisob to'ldirish (alohida sahifa, Telegram Stars) ---------- */
+function openTopup(){
   $('packs').innerHTML = S.packs.map((n, i) => `<button class="pack ${i === S.packs.length - 1 ? 'best' : ''}" data-pack="${n}"><b>${n} ⭐</b><span>${packHint(n)}</span></button>`).join('');
   $('payNote').textContent = '';
-  $('sheet').classList.remove('hide');
+  $('app').classList.add('hide'); $('mainHead').classList.add('hide'); $('go').classList.add('hide');
+  $('topup').classList.remove('hide');
+  scrollTo({ top: 0 });
+  try { tgApp.BackButton.show(); } catch (e) {}
+  refreshLeft();
+}
+function closeTopup(){
+  $('topup').classList.add('hide');
+  $('app').classList.remove('hide'); $('mainHead').classList.remove('hide');
+  $('go').classList.toggle('hide', S.tab !== 'make');
+  try { tgApp.BackButton.hide(); } catch (e) {}
+  scrollTo({ top: 0 });
 }
 function packHint(n){
   const kl = MODELS.kling && priceOf('kling', '5', true, ''), nb = MODELS.nano && priceOf('nano', '0', true, '');
@@ -394,10 +418,10 @@ function packHint(n){
   if (nb) parts.push(`yoki ${Math.floor(n / nb)} ta rasm`);
   return parts.join(' ') || 'Stars';
 }
-$('topBtn').onclick = openSheet;
-$('sheetClose').onclick = () => $('sheet').classList.add('hide');
-$('sheet').addEventListener('click', async e => {
-  if (e.target === $('sheet')) return $('sheet').classList.add('hide');
+$('balChip').onclick = openTopup;
+$('tpBack').onclick = closeTopup;
+try { tgApp.BackButton.onClick(closeTopup); } catch (e) {}
+$('packs').addEventListener('click', async e => {
   const b = e.target.closest('[data-pack]'); if (!b) return;
   $('payNote').textContent = "To'lov oynasi ochilmoqda…";
   try {
@@ -408,7 +432,7 @@ $('sheet').addEventListener('click', async e => {
         haptic('success'); $('payNote').textContent = "✅ To'landi! Balans yangilanmoqda…";
         const before = S.balance;
         for (let i = 0; i < 8; i++) { await new Promise(r => setTimeout(r, 1500)); await refreshLeft(); if (S.balance !== before) break; }
-        $('sheet').classList.add('hide');
+        $('payNote').textContent = "✅ Balans to'ldirildi";
       } else if (st === 'failed') { haptic('error'); $('payNote').textContent = "❌ To'lov amalga oshmadi"; }
       else $('payNote').textContent = '';
     });
@@ -431,7 +455,7 @@ $('sheet').addEventListener('click', async e => {
     if (e.code === 'denied' || e.code === 'auth') return gate(`<h1>🔒 Hozircha yopiq</h1><p class="sub">${esc(e.message)}</p>`);
     $('balV').textContent = '—';
   }
-  if (qs.get('topup') === '1') openSheet();
+  if (qs.get('topup') === '1') openTopup();
   // Oldingi tugallanmagan ishni davom ettirish
   try {
     const cur = JSON.parse(localStorage.getItem('ai_cur') || 'null');
