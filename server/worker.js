@@ -1,4 +1,4 @@
-// ★★★ VERSIYA 3 — to'lov, balans, premium modellar ★★★
+// ★★★ VERSIYA 4 — Protos AI: yangi dizayn, rasmli /start menyusi ★★★
 /* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -363,7 +363,7 @@ async function onUpdate(update, env, origin){
     const bal = await addBal(env, m.from.id, sp.total_amount);
     await tg(env, 'sendMessage', { chat_id: m.chat.id, parse_mode: 'HTML',
       text: `✅ Balans to'ldirildi: <b>+${sp.total_amount} ⭐</b>\nHozirgi balans: <b>${bal} ⭐</b>`,
-      reply_markup: { inline_keyboard: [[{ text: '🎬 AI studiya', web_app: { url: appUrl } }]] } });
+      reply_markup: { inline_keyboard: [[{ text: '✨ Studiyani ochish', web_app: { url: appUrl } }]] } });
     if (env.ADMIN_ID && !isAdmin(env, m.from.id))
       await tg(env, 'sendMessage', { chat_id: env.ADMIN_ID, parse_mode: 'HTML',
         text: `💰 <b>Yangi to'lov!</b> ${esc(m.from.first_name || '')}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''} — <b>${sp.total_amount} ⭐</b>` });
@@ -374,14 +374,17 @@ async function onUpdate(update, env, origin){
   const cmd = m.text.trim().split(/[\s@]/)[0].toLowerCase();
 
   if (cmd === '/start' || cmd === '/ai') {
-    await tg(env, 'sendMessage', {
-      chat_id: chat, parse_mode: 'HTML',
-      text: "🎬 <b>AI studiya</b>\n\nMatn yoki rasmdan video va rasm yarating:\n• <b>Nano Banana</b> — rasm yaratish va tahrirlash\n• <b>Kling, Veo, Seedance, Sora</b> — video\n⭐ Premium modellar — eng yuqori sifat\n\nTayyor natija shu chatga ham keladi.\n\n👇 «AI studiya» tugmasini bosing.",
-      reply_markup: { inline_keyboard: [[{ text: '🎬 AI studiya', web_app: { url: appUrl } }], [{ text: '📢 Kanal', url: CHANNEL }]] }
-    });
+    const bal = await getBal(env, m.from.id);
+    const kb = { inline_keyboard: [
+      [{ text: '✨ Protos studiyasini ochish', web_app: { url: appUrl } }],
+      [{ text: `⭐ Balans: ${bal}`, web_app: { url: appUrl + '&topup=1' } }, { text: '📢 Kanal', url: CHANNEL }]
+    ] };
+    const caption = `🏛 <b>PROTOS AI</b>\n<i>πρῶτος — birinchi</i>\n\nTasavvuringizni bir necha daqiqada video va rasmga aylantiring.\n\n🖼 <b>Rasm</b> — Nano Banana 2 · Nano Banana Pro\n🎬 <b>Video</b> — Kling · Veo · Seedance · Sora\n👑 <b>Premium</b> — kinematografik sifat, ovoz bilan\n\nTayyor natija shu chatga ham keladi.`;
+    const ph = await tg(env, 'sendPhoto', { chat_id: chat, photo: SITE + 'img/protos-cover.png', caption, parse_mode: 'HTML', reply_markup: kb });
+    if (!ph.ok) await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: caption, reply_markup: kb });
   } else if (cmd === '/balans' || cmd === '/balance') {
-    await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `💰 Balansingiz: <b>${await getBal(env, m.from.id)} ⭐</b>`,
-      reply_markup: { inline_keyboard: [[{ text: "➕ To'ldirish", web_app: { url: appUrl + '&topup=1' } }]] } });
+    await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: `⭐ <b>Balansingiz:</b> ${await getBal(env, m.from.id)} Stars\n\nBalans har bir yaratish uchun yechiladi. Xato bilan tugagan ishlar uchun Stars avtomatik qaytariladi.`,
+      reply_markup: { inline_keyboard: [[{ text: "⭐ Balansni to'ldirish", web_app: { url: appUrl + '&topup=1' } }], [{ text: '✨ Studiyani ochish', web_app: { url: appUrl } }]] } });
   } else if (cmd === '/paysupport') {
     await tg(env, 'sendMessage', { chat_id: chat, text: "💬 To'lov bo'yicha savol yoki muammo bo'lsa, shu yerga yozing — egasi ko'rib chiqadi. Xato bilan yaratilmagan ishlar uchun Stars avtomatik qaytariladi." });
     if (env.ADMIN_ID) await tg(env, 'sendMessage', { chat_id: env.ADMIN_ID, text: `🆘 /paysupport: ${m.from.first_name || ''} (id ${m.from.id})` });
@@ -429,18 +432,18 @@ export default {
       const hook = await tg(env, 'setWebhook', { url: url.origin + '/tg', secret_token: env.WEBHOOK_SECRET, allowed_updates: ['message', 'pre_checkout_query'] });
       const cmds = await tg(env, 'setMyCommands', { commands: [
         { command: 'start', description: 'Boshlash' },
-        { command: 'ai', description: 'AI studiya — video va rasm yaratish' },
+        { command: 'ai', description: 'Protos studiyasi — video va rasm yaratish' },
         { command: 'balans', description: 'Balansim' },
         { command: 'paysupport', description: "To'lov bo'yicha yordam" },
         { command: 'id', description: 'Telegram ID raqamim' }
       ] });
-      await tg(env, 'setChatMenuButton', { menu_button: { type: 'web_app', text: '🎬 AI studiya', web_app: { url: AI_APP + '?api=' + encodeURIComponent(url.origin) } } });
+      await tg(env, 'setChatMenuButton', { menu_button: { type: 'web_app', text: 'Protos AI', web_app: { url: AI_APP + '?api=' + encodeURIComponent(url.origin) } } });
       const ok = hook.ok && cmds.ok;
       return new Response(ok ? "✅ Tayyor! Bot serverga ulandi. Endi botga /id yozing." : '❌ Xato: ' + JSON.stringify({ hook, cmds }), {
         headers: { 'Content-Type': 'text/plain; charset=utf-8' }
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 3)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 4)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };
