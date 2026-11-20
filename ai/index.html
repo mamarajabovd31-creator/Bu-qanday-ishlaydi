@@ -65,12 +65,25 @@ svg.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-wid
 .vp-hint{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);font:600 11.5px var(--fb);color:#ddd;background:rgba(0,0,0,.45);
   padding:5px 10px;border-radius:99px;pointer-events:none;transition:opacity .5s;white-space:nowrap}
 /* kamera kadri: tanlangan o'lcham shu yerda ko'rinadi */
-.frame{position:absolute;pointer-events:none;border:1px dashed rgba(255,255,255,.7);box-shadow:0 0 0 2000px rgba(10,10,10,.34);
+.frame{position:absolute;pointer-events:none;border:1px solid rgba(255,255,255,.55);box-shadow:0 0 0 2000px rgba(6,6,8,.52);
   transition:left .45s cubic-bezier(.2,.8,.2,1),top .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),height .45s cubic-bezier(.2,.8,.2,1)}
-.frame:before,.frame:after{content:"";position:absolute;width:12px;height:12px;border:2px solid #fff;opacity:.9}
-.frame:before{left:-3px;top:-3px;border-right:0;border-bottom:0}
-.frame:after{right:-3px;bottom:-3px;border-left:0;border-top:0}
-.flabel{position:absolute;left:-1px;bottom:100%;margin-bottom:5px;font:600 10.5px var(--fm);color:#fff;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:4px;white-space:nowrap}
+.frame .cb{position:absolute;width:14px;height:14px;border:2px solid #fff;z-index:3;filter:drop-shadow(0 0 3px rgba(0,0,0,.6));transition:border-color .3s}
+.frame .cb.tl{left:-3px;top:-3px;border-right:0;border-bottom:0;border-radius:4px 0 0 0}
+.frame .cb.tr{right:-3px;top:-3px;border-left:0;border-bottom:0;border-radius:0 4px 0 0}
+.frame .cb.bl{left:-3px;bottom:-3px;border-right:0;border-top:0;border-radius:0 0 0 4px}
+.frame .cb.br{right:-3px;bottom:-3px;border-left:0;border-top:0;border-radius:0 0 4px 0}
+.frame.rendering .cb,.frame.done .cb{border-color:var(--sel)}
+.thirds{position:absolute;inset:0;transition:opacity .3s;
+  background:linear-gradient(90deg,transparent calc(33.33% - .5px),rgba(255,255,255,.16) 33.33%,transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.16) 66.66%,transparent calc(66.66% + .5px)),
+  linear-gradient(180deg,transparent calc(33.33% - .5px),rgba(255,255,255,.16) 33.33%,transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.16) 66.66%,transparent calc(66.66% + .5px))}
+.thirds:after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);
+  background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)) center/1px 100% no-repeat,linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)) center/100% 1px no-repeat}
+.frame.rendering .thirds,.frame.done .thirds{opacity:0}
+.flabel{position:absolute;left:6px;top:6px;z-index:3;display:flex;align-items:center;gap:5px;font:600 10px var(--fm);color:#fff;background:rgba(0,0,0,.6);padding:3px 6px;border-radius:4px;white-space:nowrap;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.frec{position:absolute;right:6px;top:6px;z-index:3;display:none;align-items:center;gap:5px;font:700 10px var(--fm);color:#fff;background:rgba(0,0,0,.6);padding:3px 6px;border-radius:4px}
+.frec i{width:7px;height:7px;border-radius:50%;background:#ff3b3b;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.frame.rendering .frec{display:flex}
 .fart{position:absolute;inset:0;opacity:0;transition:opacity .4s;
   background:radial-gradient(60% 50% at 70% 30%,#ffd37a 0%,rgba(255,211,122,0) 60%),linear-gradient(170deg,#2a2370 0%,#7b4bd6 38%,#ff8a5c 70%,#ffc46b 100%)}
 .fart img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -87,6 +100,10 @@ svg.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-wid
 .vp-status .vb{flex:1;height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
 .vp-status .vb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sel2),var(--sel));transition:width .7s ease;box-shadow:0 0 10px rgba(255,160,51,.6)}
 .vp-status .vt b{color:var(--sel)}
+.vp-status .vt{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(127,195,90,.2);flex:none}
+.dot.run{background:var(--sel);box-shadow:0 0 0 3px rgba(255,160,51,.25);animation:blink 1s infinite}
+.dot.error{background:var(--red);box-shadow:0 0 0 3px rgba(229,84,79,.25)}
 
 /* ---------- Xususiyatlar panellari (Blender Properties) ---------- */
 .props{background:var(--area);padding:10px 0 4px}
@@ -169,6 +186,56 @@ textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(90,136,207,.3
 .idea .ic{width:13px;height:13px;color:var(--sel)}
 
 /* rasm yuklash */
+.drop{display:flex!important;flex-direction:column;align-items:center;gap:6px;padding:20px 14px!important;
+  background:radial-gradient(80% 120% at 50% 0%,rgba(90,136,207,.12),transparent 70%),var(--field)!important;border:1.5px dashed #4d4d4d!important;transition:border-color .2s}
+.drop.hide{display:none!important}
+.drop .dic{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(#5a88cf,#4772b3);box-shadow:0 6px 18px rgba(71,114,179,.45),inset 0 1px 0 rgba(255,255,255,.3);color:#fff;margin-bottom:2px}
+.drop .dic svg{width:22px;height:22px;color:#fff!important}
+.drop b{font:700 14px var(--fb)}
+.drop small{font:500 11.5px var(--fb);color:var(--muted)}
+.upprev{flex:1;min-width:0;display:flex;gap:12px;align-items:center;background:var(--field);border:1px solid #141414;border-radius:8px;padding:8px}
+.upprev .ph{position:relative;width:96px;height:96px;flex:none;border-radius:6px;overflow:hidden;border:2px solid var(--sel);
+  background:repeating-conic-gradient(#2a2a2a 0 25%,#222 0 50%) 0 0/14px 14px}
+.upprev .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.upprev .ph span{position:absolute;left:4px;bottom:4px;font:700 9px var(--fb);letter-spacing:.05em;color:#2a1300;background:var(--sel);padding:2px 5px;border-radius:3px}
+.upprev .ua{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.upprev .ua b{font-size:13px}
+.upprev .ua small{font-size:11.5px;color:var(--muted)}
+.upprev .ub{display:flex;gap:6px;margin-top:2px}
+.upprev .ub label,.upprev .ub button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid #474747;background:var(--wid);color:#eee;border-radius:6px;padding:8px 6px;font:600 12px var(--fb);cursor:pointer}
+.upprev .ub button{color:#ff8a85}
+
+/* o'lcham kartochkalari */
+.slbl{display:flex;align-items:center;justify-content:space-between;font:600 11px var(--fb);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.slbl em{font-style:normal;text-transform:none;letter-spacing:0;color:var(--muted);font-weight:500}
+.acards{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px;margin-bottom:14px}
+.ac{display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid #3a3a3a;background:linear-gradient(#333,#2c2c2c);color:#ddd;border-radius:8px;padding:10px 4px 8px;cursor:pointer;font:inherit;transition:border-color .2s,background .2s}
+.ac .shp{height:38px;display:grid;place-items:center}
+.ac .shp i{display:block;border:2px solid currentColor;border-radius:3px;opacity:.75;transition:all .25s}
+.ac b{font:600 12.5px var(--fm)}
+.ac small{font:500 10px var(--fb);color:var(--muted);margin-top:-4px}
+.ac.on{border-color:var(--blue2);background:linear-gradient(rgba(90,136,207,.28),rgba(71,114,179,.16));color:#fff;box-shadow:0 0 0 1px var(--blue2) inset}
+.ac.on .shp i{opacity:1;border-color:#9cc0ff;background:rgba(156,192,255,.18);box-shadow:0 0 10px rgba(90,136,207,.5)}
+.ac.on small{color:#c9d8f0}
+.ac[disabled]{grid-column:1/-1;flex-direction:row;justify-content:center}
+
+/* Blender slayder maydoni */
+.slider{display:flex;align-items:stretch;height:38px;border-radius:6px;overflow:hidden;background:#141414;gap:1px;padding:1px}
+.slider>button{width:34px;border:0;background:var(--wid);color:#ddd;display:grid;place-items:center;cursor:pointer;font:700 15px var(--fb)}
+.slider>button:first-child{border-radius:5px 0 0 5px}.slider>button:last-child{border-radius:0 5px 5px 0}
+.slider>button:disabled{color:#666}
+.sf{position:relative;flex:1;background:#4a4a4a;display:flex;align-items:center;justify-content:center;padding:0 12px;cursor:ew-resize;touch-action:none;overflow:hidden}
+.sf>i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#5a88cf,#4772b3);transition:width .25s cubic-bezier(.2,.8,.2,1)}
+.sf>span,.sf>b{position:relative;font:600 12.5px var(--fb);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.sf>b{font-family:var(--fm)}
+.sf .tk{position:absolute;bottom:0;width:1px;height:6px;background:rgba(255,255,255,.35)}
+/* belgilash katagi */
+.cbx{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;color:var(--text);font:600 13px var(--fb);padding:6px 0;cursor:pointer}
+.cbx .bx{width:20px;height:20px;border-radius:5px;display:grid;place-items:center;background:var(--wid);border:1px solid #555;transition:all .2s}
+.cbx .bx svg{width:13px;height:13px;stroke-width:3.2;opacity:0;color:#fff}
+.cbx.on .bx{background:linear-gradient(#5a88cf,#4772b3);border-color:#3a5e94}
+.cbx.on .bx svg{opacity:1}
+.cbx small{color:var(--muted);font-weight:500;font-size:11.5px}
 .up{display:flex;align-items:center;gap:10px}
 .up label{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border:1px dashed #555;border-radius:6px;padding:14px;color:#eee;cursor:pointer;font:600 13.5px var(--fb);background:var(--field)}
 .up label:active{border-color:var(--blue2)}
@@ -298,7 +365,7 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
       <div class="vp-info" id="vpInfo"><b>Kamera ko'rinishi</b><span>(1) Video | Kling 2.5 Turbo</span></div>
       <div class="shade" id="shade" aria-label="Ko'rinish rejimi"><button data-sh="wire" aria-label="Sim karkas"><svg viewBox="0 0 20 20" fill="none" stroke="#ddd" stroke-width="1.2"><circle cx="10" cy="10" r="7.5"/><ellipse cx="10" cy="10" rx="7.5" ry="3"/><ellipse cx="10" cy="10" rx="3" ry="7.5"/></svg></button><button data-sh="solid" aria-label="Tekis"><svg viewBox="0 0 20 20"><defs><radialGradient id="sg1" cx=".35" cy=".3"><stop offset="0" stop-color="#f2f2f2"/><stop offset="1" stop-color="#7a7a7a"/></radialGradient></defs><circle cx="10" cy="10" r="7.5" fill="url(#sg1)"/></svg></button><button class="on" data-sh="render" aria-label="Render"><svg viewBox="0 0 20 20"><defs><radialGradient id="sg2" cx=".35" cy=".3"><stop offset="0" stop-color="#ffe6b0"/><stop offset=".5" stop-color="#ff9a3c"/><stop offset="1" stop-color="#5a2a8a"/></radialGradient></defs><circle cx="10" cy="10" r="7.5" fill="url(#sg2)"/></svg></button></div>
       <svg class="gizmo" id="giz" viewBox="0 0 70 70" aria-hidden="true"></svg>
-      <div class="frame" id="frame"><div class="fart" id="fart"></div><div class="tiles" id="tiles"></div><span class="flabel" id="fLabel">9:16</span></div>
+      <div class="frame" id="frame"><div class="fart" id="fart"></div><div class="thirds"></div><div class="tiles" id="tiles"></div><span class="flabel" id="fLabel">9:16</span><span class="frec"><i></i>REC</span><i class="cb tl"></i><i class="cb tr"></i><i class="cb bl"></i><i class="cb br"></i></div>
       <div class="vp-hint" id="vpHint">☝ Aylantirish uchun suring</div>
       <div class="vp-status"><span class="vt" id="vpText">Tayyor · Model tanlang</span><span class="vb"><i id="vpBar"></i></span></div>
     </div>
@@ -319,9 +386,11 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
       <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg><span id="upLbl">Rasm (ixtiyoriy)</span></summary>
         <div class="pb">
           <div class="up">
-            <label for="file" id="upBtn" tabindex="0"></label>
-            <img id="thumb" class="hide" alt="">
-            <button class="x hide" id="rm" aria-label="Rasmni olib tashlash"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <label for="file" id="upBtn" class="drop" tabindex="0"></label>
+            <div class="upprev hide" id="upPrev"><div class="ph"><img id="thumb" alt=""><span id="phTag">1-KADR</span></div>
+              <div class="ua"><b>Rasm yuklandi ✓</b><small id="upInfo"></small>
+                <div class="ub"><label for="file"><svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5"/><path d="M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5"/></svg>Almashtirish</label><button id="rm"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>O'chirish</button></div>
+              </div></div>
           </div>
           <input type="file" id="file" accept="image/*" class="hide">
           <p class="hint" id="upHint"></p>
@@ -330,10 +399,11 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
 
       <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="14" rx="3"/><path d="M16.5 10l5-3v10l-5-3z"/></svg>Chiqish sozlamalari<span class="sval" id="outSum"></span></summary>
         <div class="pb">
-          <div class="row-l"><span>O'lcham</span><div class="enum" id="aspects"></div></div>
-          <div class="row-l" id="durBox"><span>Davomiylik</span><div class="enum" id="durs"></div></div>
+          <p class="slbl">O'lcham <em id="aspHint"></em></p>
+          <div class="acards" id="aspects"></div>
+          <div class="row-l" id="durBox"><span>Davomiylik</span><div id="durs"></div></div>
           <div class="row-l" id="resBox"><span>Sifat</span><div class="enum" id="resList"></div></div>
-          <div class="row-l" id="audBox"><span>Ovoz</span><div class="enum"><button class="on" data-aud="1"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7"/></svg>Ovozli</button><button data-aud="0"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>Ovozsiz</button></div></div>
+          <div class="row-l" id="audBox"><span>Ovoz</span><div id="audT"></div></div>
         </div>
       </details>
 
@@ -388,6 +458,7 @@ function priceOf(k, dur, audio, res){
 const curPrice = () => { const m = MODELS[S.model]; return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
 const AL = { auto: 'Avto', '1:1': '1:1', '9:16': '9:16', '16:9': '16:9', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
 const AW = { '9:16': 'Reels', '16:9': 'YouTube', '1:1': 'Kvadrat' };
+const ASPU = { auto: 'O\'zi tanlaydi', '9:16': 'Reels, TikTok', '16:9': 'YouTube', '1:1': 'Post', '4:5': 'Instagram', '3:4': 'Portret', '4:3': 'Landshaft' };
 const BRAND = {
   'nano':         { g: 'linear-gradient(135deg,#ffd84d,#f08a24)', l: 'N', f: ['Tez', 'Tahrirlaydi'] },
   'nano-pro':     { g: 'linear-gradient(135deg,#7a5410,#f2c14e 60%,#fff0b8)', l: 'N', f: ['Eng sifatli', 'Matn yozadi'] },
@@ -456,26 +527,31 @@ function render(){
   if (!m.aspects.includes(S.aspect)) S.aspect = m.aspects[0];
   if (m.durations.length && !m.durations.includes(S.duration)) S.duration = m.durations[0];
   const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image; // Kling rasmdan videoda o'lcham rasmga qarab
-  $('aspects').innerHTML = hideAspect ? '<button class="on" disabled>Rasm o\'lchamiga qarab</button>' :
-    m.aspects.map(a => `<button class="${a === S.aspect ? 'on' : ''}" data-a="${a}">${AR(a)}${AL[a] || a}</button>`).join('');
-  fitEnum($('aspects'));
+  const shp = a => { const r = /^(\d+):(\d+)$/.exec(a); if (!r) return '<i style="width:26px;height:26px;border-style:dashed"></i>'; const w = +r[1], h = +r[2], k = 32 / Math.max(w, h); return `<i style="width:${Math.round(w * k)}px;height:${Math.round(h * k)}px"></i>`; };
+  $('aspects').innerHTML = hideAspect ? `<button class="ac on" disabled><span class="shp">${IC.image}</span><b>Rasm o'lchamiga qarab</b></button>` :
+    m.aspects.map(a => `<button class="ac ${a === S.aspect ? 'on' : ''}" data-a="${a}"><span class="shp">${shp(a)}</span><b>${a === 'auto' ? 'Avto' : a}</b><small>${ASPU[a] || ''}</small></button>`).join('');
+  $('aspHint').textContent = hideAspect ? '' : (ASPU[S.aspect] ? ASPU[S.aspect] + ' uchun' : '');
   $('durBox').classList.toggle('hide', !m.durations.length);
-  $('durs').innerHTML = m.durations.map(d => `<button class="${d === S.duration ? 'on' : ''}" data-d="${d}">${d} s</button>`).join('');
+  if (m.durations.length) {
+    const ds = m.durations, i = ds.indexOf(S.duration), n = ds.length;
+    $('durs').innerHTML = `<div class="slider"><button data-dstep="-1" ${i <= 0 ? 'disabled' : ''} aria-label="Kamaytirish">‹</button><div class="sf" id="durSf"><i style="width:${(i + 1) / n * 100}%"></i>${ds.slice(1).map((_, k) => `<span class="tk" style="left:${(k + 1) / n * 100}%"></span>`).join('')}<b>${S.duration} soniya</b></div><button data-dstep="1" ${i >= n - 1 ? 'disabled' : ''} aria-label="Oshirish">›</button></div>`;
+  } else $('durs').innerHTML = '';
   $('audBox').classList.toggle('hide', !m.audio);
   const rl = m.res || [];
   if (rl.length && !rl.includes(S.res)) S.res = rl[0];
   $('resBox').classList.toggle('hide', !rl.length);
   $('resList').innerHTML = rl.map(r => `<button class="${r === S.res ? 'on' : ''}" data-r="${r}">${r}</button>`).join('');
-  fitEnum($('durs')); fitEnum($('resList'));
+  fitEnum($('resList'));
   $('outSum').textContent = [hideAspect ? 'rasm o\'lchami' : (AL[S.aspect] || S.aspect), m.durations.length ? S.duration + ' s' : '', S.res].filter(Boolean).join(' · ');
   $('balV').textContent = S.balance == null ? '…' : (S.free ? 'Bepul' : S.balance);
   $('balChip').classList.toggle('free', S.free);
   $('tpBal').innerHTML = S.balance == null ? '…' : (S.free ? 'Bepul' : IC.star + S.balance);
-  document.querySelectorAll('[data-aud]').forEach(b => b.classList.toggle('on', (b.dataset.aud === '1') === S.audio));
+  $('audT').innerHTML = `<button class="cbx ${S.audio ? 'on' : ''}" data-aud="${S.audio ? '0' : '1'}"><span class="bx"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Ovoz va musiqa qo'shish<br><small>${S.audio ? 'Video ovoz bilan chiqadi' : 'Video ovozsiz chiqadi (arzonroq)'}</small></span></button>`;
   $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
   $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
   $('go').innerHTML = goLabel();
-  if (!S.image) $('upBtn').innerHTML = IC.up + 'Rasm yuklash';
+  if (!S.image) $('upBtn').innerHTML = `<span class="dic">${IC.up}</span><b>Rasm yuklash</b><small>Galereyadan tanlang · JPG, PNG</small>`;
+  $('phTag').textContent = m.kind === 'video' ? '1-KADR' : 'ASL RASM';
   $('go').disabled = S.busy;
   vpSync();
 }
@@ -492,6 +568,8 @@ document.addEventListener('click', e => {
   if (sh) { document.querySelectorAll('[data-sh]').forEach(b => b.classList.toggle('on', b === sh)); if (VP.ok) VP.shade(sh.dataset.sh); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const kb = e.target.closest('[data-k]');
   if (kb) { if (MODELS[S.model].kind !== kb.dataset.k) { const f = Object.entries(MODELS).find(([, v]) => v.kind === kb.dataset.k && v.tier !== 'pro') || Object.entries(MODELS).find(([, v]) => v.kind === kb.dataset.k); if (f) S.model = f[0]; } try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
+  const ds = e.target.closest('[data-dstep]');
+  if (ds) { const L = MODELS[S.model].durations, i = L.indexOf(S.duration) + +ds.dataset.dstep; if (L[i]) { S.duration = L[i]; render(); } try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const idea = e.target.closest('[data-idea]');
   if (idea) { $('prompt').value = IDEAS[+idea.dataset.idea]; $('prompt').dispatchEvent(new Event('input')); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab],[data-r]'); if (!t) return;
@@ -521,11 +599,21 @@ $('file').addEventListener('change', async e => {
   const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
   c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
   S.image = c.toDataURL('image/jpeg', 0.88);
-  $('thumb').src = S.image; $('thumb').classList.remove('hide'); $('rm').classList.remove('hide');
-  $('upBtn').innerHTML = IC.swap + 'Almashtirish';
+  $('thumb').src = S.image; $('upPrev').classList.remove('hide'); $('upBtn').classList.add('hide');
+  $('upInfo').textContent = `${c.width}×${c.height} · ${Math.max(1, Math.round(S.image.length * .75 / 1024))} KB`;
   e.target.value = ''; render();
 });
-$('rm').onclick = () => { S.image = null; $('thumb').classList.add('hide'); $('rm').classList.add('hide'); render(); };
+$('rm').onclick = () => { S.image = null; $('upPrev').classList.add('hide'); $('upBtn').classList.remove('hide'); render(); };
+// Davomiylik slayderi: barmoq bilan surish yoki bosish
+function durFromX(x){
+  const sf = $('durSf'); if (!sf) return; const r = sf.getBoundingClientRect(), ds = MODELS[S.model].durations, n = ds.length;
+  const p = Math.max(0, Math.min(.999, (x - r.left) / r.width));
+  const d = ds[Math.floor(p * n)]; if (d !== S.duration) { S.duration = d; try { tgApp.HapticFeedback.selectionChanged(); } catch (e) {} render(); }
+}
+let durDrag = false;
+document.addEventListener('pointerdown', e => { if (e.target.closest('#durSf')) { durDrag = true; durFromX(e.clientX); } });
+document.addEventListener('pointermove', e => { if (durDrag) durFromX(e.clientX); });
+document.addEventListener('pointerup', () => { durDrag = false; });
 $('prompt').addEventListener('input', () => { $('cnt').textContent = $('prompt').value.length + ' belgi'; });
 
 /* =========================================================
@@ -577,10 +665,10 @@ function vpSet(state, pct, job){
   if (state === 'done' && job && job.kind === 'image' && job.urls && job.urls[0]) { if (!art.querySelector('img')) art.innerHTML = `<img src="${esc(job.urls[0])}" alt="">`; }
   else if (state !== 'done') art.innerHTML = '';
   const txt = $('vpText'), bar = $('vpBar');
-  if (state === 'run') { txt.innerHTML = `Render: <b>${pct || 0}%</b> · ${esc(MODELS[S.model].name)}`; bar.style.width = (pct || 0) + '%'; }
-  else if (state === 'done') { txt.innerHTML = 'Render: <b>100%</b> · Tayyor ✓'; bar.style.width = '100%'; }
-  else if (state === 'error') { txt.innerHTML = '<span class="err">Render to\'xtadi · xato</span>'; bar.style.width = '0'; }
-  else { txt.textContent = 'Tayyor · kutmoqda'; bar.style.width = '0'; }
+  if (state === 'run') { txt.innerHTML = `<i class="dot run"></i>Render: <b>${pct || 0}%</b> · ${esc(MODELS[S.model].name)}`; bar.style.width = (pct || 0) + '%'; }
+  else if (state === 'done') { txt.innerHTML = '<i class="dot"></i>Render: <b>100%</b> · Tayyor ✓'; bar.style.width = '100%'; }
+  else if (state === 'error') { txt.innerHTML = '<i class="dot error"></i><span class="err">Render to\'xtadi</span>'; bar.style.width = '0'; }
+  else { txt.innerHTML = `<i class="dot"></i>Tayyor · ${esc(MODELS[S.model].name)}`; bar.style.width = '0'; }
 }
 function vpSync(){
   const m = MODELS[S.model];
@@ -588,6 +676,7 @@ function vpSync(){
   const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image;
   $('fLabel').textContent = [hideAspect ? 'rasm o\'lchami' : (S.aspect === 'auto' ? 'Avto' : S.aspect + (AW[S.aspect] ? ' ' + AW[S.aspect] : '')), m.durations.length ? S.duration + ' s' : '', S.res].filter(Boolean).join(' · ');
   layoutFrame();
+  if (VP.state === 'idle') vpSet('idle', 0);
   if (VP.ok) VP.setObject(m.kind, m.tier === 'pro');
 }
 new ResizeObserver(() => { layoutFrame(); if (VP.ok) VP.resize(); }).observe(vpEl);
