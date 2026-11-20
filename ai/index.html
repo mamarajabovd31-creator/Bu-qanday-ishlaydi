@@ -7,290 +7,324 @@
 <meta name="robots" content="noindex">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Manrope:wght@500;600;700;800&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-/* Protos: tungi ibodatxona — siyohrang kecha, oltin (pul va premium), moviy-binafsha (yaratish). Bitta yorqin joy: yuqoridagi Π belgisi va yaratish tugmasi. */
+/* Protos — Blender uslubidagi studiya: tepada 3D viewport (kamera kadri tanlangan o'lchamni ko'rsatadi,
+   yaratish paytida Blender render plitkalari to'ladi), pastda yig'iladigan xususiyatlar panellari. */
 :root{
-  --night:#07061a;--deep:#110d2c;--ink:#efecfb;--muted:#9c96c2;--faint:rgba(239,236,251,.08);
-  --line:rgba(239,236,251,.10);--line2:rgba(239,236,251,.18);
-  --gold:#f2c14e;--gold2:#ffe7a3;--goldDim:rgba(242,193,78,.14);
-  --cyan:#7ef0ff;--violet:#6c5cff;--bad:#ff6b7a;--ok:#46e3a0;
-  --panel:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.02) 60%);
-  --hi:inset 0 1px 0 rgba(255,255,255,.10);
-  --fd:"Cinzel",Georgia,serif;--fn:"Unbounded",system-ui,sans-serif;--fb:"Manrope",system-ui,-apple-system,sans-serif;
-  color-scheme:dark;
+  --win:#161616;--area:#1f1f1f;--pnl:#2a2a2a;--pnlh:#313131;--wid:#3b3b3b;--widh:#454545;--field:#1a1a1a;--sep:#0d0d0d;
+  --text:#e8e8e8;--muted:#a3a3a3;--dim:#6f6f6f;
+  --blue:#4772b3;--blue2:#5a88cf;--sel:#ffa033;--sel2:#ff8a1f;--gold:#f2c14e;--gold2:#ffe39a;
+  --red:#e5544f;--green:#7fc35a;--axX:#e0494f;--axY:#8bc34a;--axZ:#4f8fe0;
+  --fb:"Inter",system-ui,-apple-system,sans-serif;--fm:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:8px;color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--night)}
-body{margin:0;min-height:100vh;color:var(--ink);font:500 15px/1.5 var(--fb);background:var(--night);
-  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(116px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
-  -webkit-font-smoothing:antialiased}
-/* Fon: sekin suzuvchi nur va mayda don */
-.sky{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:radial-gradient(140% 90% at 50% -20%,#1d1550 0%,var(--night) 62%)}
-.sky i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:drift 22s ease-in-out infinite alternate}
-.sky i:nth-child(1){width:70vw;height:70vw;left:-20vw;top:-10vw;background:#3b2bb8}
-.sky i:nth-child(2){width:60vw;height:60vw;right:-25vw;top:30vh;background:#0f5d7a;animation-duration:28s;animation-delay:-8s}
-.sky i:nth-child(3){width:45vw;height:45vw;left:20vw;bottom:-20vw;background:#5a3a12;opacity:.35;animation-duration:32s}
-.sky:after{content:"";position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-@keyframes drift{to{transform:translate3d(6vw,4vh,0) scale(1.12)}}
-
-h1{font:700 22px/1.2 var(--fn);margin:0;letter-spacing:-.01em}
-.sub{color:var(--muted);font-size:13px;margin:0}
-.glass{background:var(--panel);border:1px solid var(--line);box-shadow:var(--hi),0 20px 50px rgba(3,2,15,.45);
-  -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);border-radius:24px}
+html{background:var(--win)}
+body{margin:0;min-height:100vh;color:var(--text);font:500 14px/1.45 var(--fb);background:var(--win);
+  padding:0 0 calc(92px + env(safe-area-inset-bottom,0px));-webkit-font-smoothing:antialiased}
 .hide{display:none!important}
-svg.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+svg.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.star{width:14px;height:14px;fill:var(--gold);stroke:none;flex:none}
+.wrap{padding:0 max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px))}
 
-/* ---- Bosh qism ---- */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px}
-.brand{display:flex;align-items:center;gap:12px;min-width:0}
-.emb{position:relative;width:46px;height:46px;flex:none;display:grid;place-items:center}
-.emb:before{content:"";position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(242,193,78,.55),transparent 40%,rgba(126,240,255,.4),transparent 75%);
-  filter:blur(8px);animation:halo 9s linear infinite}
-.emb svg{position:relative;width:46px;height:46px}
-@keyframes halo{to{transform:rotate(1turn)}}
-.wm{font:700 21px/1 var(--fd);letter-spacing:.16em;background:linear-gradient(180deg,var(--gold2),var(--gold) 55%,#b9831f);-webkit-background-clip:text;background-clip:text;color:transparent;display:flex;align-items:baseline;gap:8px}
-.wm small{font:700 11px/1 var(--fn);letter-spacing:.06em;color:var(--cyan);-webkit-text-fill-color:var(--cyan)}
-.brand .sub{margin-top:5px;font-size:12px}
-.balchip{display:flex;align-items:center;gap:7px;border:1px solid rgba(242,193,78,.38);background:linear-gradient(135deg,rgba(242,193,78,.16),rgba(242,193,78,.04));
-  color:var(--ink);border-radius:99px;padding:5px 5px 5px 11px;cursor:pointer;white-space:nowrap;box-shadow:var(--hi),0 8px 24px rgba(242,193,78,.12);font:inherit}
-.balchip .st{width:16px;height:16px;fill:var(--gold);stroke:none}
-.balchip b{font:600 15px/1 var(--fn);color:var(--gold2);font-variant-numeric:tabular-nums}
-.balchip .plus{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,var(--gold2),var(--gold) 60%,#d99a2b);color:#241800}
+/* ---------- Yuqori panel (Blender topbar) ---------- */
+.topbar{position:sticky;top:0;z-index:6;background:linear-gradient(#242424,#1e1e1e);border-bottom:1px solid var(--sep);
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px))}
+.tb-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{display:flex;align-items:center;gap:9px;min-width:0}
+.logo svg{width:30px;height:30px;flex:none;filter:drop-shadow(0 2px 6px rgba(255,160,51,.25))}
+.logo b{font:800 17px/1 var(--fb);letter-spacing:.02em}
+.logo .ver{font:600 10px/1 var(--fm);color:#fff;background:var(--blue);padding:3px 5px;border-radius:4px;margin-left:2px}
+.logo small{display:block;font:500 11px/1.2 var(--fb);color:var(--muted);margin-top:3px}
+.balchip{display:flex;align-items:center;gap:7px;border:1px solid #4a4030;background:linear-gradient(#3a3224,#2b261d);color:var(--text);
+  border-radius:var(--r);padding:4px 4px 4px 10px;cursor:pointer;font:inherit;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.balchip b{font:600 14px/1 var(--fm);color:var(--gold2);font-variant-numeric:tabular-nums}
+.balchip .plus{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:linear-gradient(var(--gold2),var(--gold));color:#2a1c00}
 .balchip .plus svg{width:15px;height:15px;stroke-width:2.6}
-.balchip.free{padding-right:12px}.balchip.free .plus{display:none}
+.balchip.free{padding-right:10px}.balchip.free .plus{display:none}
+/* ish joylari (workspace) yorliqlari */
+.ws{display:flex;gap:2px;margin-top:9px}
+.ws button{position:relative;display:flex;align-items:center;gap:7px;border:0;background:transparent;color:var(--muted);font:600 13.5px var(--fb);
+  padding:9px 14px 10px;border-radius:7px 7px 0 0;cursor:pointer}
+.ws button.on{background:var(--area);color:#fff}
+.ws button.on:after{content:"";position:absolute;left:12px;right:12px;top:0;height:2px;border-radius:2px;background:var(--sel)}
 
-/* ---- Bo'limlar tugmasi (sirg'aluvchi) ---- */
-.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:5px;margin:0 0 14px;border-radius:18px}
-.tabs:before{content:"";position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:14px;
-  background:linear-gradient(135deg,rgba(108,92,255,.9),rgba(79,178,255,.9));box-shadow:0 8px 24px rgba(108,92,255,.4),var(--hi);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
-.tabs[data-on="hist"]:before{transform:translateX(100%)}
-.tabs button{position:relative;display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:none;color:var(--muted);font:700 14px var(--fb);padding:11px;cursor:pointer;transition:color .25s}
-.tabs button.on{color:#fff}
+/* ---------- 3D viewport ---------- */
+.vp{position:relative;height:clamp(250px,44vh,380px);overflow:hidden;border-bottom:1px solid var(--sep);
+  background:radial-gradient(120% 90% at 50% 40%,#3a3a3a 0%,#2b2b2b 55%,#1f1f1f 100%);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.vp canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vp-info{position:absolute;left:12px;top:10px;font:500 12px/1.45 var(--fb);color:#d8d8d8;text-shadow:0 1px 2px #000;pointer-events:none}
+.vp-info b{display:block;font-weight:600;color:#fff}
+.vp-info span{color:var(--sel)}
+.gizmo{position:absolute;right:8px;top:6px;width:70px;height:70px;pointer-events:none}
+.gizmo text{font:700 9px var(--fb);fill:#111;text-anchor:middle;dominant-baseline:central}
+.vp-hint{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);font:600 11.5px var(--fb);color:#ddd;background:rgba(0,0,0,.45);
+  padding:5px 10px;border-radius:99px;pointer-events:none;transition:opacity .5s;white-space:nowrap}
+/* kamera kadri: tanlangan o'lcham shu yerda ko'rinadi */
+.frame{position:absolute;pointer-events:none;border:1px dashed rgba(255,255,255,.7);box-shadow:0 0 0 2000px rgba(10,10,10,.34);
+  transition:left .45s cubic-bezier(.2,.8,.2,1),top .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),height .45s cubic-bezier(.2,.8,.2,1)}
+.frame:before,.frame:after{content:"";position:absolute;width:12px;height:12px;border:2px solid #fff;opacity:.9}
+.frame:before{left:-3px;top:-3px;border-right:0;border-bottom:0}
+.frame:after{right:-3px;bottom:-3px;border-left:0;border-top:0}
+.flabel{position:absolute;left:-1px;bottom:100%;margin-bottom:5px;font:600 10.5px var(--fm);color:#fff;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:4px;white-space:nowrap}
+.fart{position:absolute;inset:0;opacity:0;transition:opacity .4s;
+  background:radial-gradient(60% 50% at 70% 30%,#ffd37a 0%,rgba(255,211,122,0) 60%),linear-gradient(170deg,#2a2370 0%,#7b4bd6 38%,#ff8a5c 70%,#ffc46b 100%)}
+.fart img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tiles{position:absolute;inset:0;display:grid;opacity:0;transition:opacity .3s}
+.tiles i{background:rgba(22,22,22,.92);border:1px solid rgba(255,255,255,.04);transition:background .35s}
+.tiles i.on{background:transparent;border-color:transparent}
+.tiles i.act{background:rgba(22,22,22,.6);box-shadow:inset 0 0 0 1.5px var(--sel)}
+.frame.rendering .fart,.frame.done .fart{opacity:1}
+.frame.rendering .tiles{opacity:1}
+.frame.rendering,.frame.done{border-style:solid;border-color:var(--sel)}
+.frame.error{border-color:var(--red);border-style:solid}
+.vp-status{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:10px;padding:6px 12px;font:600 11.5px var(--fm);
+  color:#cfcfcf;background:linear-gradient(transparent,rgba(0,0,0,.55))}
+.vp-status .vb{flex:1;height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
+.vp-status .vb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sel2),var(--sel));transition:width .7s ease;box-shadow:0 0 10px rgba(255,160,51,.6)}
+.vp-status .vt b{color:var(--sel)}
 
-/* ---- Panellar ---- */
-.card{padding:16px;margin-bottom:12px}
-.lbl{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);margin:0 0 12px}
-.lbl svg{color:var(--muted)}
-.lbl .cnt{margin-left:auto;font:500 11px var(--fn);color:var(--muted);font-variant-numeric:tabular-nums}
-.grp{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);margin:16px 0 10px}
-.grp:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
-.grp:first-child{margin-top:0}
-.grp.pro{color:var(--gold)}
-.grp.pro:after{background:linear-gradient(90deg,rgba(242,193,78,.45),transparent)}
-.grp svg{width:15px;height:15px}
+/* ---------- Xususiyatlar panellari (Blender Properties) ---------- */
+.props{background:var(--area);padding:10px 0 4px}
+.pnl{background:var(--pnl);border-radius:var(--r);margin:0 0 6px;border:1px solid #232323;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 2px 6px rgba(0,0,0,.25)}
+.pnl>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer;font:600 13.5px var(--fb);color:#f0f0f0;
+  background:var(--pnlh);border-radius:var(--r);user-select:none;-webkit-user-select:none}
+.pnl>summary::-webkit-details-marker{display:none}
+.pnl[open]>summary{border-radius:var(--r) var(--r) 0 0;border-bottom:1px solid #262626}
+.pnl>summary .chev{width:12px;height:12px;color:var(--muted);transition:transform .2s;stroke-width:2.6}
+.pnl[open]>summary .chev{transform:rotate(90deg)}
+.pnl>summary .sic{color:var(--muted)}
+.pnl>summary .sval{margin-left:auto;font:500 12px var(--fb);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52%}
+.pb{padding:12px}
+.row-l{display:grid;grid-template-columns:86px 1fr;align-items:center;gap:10px;margin:0 0 10px}
+.row-l:last-child{margin-bottom:0}
+.row-l>label,.row-l>span{font-size:12.5px;color:var(--muted);text-align:right}
+.hint{font-size:12px;color:var(--muted);margin:8px 0 0}
+.sub{color:var(--muted);font-size:13px;margin:0}
 
-/* ---- Model kartalari ---- */
-.models{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.model{position:relative;display:flex;flex-direction:column;gap:9px;text-align:left;min-width:0;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);
-  border-radius:18px;padding:12px;cursor:pointer;font:inherit;transition:border-color .25s,background .25s,transform .15s}
-.model:active{transform:scale(.98)}
-.mi{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;color:#fff;box-shadow:var(--hi)}
-.mi.image{background:linear-gradient(140deg,#8b5cf6,#ec4899)}
-.mi.video{background:linear-gradient(140deg,#2563eb,#22d3ee)}
-.model.pro .mi{background:linear-gradient(140deg,#3a2a06,#1f1604);color:var(--gold);border:1px solid rgba(242,193,78,.45)}
-.mt b{display:block;font-size:14px;font-weight:700;line-height:1.25}
-.mt .md{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.35}
-.pr{display:flex;align-items:center;gap:4px;margin-top:auto;font:600 12.5px var(--fn);color:var(--gold2);font-variant-numeric:tabular-nums}
-.pr svg{width:13px;height:13px;fill:var(--gold);stroke:none}
-.pr small{font:600 11px var(--fb);color:var(--muted)}
-.ck{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--cyan);color:#05121a;transform:scale(0);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
-.ck svg{width:12px;height:12px;stroke-width:3.2}
-.model.on{border-color:rgba(126,240,255,.75);background:linear-gradient(160deg,rgba(126,240,255,.13),rgba(108,92,255,.08));box-shadow:0 0 0 1px rgba(126,240,255,.35) inset,0 10px 28px rgba(79,178,255,.18)}
-.model.on .ck{transform:scale(1)}
-.model.pro{border-color:rgba(242,193,78,.22)}
-.model.pro.on{border-color:rgba(242,193,78,.85);background:linear-gradient(160deg,rgba(242,193,78,.16),rgba(242,193,78,.03));box-shadow:0 0 0 1px rgba(242,193,78,.35) inset,0 10px 28px rgba(242,193,78,.16)}
-.model.pro .ck{background:var(--gold);color:#241800}
+/* model ro'yxati (Blender list) */
+.grp{display:flex;align-items:center;gap:7px;font:600 11px var(--fb);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:2px 2px 7px}
+.grp.pro{color:var(--gold);margin-top:14px}
+.grp .ic{width:13px;height:13px}
+.mlist{display:flex;flex-direction:column;gap:2px;background:var(--field);border:1px solid #141414;border-radius:6px;padding:3px}
+.model{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;border:0;background:transparent;color:var(--text);
+  border-radius:5px;padding:8px 9px;cursor:pointer;font:inherit;text-align:left;min-height:46px}
+.model:active{background:#262626}
+.model .mi{width:30px;height:30px;border-radius:6px;display:grid;place-items:center;color:#fff}
+.mi.image{background:linear-gradient(145deg,#9b59d0,#d94f8e)}
+.mi.video{background:linear-gradient(145deg,#3c6fd1,#2fb4c9)}
+.model.pro .mi{background:linear-gradient(145deg,#4a3a12,#2a200a);color:var(--gold);box-shadow:inset 0 0 0 1px rgba(242,193,78,.5)}
+.model .mt{min-width:0}
+.model .mt b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.model .mt span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.model .pr{display:flex;align-items:center;gap:4px;font:600 12px var(--fm);color:var(--gold2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.model .pr small{font:500 10.5px var(--fb);color:var(--muted)}
+.model.on{background:linear-gradient(#4f7cc0,#4269a6);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.model.on .mt span{color:#dce6f7}
+.model.on .pr small{color:#dce6f7}
+.model.pro.on{background:linear-gradient(#6b5420,#4f3d14);box-shadow:inset 0 0 0 1px rgba(242,193,78,.7)}
 
-/* ---- Prompt ---- */
-textarea{width:100%;min-height:118px;resize:vertical;border:1px solid var(--line);background:rgba(3,2,15,.45);color:var(--ink);
-  border-radius:16px;padding:13px 14px;font:500 15px/1.55 var(--fb);outline:none;transition:border-color .2s,box-shadow .2s}
-textarea::placeholder{color:rgba(156,150,194,.7)}
-textarea:focus{border-color:rgba(126,240,255,.6);box-shadow:0 0 0 4px rgba(126,240,255,.10)}
-.hint{font-size:12px;color:var(--muted);margin:9px 0 0}
+/* matn maydoni */
+textarea{width:100%;min-height:104px;resize:vertical;border:1px solid #141414;background:var(--field);color:var(--text);border-radius:6px;
+  padding:10px 11px;font:500 15px/1.5 var(--fb);outline:none;box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
+textarea::placeholder{color:#6b6b6b}
+textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(90,136,207,.35)}
+.ideas{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:9px;padding-bottom:2px}
+.ideas::-webkit-scrollbar{display:none}
+.idea{flex:none;display:flex;align-items:center;gap:6px;border:1px solid #444;background:var(--wid);color:#ddd;border-radius:6px;padding:7px 10px;font:500 12px var(--fb);cursor:pointer}
+.idea .ic{width:13px;height:13px;color:var(--sel)}
 
-/* ---- Rasm yuklash ---- */
-.up{display:flex;align-items:center;gap:12px}
-.up label{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;border:1.5px dashed var(--line2);border-radius:16px;padding:16px;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px;background:rgba(255,255,255,.02);transition:border-color .2s,background .2s}
-.up label:active{background:rgba(126,240,255,.06);border-color:rgba(126,240,255,.5)}
-.up label svg{color:var(--cyan)}
-.up img{width:64px;height:64px;object-fit:cover;border-radius:14px;border:1px solid var(--line2)}
-.x{border:0;background:rgba(255,107,122,.14);color:var(--bad);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer}
+/* rasm yuklash */
+.up{display:flex;align-items:center;gap:10px}
+.up label{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border:1px dashed #555;border-radius:6px;padding:14px;color:#eee;cursor:pointer;font:600 13.5px var(--fb);background:var(--field)}
+.up label:active{border-color:var(--blue2)}
+.up label svg{color:var(--blue2)}
+.up img{width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid var(--sel)}
+.x{border:1px solid #444;background:var(--wid);color:var(--red);border-radius:6px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer}
 
-/* ---- Tanlov chiplari ---- */
-.sublbl{font-size:12.5px;font-weight:700;color:var(--muted);margin:16px 0 9px}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);border-radius:99px;padding:8px 13px;font:600 13px var(--fb);cursor:pointer;transition:all .2s}
-.chip.on{background:rgba(126,240,255,.14);border-color:rgba(126,240,255,.7);color:#fff;box-shadow:0 0 0 1px rgba(126,240,255,.25) inset}
-.chip .ar{display:inline-block;border:1.5px solid currentColor;border-radius:3px;opacity:.75}
+/* enum tugmalari (Blender'dagi bir-biriga yopishgan tugmalar) */
+.enum{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:1px;background:#141414;border-radius:6px;padding:1px;overflow:hidden}
+.enum button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border:0;background:var(--wid);color:#ddd;
+  padding:7px 10px;font:600 12.5px var(--fb);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.enum button{border-radius:0}
+.enum button:only-child{grid-column:1/-1}
+.enum button.on{background:linear-gradient(#5a88cf,#4772b3);color:#fff}
+.enum .ar{display:inline-block;border:1.5px solid currentColor;border-radius:2px;opacity:.85}
+.enum .ic{width:14px;height:14px}
 
-/* ---- Asosiy tugma ---- */
-.go{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;
-  display:flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:20px;padding:17px 18px;overflow:hidden;
-  font:700 16px var(--fb);color:#fff;cursor:pointer;
-  background:linear-gradient(120deg,#5b4bff 0%,#6c5cff 35%,#3fb3ff 100%);
-  box-shadow:0 14px 38px rgba(108,92,255,.5),0 0 0 1px rgba(255,255,255,.14) inset,0 1px 0 rgba(255,255,255,.35) inset}
-.go:after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:sheen 4.5s ease-in-out infinite}
-@keyframes sheen{0%,55%{left:-60%}85%,100%{left:130%}}
+/* natija paneli */
+.ptop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ptop b{font-size:14px}
+.pct{font:600 22px var(--fm);font-variant-numeric:tabular-nums;color:var(--sel)}
+.bar{height:6px;border-radius:9px;background:var(--field);overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--sel2),var(--sel));transition:width .7s ease}
+.res img,.res video{width:100%;border-radius:6px;display:block;background:#000;margin-top:12px;border:1px solid #111}
+.acts{display:flex;gap:6px;margin-top:10px}
+.acts a,.acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border:1px solid #474747;background:var(--wid);color:#eee;border-radius:6px;padding:11px;font:600 13px var(--fb);cursor:pointer}
+.acts a{background:linear-gradient(#5a88cf,#4772b3);border-color:#3a5e94;color:#fff}
+.err{color:var(--red);font-weight:600}
+
+/* render tugmasi */
+.go{position:fixed;z-index:7;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid #2f4f80;border-radius:10px;padding:15px 16px;
+  font:700 15.5px var(--fb);color:#fff;cursor:pointer;background:linear-gradient(#5d8dd6,#4772b3 55%,#3d64a0);
+  box-shadow:0 10px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.25)}
 .go:active{transform:translateY(1px)}
-.go:disabled{opacity:.6}.go:disabled:after{display:none}
-.go .gp{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 8px;border-radius:99px;background:rgba(7,6,26,.35);font:600 13.5px var(--fn);color:var(--gold2)}
-.go .gp svg{width:14px;height:14px;fill:var(--gold);stroke:none}
-.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;animation:halo .8s linear infinite}
+.go:disabled{background:linear-gradient(#3b3b3b,#303030);border-color:#222;color:#ddd}
+.go .gp{display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 7px;border-radius:6px;background:rgba(0,0,0,.28);font:600 13px var(--fm);color:var(--gold2)}
+.go .gk{font:600 11px var(--fm);opacity:.65;border:1px solid rgba(255,255,255,.35);border-radius:4px;padding:1px 5px}
+.go .gpct{font:600 15px var(--fm);color:var(--sel)}
+.spin{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.25);border-top-color:var(--sel);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(1turn)}}
 
-/* ---- Jarayon ---- */
-.prog{padding:16px;margin-bottom:12px}
-.prog .top{margin:0}
-.prog b{font-size:15px}
-.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin:12px 0 6px}
-.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--violet),var(--cyan));background-size:200% 100%;animation:flow 2s linear infinite;transition:width .8s ease;box-shadow:0 0 14px rgba(126,240,255,.6)}
-@keyframes flow{to{background-position:-200% 0}}
-.pct{font:600 26px var(--fn);font-variant-numeric:tabular-nums;color:var(--ink)}
-.res img,.res video{width:100%;border-radius:16px;display:block;background:#000;margin-top:12px}
-.acts{display:flex;gap:8px;margin-top:10px}
-.acts a,.acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:var(--ink);border-radius:14px;padding:11px;font:700 13px var(--fb);cursor:pointer}
-.err{color:var(--bad);font-weight:600}
-
-/* ---- Tarix ---- */
-.hist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.h{overflow:hidden;cursor:pointer;border-radius:18px}
-.h .m{position:relative;aspect-ratio:1;background:rgba(3,2,15,.5);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;padding:6px}
+/* ---------- Tarix (Asset Browser) ---------- */
+.histv{background:var(--area);min-height:60vh;padding:12px 0}
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.h{overflow:hidden;cursor:pointer;border-radius:var(--r);background:var(--pnl);border:1px solid #232323}
+.h:active{border-color:var(--sel)}
+.h .m{position:relative;aspect-ratio:1;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;padding:6px}
 .h .m img,.h .m video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.h .kd{position:absolute;top:8px;left:8px;z-index:1;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(7,6,26,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff}
-.h .kd svg{width:14px;height:14px}
-.h .t{padding:9px 11px 11px;font-size:12px}
-.h .t b{display:flex;justify-content:space-between;gap:6px;font-size:12.5px}
-.h .t b em{font:600 11px var(--fn);font-style:normal;color:var(--gold2);white-space:nowrap}
+.h .kd{position:absolute;top:6px;left:6px;z-index:1;width:24px;height:24px;border-radius:5px;display:grid;place-items:center;background:rgba(0,0,0,.6);color:#fff}
+.h .kd svg{width:13px;height:13px}
+.h .t{padding:8px 9px 9px;font-size:12px}
+.h .t b{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;font-weight:600}
+.h .t b em{font:600 11px var(--fm);font-style:normal;color:var(--gold2);white-space:nowrap}
 .h .t span{color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
-.empty{text-align:center;color:var(--muted);padding:34px 10px}
-.gate{text-align:center;padding:30px 18px;margin-top:30px}
-.gate h1{margin-bottom:8px}
+.empty{text-align:center;color:var(--muted);padding:34px 10px;grid-column:1/-1}
+
+.gate{text-align:center;padding:30px 18px;margin:30px 12px;background:var(--pnl);border-radius:12px;border:1px solid #232323}
+.gate h1{font:700 20px var(--fb);margin:0 0 8px}
 .gate .sub{margin-bottom:16px}
-.pill{display:inline-block;font-weight:700;font-size:14px;color:#fff;text-decoration:none;padding:11px 18px;border-radius:99px;background:linear-gradient(120deg,#5b4bff,#3fb3ff)}
+.pill{display:inline-block;font-weight:700;font-size:14px;color:#fff;text-decoration:none;padding:11px 18px;border-radius:8px;background:linear-gradient(#5d8dd6,#4772b3)}
 
-/* ---- To'ldirish sahifasi ---- */
-.tp-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
-.back{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:var(--ink);border-radius:14px;cursor:pointer;flex:none}
-.tp-head h1{font:700 19px/1.2 var(--fd);letter-spacing:.04em}
-.tp-bal{position:relative;overflow:hidden;padding:22px 18px 20px;margin-bottom:18px;text-align:center;border-color:rgba(242,193,78,.32);
-  background:radial-gradient(120% 120% at 50% 0%,rgba(242,193,78,.20),rgba(242,193,78,.03) 60%),var(--panel)}
-.tp-bal small{display:block;font-size:13px;color:var(--muted);font-weight:600}
-.tp-bal b{display:flex;align-items:center;justify-content:center;gap:10px;font:600 40px/1.15 var(--fn);color:var(--gold2);margin:6px 0 4px;font-variant-numeric:tabular-nums}
-.tp-bal b svg{width:30px;height:30px;fill:var(--gold);stroke:none;filter:drop-shadow(0 0 12px rgba(242,193,78,.6))}
+/* ---------- To'ldirish ---------- */
+#topup{background:var(--area);min-height:100vh;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+.tp-head{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.tp-head h1{font:700 18px var(--fb);margin:0}
+.back{display:grid;place-items:center;width:40px;height:40px;border:1px solid #444;background:var(--wid);color:#eee;border-radius:8px;cursor:pointer;flex:none}
+.tp-bal{padding:20px 16px 18px;margin:0 0 10px;text-align:center;background:radial-gradient(120% 140% at 50% 0%,rgba(242,193,78,.18),rgba(242,193,78,0) 65%),var(--pnl);border-radius:10px;border:1px solid #4a4030}
+.tp-bal small{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.tp-bal b{display:flex;align-items:center;justify-content:center;gap:10px;font:600 38px/1.15 var(--fm);color:var(--gold2);margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.tp-bal b svg{width:28px;height:28px;fill:var(--gold);stroke:none;filter:drop-shadow(0 0 10px rgba(242,193,78,.55))}
 .tp-bal span{font-size:12px;color:var(--muted)}
-.packs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
-.pack{position:relative;display:flex;flex-direction:column;gap:4px;border:1px solid rgba(242,193,78,.25);background:linear-gradient(160deg,rgba(242,193,78,.09),rgba(255,255,255,.015));color:var(--ink);
-  border-radius:18px;padding:15px 14px;font:inherit;cursor:pointer;text-align:left;transition:transform .15s,border-color .2s}
-.pack:active{transform:scale(.98);border-color:rgba(242,193,78,.7)}
-.pack b{display:flex;align-items:center;gap:7px;font:600 22px var(--fn);color:var(--gold2);font-variant-numeric:tabular-nums}
-.pack b svg{width:18px;height:18px;fill:var(--gold);stroke:none}
+.packs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pack{position:relative;display:flex;flex-direction:column;gap:3px;border:1px solid #4a4030;background:linear-gradient(#332c20,#29241b);color:var(--text);
+  border-radius:8px;padding:14px 13px;font:inherit;cursor:pointer;text-align:left}
+.pack:active{border-color:var(--gold)}
+.pack b{display:flex;align-items:center;gap:7px;font:600 21px var(--fm);color:var(--gold2);font-variant-numeric:tabular-nums}
+.pack b svg{width:17px;height:17px;fill:var(--gold);stroke:none}
 .pack span{font-size:12px;color:var(--muted)}
-.pack em{position:absolute;top:-9px;right:12px;font:700 10.5px var(--fb);font-style:normal;padding:4px 9px;border-radius:99px;color:#241800;background:linear-gradient(140deg,var(--gold2),var(--gold))}
-.pack.best{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;border-color:rgba(242,193,78,.6);
-  background:radial-gradient(120% 160% at 0% 0%,rgba(242,193,78,.24),rgba(108,92,255,.10) 70%);box-shadow:0 12px 30px rgba(242,193,78,.12)}
+.pack em{position:absolute;top:-9px;right:10px;font:700 10.5px var(--fb);font-style:normal;padding:3px 8px;border-radius:5px;color:#2a1c00;background:linear-gradient(var(--gold2),var(--gold))}
+.pack.best{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;border-color:var(--gold);background:linear-gradient(#45391f,#2f281b)}
 .pack.best span{text-align:right;max-width:55%}
-.howto{padding:16px;margin-bottom:12px}
 .howto ol{margin:0;padding-left:20px;display:grid;gap:7px;font-size:13.5px;color:var(--muted)}
-.howto li::marker{color:var(--gold);font-weight:700}
-.topup-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:0;border-radius:12px;padding:10px 14px;font:800 13px var(--fb);color:#241800;background:linear-gradient(140deg,var(--gold2),var(--gold));cursor:pointer}
+.howto li::marker{color:var(--sel);font-weight:700}
+.topup-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:0;border-radius:7px;padding:10px 14px;font:700 13px var(--fb);color:#2a1c00;background:linear-gradient(var(--gold2),var(--gold));cursor:pointer}
 
-button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
-.models>.model:last-child:nth-child(odd){grid-column:1/-1;display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:12px}
-.models>.model:last-child:nth-child(odd) .pr{margin:0;padding-right:26px}
-@media (max-width:350px){.models{grid-template-columns:1fr}}
+@media (max-width:360px){.row-l{grid-template-columns:1fr}.row-l>label,.row-l>span{text-align:left}}
 </style>
 </head>
 <body>
-<div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>
-<div class="top" id="mainHead">
-  <div class="brand">
-    <div class="emb"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe7a3"/><stop offset=".5" stop-color="#f2c14e"/><stop offset="1" stop-color="#b9831f"/></linearGradient><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ef0ff"/><stop offset="1" stop-color="#5b6cff"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="#120d30"/><circle cx="50" cy="50" r="45" fill="none" stroke="url(#gg)" stroke-width="2"/><rect x="23" y="25" width="54" height="8" rx="1.5" fill="url(#gg)"/><rect x="29" y="33" width="10" height="41" fill="url(#gg)"/><rect x="61" y="33" width="10" height="41" fill="url(#gg)"/><path d="M45 43 L58 51.5 L45 60 Z" fill="url(#pg)"/></svg></div>
-    <div><div class="wm">PROTOS<small>AI</small></div><p class="sub">Matn yoki rasmdan video va rasm</p></div>
+<header class="topbar" id="mainHead">
+  <div class="tb-row">
+    <div class="logo">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc56b"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="#2a2a2a" stroke="url(#lg)" stroke-width="5"/><rect x="24" y="26" width="52" height="9" rx="2" fill="url(#lg)"/><rect x="30" y="35" width="10" height="40" rx="1.5" fill="url(#lg)"/><rect x="60" y="35" width="10" height="40" rx="1.5" fill="url(#lg)"/><path d="M45 45 L57 52.5 L45 60 Z" fill="#5a88cf"/></svg>
+      <div><b>Protos</b><span class="ver">AI</span><small>Matn yoki rasmdan video va rasm</small></div>
+    </div>
+    <button class="balchip" id="balChip" aria-label="Balans va to'ldirish"><svg class="star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg><b id="balV">…</b><span class="plus"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
   </div>
-  <button class="balchip" id="balChip" aria-label="Balans va to'ldirish"><svg class="st" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg><b id="balV">…</b><span class="plus"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
-</div>
+  <nav class="ws" id="tabs" data-on="make">
+    <button class="on" data-tab="make"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Yaratish</button>
+    <button data-tab="hist"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>Tarix</button>
+  </nav>
+</header>
 
-<section id="topup" class="hide">
+<section id="topup" class="hide wrap">
   <div class="tp-head"><button class="back" id="tpBack" aria-label="Orqaga"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Balansni to'ldirish</h1></div>
-  <div class="glass tp-bal"><small>Hozirgi balans</small><b id="tpBal">…</b><span id="left"></span></div>
-  <p class="lbl">Paketni tanlang</p>
-  <div class="packs" id="packs"></div>
-  <p class="hint" id="payNote" style="margin:0 0 12px"></p>
-  <div class="glass howto">
-    <p class="lbl">Qanday ishlaydi</p>
-    <ol>
+  <div class="tp-bal"><small>Hozirgi balans</small><b id="tpBal">…</b><span id="left"></span></div>
+  <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>Paketni tanlang</summary>
+    <div class="pb"><div class="packs" id="packs"></div><p class="hint" id="payNote"></p></div>
+  </details>
+  <details class="pnl howto" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>Qanday ishlaydi</summary>
+    <div class="pb"><ol>
       <li>Paketni tanlang — Telegram to'lov oynasi ochiladi.</li>
       <li>Telegram Stars bilan to'lang. Stars yetmasa, Telegram o'zi sotib olishni taklif qiladi.</li>
       <li>Balans bir necha soniyada yangilanadi.</li>
-    </ol>
-  </div>
+    </ol></div>
+  </details>
 </section>
 
-<div class="glass gate hide" id="gate"></div>
+<div class="gate hide" id="gate"></div>
 
 <div id="app">
-  <div class="tabs glass" id="tabs" data-on="make"><button class="on" data-tab="make"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Yaratish</button><button data-tab="hist"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>Tarix</button></div>
-
   <section id="make">
-    <div class="glass card">
-      <p class="lbl"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Model</p>
-      <div id="models"></div>
+    <div class="vp" id="vp">
+      <canvas id="vp3d"></canvas>
+      <div class="vp-info" id="vpInfo"><b>Kamera ko'rinishi</b><span>(1) Video | Kling 2.5 Turbo</span></div>
+      <svg class="gizmo" id="giz" viewBox="0 0 70 70" aria-hidden="true"></svg>
+      <div class="frame" id="frame"><div class="fart" id="fart"></div><div class="tiles" id="tiles"></div><span class="flabel" id="fLabel">9:16</span></div>
+      <div class="vp-hint" id="vpHint">☝ Aylantirish uchun suring</div>
+      <div class="vp-status"><span class="vt" id="vpText">Tayyor · Model tanlang</span><span class="vb"><i id="vpBar"></i></span></div>
     </div>
 
-    <div class="glass card">
-      <p class="lbl"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Nimani yaratamiz?<span class="cnt" id="cnt">0</span></p>
-      <textarea id="prompt" placeholder="Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik"></textarea>
-      <p class="hint">Ingliz tilida yozsangiz natija aniqroq chiqadi.</p>
-    </div>
+    <div class="props"><div class="wrap">
+      <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Model<span class="sval" id="modelSum"></span></summary>
+        <div class="pb" id="models"></div>
+      </details>
 
-    <div class="glass card">
-      <p class="lbl"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg><span id="upLbl">Rasm (ixtiyoriy)</span></p>
-      <div class="up">
-        <label for="file" id="upBtn" tabindex="0"></label>
-        <img id="thumb" class="hide" alt="">
-        <button class="x hide" id="rm" aria-label="Rasmni olib tashlash"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      </div>
-      <input type="file" id="file" accept="image/*" class="hide">
-      <p class="hint" id="upHint"></p>
-    </div>
+      <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Nimani yaratamiz?<span class="sval" id="cnt">0 belgi</span></summary>
+        <div class="pb">
+          <textarea id="prompt" placeholder="Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik"></textarea>
+          <div class="ideas" id="ideas"></div>
+          <p class="hint">Ingliz tilida yozsangiz natija aniqroq chiqadi.</p>
+        </div>
+      </details>
 
-    <div class="glass card">
-      <p class="lbl"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Sozlamalar</p>
-      <p class="sublbl" style="margin-top:0">O'lcham</p>
-      <div class="row" id="aspects"></div>
-      <div id="durBox">
-        <p class="sublbl">Davomiyligi</p>
-        <div class="row" id="durs"></div>
-      </div>
-      <div id="resBox">
-        <p class="sublbl">Sifat</p>
-        <div class="row" id="resList"></div>
-      </div>
-      <div id="audBox">
-        <p class="sublbl">Ovoz</p>
-        <div class="row"><button class="chip on" data-aud="1"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7"/></svg>Ovozli</button><button class="chip" data-aud="0"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>Ovozsiz</button></div>
-      </div>
-    </div>
+      <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg><span id="upLbl">Rasm (ixtiyoriy)</span></summary>
+        <div class="pb">
+          <div class="up">
+            <label for="file" id="upBtn" tabindex="0"></label>
+            <img id="thumb" class="hide" alt="">
+            <button class="x hide" id="rm" aria-label="Rasmni olib tashlash"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <input type="file" id="file" accept="image/*" class="hide">
+          <p class="hint" id="upHint"></p>
+        </div>
+      </details>
 
-    <div class="glass prog hide" id="prog">
-      <div class="top"><b id="pTitle">Yaratilmoqda…</b><span class="pct" id="pPct">0%</span></div>
-      <div class="bar"><i id="pBar"></i></div>
-      <p class="hint" id="pNote">Ilovani yopsangiz ham natija botga keladi.</p>
-      <div class="res" id="res"></div>
-    </div>
+      <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="14" rx="3"/><path d="M16.5 10l5-3v10l-5-3z"/></svg>Chiqish sozlamalari<span class="sval" id="outSum"></span></summary>
+        <div class="pb">
+          <div class="row-l"><span>O'lcham</span><div class="enum" id="aspects"></div></div>
+          <div class="row-l" id="durBox"><span>Davomiylik</span><div class="enum" id="durs"></div></div>
+          <div class="row-l" id="resBox"><span>Sifat</span><div class="enum" id="resList"></div></div>
+          <div class="row-l" id="audBox"><span>Ovoz</span><div class="enum"><button class="on" data-aud="1"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7"/></svg>Ovozli</button><button data-aud="0"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>Ovozsiz</button></div></div>
+        </div>
+      </details>
+
+      <details class="pnl hide" id="prog" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/></svg>Natija</summary>
+        <div class="pb">
+          <div class="ptop"><b id="pTitle">Yaratilmoqda…</b><span class="pct" id="pPct">0%</span></div>
+          <div class="bar"><i id="pBar"></i></div>
+          <p class="hint" id="pNote">Ilovani yopsangiz ham natija botga keladi.</p>
+          <div class="res" id="res"></div>
+        </div>
+      </details>
+    </div></div>
   </section>
 
-  <section id="hist" class="hide">
-    <div class="hist" id="histList"></div>
-  </section>
+  <section id="hist" class="hide histv"><div class="wrap"><div class="hist" id="histList"></div></div></section>
 </div>
 
 <button class="go" id="go">Yaratish</button>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const tgApp = window.Telegram && Telegram.WebApp;
-try { tgApp.ready(); tgApp.expand(); tgApp.setHeaderColor('#050a16'); tgApp.setBackgroundColor('#050a16'); } catch (e) {}
+try { tgApp.ready(); tgApp.expand(); tgApp.setHeaderColor('#242424'); tgApp.setBackgroundColor('#161616'); } catch (e) {}
 const initData = (tgApp && tgApp.initData) || '';
 const haptic = t => { try { tgApp.HapticFeedback.notificationOccurred(t); } catch (e) {} };
 
@@ -320,22 +354,29 @@ function priceOf(k, dur, audio, res){
   return m.prices[`${d}|${r}|${audio === false ? 0 : 1}`] || 0;
 }
 const curPrice = () => { const m = MODELS[S.model]; return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
-const AL = { auto: 'Avto', '1:1': '1:1 kvadrat', '9:16': '9:16 Reels', '16:9': '16:9 YouTube', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
+const AL = { auto: 'Avto', '1:1': '1:1', '9:16': '9:16', '16:9': '16:9', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
+const AW = { '9:16': 'Reels', '16:9': 'YouTube', '1:1': 'Kvadrat' };
+const IDEAS = [
+  "Kosmonavt mushuk Oy yuzasida sakramoqda, kinematografik, sekin harakat",
+  "Toshkent kechasi, yomg'ir, neon chiroqlar, kamera sekin oldinga suriladi",
+  "Oltin soatda tog' cho'qqisida ot chopmoqda, dron kadri, 4K",
+  "Choyxonada bug'lanayotgan choy, yaqin kadr, iliq yorug'lik"
+];
 
-const S = { tab: 'make', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, packs: [100, 300, 500, 1000, 2500] };
+const S = { tab: 'make', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
 const $ = id => document.getElementById(id);
 const IC = {
   image: '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>',
   video: '<svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="14" rx="3"/><path d="M16.5 10l5-3v10l-5-3z"/></svg>',
-  star: '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
-  check: '<svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  star: '<svg class="star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
   crown: '<svg class="ic" viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>',
   up: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>',
   swap: '<svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5"/><path d="M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5"/></svg>',
   dl: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>',
-  spark: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/></svg>'
+  spark: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/></svg>',
+  play: '<svg class="ic" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>'
 };
-const AR = a => { const m = /^(\d+):(\d+)$/.exec(a); if (!m) return ''; const w = +m[1], h = +m[2], k = 14 / Math.max(w, h); return `<i class="ar" style="width:${Math.round(w*k)}px;height:${Math.round(h*k)}px"></i>`; };
+const AR = a => { const m = /^(\d+):(\d+)$/.exec(a); if (!m) return ''; const w = +m[1], h = +m[2], k = 13 / Math.max(w, h); return `<i class="ar" style="width:${Math.round(w*k)}px;height:${Math.round(h*k)}px"></i>`; };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
 async function api(path, opt = {}){
@@ -348,44 +389,54 @@ async function api(path, opt = {}){
   return d;
 }
 
-function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); $('balChip').classList.add('hide'); $('topup').classList.add('hide'); }
+function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hide'); $('app').classList.add('hide'); $('go').classList.add('hide'); $('balChip').classList.add('hide'); $('topup').classList.add('hide'); $('tabs').classList.add('hide'); }
 
 /* ---------- Forma ---------- */
+function goLabel(){
+  const m = MODELS[S.model], price = curPrice();
+  if (S.busy) return `<span class="spin"></span>Render: <span class="gpct">${S.pct}%</span>`;
+  return `${IC.play}${m.kind === 'video' ? 'Video yaratish' : 'Rasm yaratish'}${price ? `<span class="gp">${IC.star}${price}</span>` : ''}`;
+}
 function render(){
   const m = MODELS[S.model];
-  const card = ([k, v]) => {
+  const row = ([k, v]) => {
     const p = priceOf(k, S.duration, v.audio ? S.audio : true, '');
     const desc = String(v.desc || '').replace(/^(Rasm|Video)\s*·\s*/, '');
-    return `<button class="model ${v.tier === 'pro' ? 'pro' : ''} ${k === S.model ? 'on' : ''}" data-m="${k}"><span class="mi ${v.kind}">${IC[v.kind] || IC.video}</span><span class="mt"><b>${esc(v.name)}</b><span class="md">${esc(desc)}</span></span>${p ? `<span class="pr">${IC.star}${p}${v.durations.length ? ' <small>dan</small>' : ''}</span>` : ''}<i class="ck">${IC.check}</i></button>`;
+    return `<button class="model ${v.tier === 'pro' ? 'pro' : ''} ${k === S.model ? 'on' : ''}" data-m="${k}"><span class="mi ${v.kind}">${IC[v.kind] || IC.video}</span><span class="mt"><b>${esc(v.name)}</b><span>${v.kind === 'video' ? 'Video' : 'Rasm'} · ${esc(desc)}</span></span>${p ? `<span class="pr">${IC.star}${p}${v.durations.length ? ' <small>dan</small>' : ''}</span>` : '<span></span>'}</button>`;
   };
   const list = Object.entries(MODELS);
   $('models').innerHTML =
-    `<p class="grp">Oddiy modellar</p><div class="models">${list.filter(([, v]) => v.tier !== 'pro').map(card).join('')}</div>` +
-    `<p class="grp pro">${IC.crown}Premium</p><div class="models">${list.filter(([, v]) => v.tier === 'pro').map(card).join('')}</div>`;
+    `<p class="grp">${IC.spark}Oddiy</p><div class="mlist">${list.filter(([, v]) => v.tier !== 'pro').map(row).join('')}</div>` +
+    `<p class="grp pro">${IC.crown}Premium</p><div class="mlist">${list.filter(([, v]) => v.tier === 'pro').map(row).join('')}</div>`;
+  $('modelSum').textContent = m.name;
   if (!m.aspects.includes(S.aspect)) S.aspect = m.aspects[0];
   if (m.durations.length && !m.durations.includes(S.duration)) S.duration = m.durations[0];
   const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image; // Kling rasmdan videoda o'lcham rasmga qarab
-  $('aspects').innerHTML = hideAspect ? '<span class="hint">Rasm o\'lchamiga qarab</span>' :
-    m.aspects.map(a => `<button class="chip ${a === S.aspect ? 'on' : ''}" data-a="${a}">${AR(a)}${AL[a] || a}</button>`).join('');
+  $('aspects').innerHTML = hideAspect ? '<button class="on" disabled>Rasm o\'lchamiga qarab</button>' :
+    m.aspects.map(a => `<button class="${a === S.aspect ? 'on' : ''}" data-a="${a}">${AR(a)}${AL[a] || a}</button>`).join('');
   $('durBox').classList.toggle('hide', !m.durations.length);
-  $('durs').innerHTML = m.durations.map(d => `<button class="chip ${d === S.duration ? 'on' : ''}" data-d="${d}">${d} s</button>`).join('');
+  $('durs').innerHTML = m.durations.map(d => `<button class="${d === S.duration ? 'on' : ''}" data-d="${d}">${d} s</button>`).join('');
   $('audBox').classList.toggle('hide', !m.audio);
   const rl = m.res || [];
   if (rl.length && !rl.includes(S.res)) S.res = rl[0];
   $('resBox').classList.toggle('hide', !rl.length);
-  $('resList').innerHTML = rl.map(r => `<button class="chip ${r === S.res ? 'on' : ''}" data-r="${r}">${r}${r === rl[0] ? '' : ' · HD+'}</button>`).join('');
+  $('resList').innerHTML = rl.map(r => `<button class="${r === S.res ? 'on' : ''}" data-r="${r}">${r}</button>`).join('');
+  $('outSum').textContent = [hideAspect ? 'rasm o\'lchami' : (AL[S.aspect] || S.aspect), m.durations.length ? S.duration + ' s' : '', S.res].filter(Boolean).join(' · ');
   $('balV').textContent = S.balance == null ? '…' : (S.free ? 'Bepul' : S.balance);
   $('balChip').classList.toggle('free', S.free);
   $('tpBal').innerHTML = S.balance == null ? '…' : (S.free ? 'Bepul' : IC.star + S.balance);
   document.querySelectorAll('[data-aud]').forEach(b => b.classList.toggle('on', (b.dataset.aud === '1') === S.audio));
   $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
   $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
-  const price = curPrice();
-  $('go').innerHTML = S.busy ? '<span class="spin"></span>Yaratilmoqda…' : `${IC[m.kind] || IC.spark}${m.kind === 'video' ? 'Video yaratish' : 'Rasm yaratish'}${price ? `<span class="gp">${IC.star}${price}</span>` : ''}`;
+  $('go').innerHTML = goLabel();
   if (!S.image) $('upBtn').innerHTML = IC.up + 'Rasm yuklash';
   $('go').disabled = S.busy;
+  vpSync();
 }
+$('ideas').innerHTML = IDEAS.map((t, i) => `<button class="idea" data-idea="${i}">${IC.spark}${esc(t.split(',')[0])}</button>`).join('');
 document.addEventListener('click', e => {
+  const idea = e.target.closest('[data-idea]');
+  if (idea) { $('prompt').value = IDEAS[+idea.dataset.idea]; $('prompt').dispatchEvent(new Event('input')); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab],[data-r]'); if (!t) return;
   if (t.dataset.r) S.res = t.dataset.r;
   if (t.dataset.m) S.model = t.dataset.m;
@@ -400,7 +451,7 @@ document.addEventListener('click', e => {
     $('go').classList.toggle('hide', t.dataset.tab !== 'make');
     if (t.dataset.tab === 'hist') loadHist();
   }
-  try { tgApp.HapticFeedback.selectionChanged(); } catch (e) {}
+  try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {}
   render();
 });
 
@@ -418,32 +469,311 @@ $('file').addEventListener('change', async e => {
   e.target.value = ''; render();
 });
 $('rm').onclick = () => { S.image = null; $('thumb').classList.add('hide'); $('rm').classList.add('hide'); render(); };
-$('prompt').addEventListener('input', () => { $('cnt').textContent = $('prompt').value.length; });
+$('prompt').addEventListener('input', () => { $('cnt').textContent = $('prompt').value.length + ' belgi'; });
+
+/* =========================================================
+   3D viewport (Blender uslubida)
+   ========================================================= */
+const VP = { ok: false, state: 'idle', tiles: [], order: [], key: '' };
+const vpEl = $('vp');
+
+// Kamera kadri: tanlangan o'lchamni ko'rsatadi
+function frameAspect(){
+  const m = MODELS[S.model];
+  if (m.kind === 'video' && m.imgAspect === false && S.image) return 1;
+  const a = /^(\d+):(\d+)$/.exec(S.aspect); return a ? a[1] / a[2] : 1;
+}
+function layoutFrame(){
+  const W = vpEl.clientWidth, H = vpEl.clientHeight; if (!W || !H) return;
+  const a = frameAspect();
+  let fw = Math.min(W * .6, (H - 104) * a), fh = fw / a;
+  const f = $('frame'); f.style.width = fw + 'px'; f.style.height = fh + 'px';
+  f.style.left = (W - fw) / 2 + 'px'; f.style.top = Math.max(62, (H - fh) / 2 + 4) + 'px';
+  const cols = 8, rows = Math.max(4, Math.min(14, Math.round(cols / a)));
+  const key = cols + 'x' + rows;
+  if (key !== VP.tileKey && VP.state !== 'run') buildTiles(cols, rows);
+}
+function buildTiles(cols, rows){
+  VP.tileKey = cols + 'x' + rows;
+  const t = $('tiles'); t.style.gridTemplateColumns = `repeat(${cols},1fr)`; t.style.gridTemplateRows = `repeat(${rows},1fr)`;
+  t.innerHTML = '<i></i>'.repeat(cols * rows);
+  VP.tiles = [...t.children];
+  // Cycles kabi markazdan tashqariga
+  const cx = (cols - 1) / 2, cy = (rows - 1) / 2;
+  VP.order = VP.tiles.map((_, i) => i).sort((a, b) => {
+    const da = Math.hypot(a % cols - cx, (a / cols | 0) - cy), db = Math.hypot(b % cols - cx, (b / cols | 0) - cy);
+    return da - db || a - b;
+  });
+}
+function vpSet(state, pct, job){
+  const f = $('frame');
+  VP.state = state;
+  f.classList.toggle('rendering', state === 'run');
+  f.classList.toggle('done', state === 'done');
+  f.classList.toggle('error', state === 'error');
+  const n = VP.tiles.length, on = state === 'done' ? n : Math.floor(n * (pct || 0) / 100);
+  VP.tiles.forEach((el, i) => { el.className = ''; });
+  if (state === 'run' || state === 'done') {
+    VP.order.forEach((idx, k) => { if (k < on) VP.tiles[idx].className = 'on'; else if (state === 'run' && k < on + 2) VP.tiles[idx].className = 'act'; });
+  }
+  const art = $('fart');
+  if (state === 'done' && job && job.kind === 'image' && job.urls && job.urls[0]) { if (!art.querySelector('img')) art.innerHTML = `<img src="${esc(job.urls[0])}" alt="">`; }
+  else if (state !== 'done') art.innerHTML = '';
+  const txt = $('vpText'), bar = $('vpBar');
+  if (state === 'run') { txt.innerHTML = `Render: <b>${pct || 0}%</b> · ${esc(MODELS[S.model].name)}`; bar.style.width = (pct || 0) + '%'; }
+  else if (state === 'done') { txt.innerHTML = 'Render: <b>100%</b> · Tayyor ✓'; bar.style.width = '100%'; }
+  else if (state === 'error') { txt.innerHTML = '<span class="err">Render to\'xtadi · xato</span>'; bar.style.width = '0'; }
+  else { txt.textContent = 'Tayyor · kutmoqda'; bar.style.width = '0'; }
+}
+function vpSync(){
+  const m = MODELS[S.model];
+  $('vpInfo').innerHTML = `<b>Kamera ko'rinishi</b><span>(1) ${m.kind === 'video' ? 'Video' : 'Rasm'} | ${esc(m.name)}</span>`;
+  const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image;
+  $('fLabel').textContent = [hideAspect ? 'rasm o\'lchami' : (S.aspect === 'auto' ? 'Avto' : S.aspect + (AW[S.aspect] ? ' ' + AW[S.aspect] : '')), m.durations.length ? S.duration + ' s' : '', S.res].filter(Boolean).join(' · ');
+  layoutFrame();
+  if (VP.ok) VP.setObject(m.kind, m.tier === 'pro');
+}
+new ResizeObserver(() => { layoutFrame(); if (VP.ok) VP.resize(); }).observe(vpEl);
+
+(function initViewport(){
+  if (!window.THREE) return;
+  try {
+    const cv = $('vp3d');
+    const R = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+    R.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    R.outputEncoding = THREE.sRGBEncoding;
+    R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+    R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x2b2b2b, 9, 24);
+    const cam = new THREE.PerspectiveCamera(36, 1, .1, 100);
+
+    // Studiya yorug'ligi va aks ettirish muhiti (oltin va metall chiroyli ko'rinishi uchun)
+    const pm = new THREE.PMREMGenerator(R);
+    const env = new THREE.Scene();
+    env.add(new THREE.Mesh(new THREE.BoxGeometry(30, 30, 30), new THREE.MeshBasicMaterial({ color: 0x3a3a3a, side: THREE.BackSide })));
+    [[0, 9, 0, 14, 0xffffff], [10, 4, 6, 6, 0xffe2b8], [-10, 3, -4, 6, 0x9cc0ff]].forEach(([x, y, z, s, c]) => {
+      const p = new THREE.Mesh(new THREE.PlaneGeometry(s, s), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide }));
+      p.position.set(x, y, z); p.lookAt(0, 0, 0); env.add(p);
+    });
+    scene.environment = pm.fromScene(env, .04).texture;
+
+    scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x2a2622, .45));
+    const key = new THREE.DirectionalLight(0xfff1dd, 1.6); key.position.set(4, 8, 5); key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 25 }); key.shadow.radius = 4; key.shadow.bias = -.0005;
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0x8fb6ff, .9); rim.position.set(-5, 4, -5); scene.add(rim);
+
+    // Blender to'ri va o'qlari
+    const grid = new THREE.GridHelper(48, 48, 0x4d4d4d, 0x3c3c3c); grid.material.transparent = true; grid.material.opacity = .8; scene.add(grid);
+    const axis = (c, a, b) => { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), new THREE.LineBasicMaterial({ color: c })); l.position.y = .003; scene.add(l); };
+    axis(0xd2454c, new THREE.Vector3(-24, 0, 0), new THREE.Vector3(24, 0, 0));
+    axis(0x86b53a, new THREE.Vector3(0, 0, -24), new THREE.Vector3(0, 0, 24));
+    const catcher = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.ShadowMaterial({ opacity: .38 }));
+    catcher.rotation.x = -Math.PI / 2; catcher.position.y = .002; catcher.receiveShadow = true; scene.add(catcher);
+
+    // Materiallar
+    const MAT = {
+      clay: new THREE.MeshStandardMaterial({ color: 0xc7ccd4, roughness: .42, metalness: .15 }),
+      gold: new THREE.MeshStandardMaterial({ color: 0xe0ab3c, roughness: .26, metalness: 1 }),
+      dark: new THREE.MeshStandardMaterial({ color: 0x24272d, roughness: .45, metalness: .35 }),
+      mid: new THREE.MeshStandardMaterial({ color: 0x4a4f58, roughness: .5, metalness: .4 }),
+      glass: new THREE.MeshStandardMaterial({ color: 0x0b1d3a, roughness: .05, metalness: .9, emissive: 0x2a5fd0, emissiveIntensity: .55 }),
+      rec: new THREE.MeshBasicMaterial({ color: 0xff2d2d }),
+      blue: new THREE.MeshStandardMaterial({ color: 0x4772b3, roughness: .35, metalness: .2 }),
+      spark: new THREE.MeshStandardMaterial({ color: 0x7ef0ff, emissive: 0x36c6ff, emissiveIntensity: 1.2, roughness: .2 }),
+      outline: new THREE.MeshBasicMaterial({ color: 0xffa033, side: THREE.BackSide })
+    };
+    const mesh = (geo, mat, x = 0, y = 0, z = 0, p) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; if (p) p.add(m); return m; };
+    const outline = (m, s = 1.045) => { const o = new THREE.Mesh(m.geometry, MAT.outline); o.scale.setScalar(s); m.add(o); };
+    function rgeo(w, h, d, r){
+      const s = new THREE.Shape(), x = -w / 2 + r, y = -h / 2 + r, ww = w - 2 * r, hh = h - 2 * r;
+      s.moveTo(x, y - r); s.lineTo(x + ww, y - r); s.quadraticCurveTo(x + ww + r, y - r, x + ww + r, y); s.lineTo(x + ww + r, y + hh);
+      s.quadraticCurveTo(x + ww + r, y + hh + r, x + ww, y + hh + r); s.lineTo(x, y + hh + r); s.quadraticCurveTo(x - r, y + hh + r, x - r, y + hh);
+      s.lineTo(x - r, y); s.quadraticCurveTo(x - r, y - r, x, y - r);
+      const b = Math.min(r, .05);
+      const g = new THREE.ExtrudeGeometry(s, { depth: d - 2 * b, bevelEnabled: true, bevelThickness: b, bevelSize: b * .8, bevelSegments: 3, curveSegments: 8 });
+      g.center(); return g;
+    }
+    const turntable = p => { mesh(new THREE.CylinderGeometry(1.45, 1.5, .1, 64), MAT.mid, 0, .05, 0, p); const r = mesh(new THREE.TorusGeometry(1.47, .018, 8, 80), MAT.blue, 0, .1, 0, p); r.rotation.x = Math.PI / 2; };
+
+    // --- Kino kamera (video modellar uchun) ---
+    function buildCamera(){
+      const g = new THREE.Group(), parts = { main: [] };
+      turntable(g);
+      const rig = new THREE.Group(); rig.position.y = .1; g.add(rig);
+      // shtativ
+      mesh(new THREE.CylinderGeometry(.16, .2, .26, 24), MAT.dark, 0, .98, 0, rig);
+      for (let i = 0; i < 3; i++) {
+        const piv = new THREE.Group(); piv.position.y = .92; piv.rotation.y = i * Math.PI * 2 / 3 + .5; rig.add(piv);
+        const tilt = new THREE.Group(); tilt.rotation.x = .42; piv.add(tilt);
+        mesh(new THREE.CylinderGeometry(.035, .028, 1.0, 10), MAT.dark, 0, -.5, 0, tilt);
+      }
+      const head = new THREE.Group(); head.position.y = 1.55; rig.add(head);
+      const body = mesh(rgeo(1.55, .95, .85, .14), MAT.clay, 0, 0, 0, head); parts.main.push(body); outline(body);
+      // ob'ektiv
+      const lens = mesh(new THREE.CylinderGeometry(.3, .34, .62, 32), MAT.dark, 1.08, -.02, 0, head); lens.rotation.z = Math.PI / 2;
+      const ring = mesh(new THREE.TorusGeometry(.33, .035, 10, 40), MAT.mid, 1.0, -.02, 0, head); ring.rotation.y = Math.PI / 2;
+      const glass = mesh(new THREE.CylinderGeometry(.25, .25, .03, 32), MAT.glass, 1.4, -.02, 0, head); glass.rotation.z = Math.PI / 2;
+      const hood = mesh(new THREE.CylinderGeometry(.56, .38, .32, 4, 1, true), MAT.dark, 1.58, -.02, 0, head); hood.rotation.z = -Math.PI / 2; hood.rotation.x = Math.PI / 4; hood.material = MAT.dark.clone(); hood.material.side = THREE.DoubleSide;
+      // ko'zgu va tutqich
+      mesh(rgeo(.42, .28, .3, .06), MAT.dark, -.6, .5, 0, head);
+      const eye = mesh(new THREE.CylinderGeometry(.09, .11, .3, 16), MAT.dark, -.92, .5, 0, head); eye.rotation.z = Math.PI / 2;
+      // plyonka g'ildiraklari
+      const reels = [];
+      [[-.38, 1.0, .5], [.5, .95, .42]].forEach(([x, y, r]) => {
+        const rg = new THREE.Group(); rg.position.set(x, y, 0); head.add(rg);
+        const disc = mesh(new THREE.CylinderGeometry(r, r, .14, 48), MAT.clay, 0, 0, 0, rg); disc.rotation.x = Math.PI / 2; parts.main.push(disc); outline(disc, 1.05);
+        mesh(new THREE.CylinderGeometry(.08, .08, .2, 16), MAT.dark, 0, 0, 0, rg).rotation.x = Math.PI / 2;
+        for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; const hole = mesh(new THREE.CylinderGeometry(r * .2, r * .2, .16, 16), MAT.dark, Math.cos(a) * r * .55, Math.sin(a) * r * .55, 0, rg); hole.rotation.x = Math.PI / 2; }
+        reels.push(rg);
+      });
+      const rec = mesh(new THREE.SphereGeometry(.055, 16, 12), MAT.rec, -.55, .2, .44, head); rec.castShadow = false;
+      g.userData = { parts, reels, rec, head };
+      return g;
+    }
+    // --- Rasm ramkasi (rasm modellar uchun) ---
+    function artTexture(){
+      const c = document.createElement('canvas'); c.width = 256; c.height = 320; const x = c.getContext('2d');
+      const sky = x.createLinearGradient(0, 0, 0, 320); sky.addColorStop(0, '#1d1a5c'); sky.addColorStop(.45, '#7b4bd6'); sky.addColorStop(.75, '#ff8a5c'); sky.addColorStop(1, '#ffc46b');
+      x.fillStyle = sky; x.fillRect(0, 0, 256, 320);
+      for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,255,255,${Math.random() * .7})`; x.fillRect(Math.random() * 256, Math.random() * 120, 1.5, 1.5); }
+      const sun = x.createRadialGradient(170, 175, 4, 170, 175, 70); sun.addColorStop(0, '#fff3c4'); sun.addColorStop(.35, '#ffd27a'); sun.addColorStop(1, 'rgba(255,200,120,0)');
+      x.fillStyle = sun; x.fillRect(0, 80, 256, 200);
+      [['#5a2f86', 210, 1.2], ['#3b1f63', 240, 1.6], ['#1f1238', 275, 2.2]].forEach(([col, base, amp]) => {
+        x.fillStyle = col; x.beginPath(); x.moveTo(0, 320);
+        for (let px = 0; px <= 256; px += 16) x.lineTo(px, base - Math.abs(Math.sin(px * .02 * amp + amp)) * 50 * amp / 1.6);
+        x.lineTo(256, 320); x.fill();
+      });
+      const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+    }
+    function buildFrame(){
+      const g = new THREE.Group(), parts = { main: [] };
+      turntable(g);
+      const stand = new THREE.Group(); stand.position.y = .1; g.add(stand);
+      const holder = new THREE.Group(); holder.position.set(0, 1.5, 0); holder.rotation.x = -.12; stand.add(holder);
+      const W = 1.5, H = 1.9, T = .12, D = .14;
+      [[0, H / 2, W + T, T], [0, -H / 2, W + T, T], [-W / 2, 0, T, H + T], [W / 2, 0, T, H + T]].forEach(([x, y, w, h]) => {
+        const b = mesh(new THREE.BoxGeometry(w, h, D), MAT.clay, x, y, 0, holder); parts.main.push(b);
+      });
+      const ol = new THREE.Mesh(new THREE.PlaneGeometry(W + T * 2 + .1, H + T * 2 + .1), new THREE.MeshBasicMaterial({ color: 0xffa033 })); ol.position.z = -.075; holder.add(ol);
+      mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshStandardMaterial({ map: artTexture(), roughness: .6, emissive: 0xffffff, emissiveIntensity: .12, emissiveMap: null }), 0, 0, .02, holder);
+      mesh(new THREE.BoxGeometry(W, H, .04), MAT.dark, 0, 0, -.03, holder);
+      // tayanch
+      const leg = mesh(new THREE.BoxGeometry(.08, 1.7, .08), MAT.dark, 0, .75, -.45, stand); leg.rotation.x = .38;
+      mesh(new THREE.BoxGeometry(1.2, .08, .3), MAT.dark, 0, .5, .12, stand);
+      const spark = mesh(new THREE.OctahedronGeometry(.17, 0), MAT.spark, 1.05, 2.55, .2, g);
+      const spark2 = mesh(new THREE.OctahedronGeometry(.1, 0), MAT.spark, -1.05, 2.3, .3, g);
+      g.userData = { parts, sparks: [spark, spark2] };
+      return g;
+    }
+    const OBJ = { video: buildCamera(), image: buildFrame() };
+    Object.values(OBJ).forEach(o => { o.visible = false; o.scale.setScalar(.001); scene.add(o); });
+    let cur = null, curKey = '';
+    VP.setObject = (kind, pro) => {
+      const k = kind + (pro ? '+' : '');
+      if (k === curKey) return; curKey = k;
+      const o = OBJ[kind] || OBJ.video;
+      o.userData.parts.main.forEach(m => { m.material = pro ? MAT.gold : MAT.clay; });
+      if (cur !== o) { if (cur) { cur.visible = false; cur.scale.setScalar(.001); } cur = o; o.visible = true; o.scale.setScalar(.6); }
+      else o.scale.setScalar(.85);
+    };
+
+    // Kamera boshqaruvi (barmoq bilan aylantirish)
+    let yaw = .75, pitch = .3, dist = 9, drag = null, lastTouch = 0;
+    vpEl.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw, pitch }; lastTouch = performance.now(); });
+    window.addEventListener('pointermove', e => {
+      if (!drag) return;
+      yaw = drag.yaw - (e.clientX - drag.x) * .012;
+      pitch = Math.max(.05, Math.min(1.1, drag.pitch + (e.clientY - drag.y) * .006));
+      lastTouch = performance.now(); $('vpHint').style.opacity = 0;
+    });
+    window.addEventListener('pointerup', () => { drag = null; });
+    window.addEventListener('pointercancel', () => { drag = null; });
+
+    // Navigatsiya gizmosi (X qizil, Y yashil, Z ko'k)
+    const giz = $('giz'), q = new THREE.Quaternion();
+    const AX = [['X', new THREE.Vector3(1, 0, 0), '#e0494f'], ['Y', new THREE.Vector3(0, 0, -1), '#8bc34a'], ['Z', new THREE.Vector3(0, 1, 0), '#4f8fe0']];
+    function drawGizmo(){
+      q.copy(cam.quaternion).invert();
+      const items = [];
+      AX.forEach(([n, v, c]) => {
+        const p = v.clone().applyQuaternion(q);
+        items.push({ n, c, x: 35 + p.x * 23, y: 35 - p.y * 23, z: p.z, pos: true });
+        items.push({ n, c, x: 35 - p.x * 23, y: 35 + p.y * 23, z: -p.z, pos: false });
+      });
+      items.sort((a, b) => a.z - b.z);
+      giz.innerHTML = '<circle cx="35" cy="35" r="33" fill="rgba(255,255,255,.06)"/>' + items.map(i => i.pos
+        ? `<line x1="35" y1="35" x2="${i.x.toFixed(1)}" y2="${i.y.toFixed(1)}" stroke="${i.c}" stroke-width="2"/><circle cx="${i.x.toFixed(1)}" cy="${i.y.toFixed(1)}" r="7.5" fill="${i.c}"/><text x="${i.x.toFixed(1)}" y="${i.y.toFixed(1)}">${i.n}</text>`
+        : `<circle cx="${i.x.toFixed(1)}" cy="${i.y.toFixed(1)}" r="6" fill="${i.c}" fill-opacity=".35" stroke="${i.c}" stroke-width="1.2"/>`).join('');
+    }
+
+    let W = 1, H = 1;
+    VP.resize = () => { W = vpEl.clientWidth; H = vpEl.clientHeight; if (!W || !H) return; R.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix(); };
+    VP.resize();
+
+    let visible = true;
+    new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(vpEl);
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let last = performance.now(), fr = 0;
+    function loop(now){
+      requestAnimationFrame(loop);
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      if (!visible || document.hidden || S.tab !== 'make' || $('app').classList.contains('hide')) return;
+      const t = now / 1000, busy = VP.state === 'run';
+      if (!drag && now - lastTouch > 2500 && !reduce) yaw += dt * (busy ? .45 : .18);
+      const tgt = new THREE.Vector3(0, 1.35, 0);
+      cam.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, tgt.y + Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist);
+      cam.lookAt(tgt);
+      if (cur) {
+        const s = cur.scale.x; if (s < 1) cur.scale.setScalar(Math.min(1, s + (1 - s) * Math.min(1, dt * 9) + .002));
+        const u = cur.userData;
+        if (u.reels) { u.reels.forEach((r, i) => r.rotation.z -= dt * (busy ? 7 : .6) * (i ? 1.2 : 1)); u.rec.visible = busy ? Math.sin(t * 6) > 0 : true; u.rec.material.color.setHex(busy ? 0xff2d2d : 0x7a1f1f); u.head.position.y = 1.55 + Math.sin(t * 1.6) * .02; }
+        if (u.sparks) u.sparks.forEach((s2, i) => { s2.rotation.y += dt * (busy ? 4 : 1.2); s2.position.y = (i ? 2.3 : 2.55) + Math.sin(t * 2 + i) * .08; });
+      }
+      R.render(scene, cam);
+      if ((fr++ & 1) === 0) drawGizmo();
+    }
+    VP.ok = true;
+    requestAnimationFrame(loop);
+  } catch (e) { VP.ok = false; }
+})();
+setTimeout(() => { $('vpHint').style.opacity = 0; }, 6000);
 
 /* ---------- Yaratish va jarayon ---------- */
 let timer = null;
 function showProg(job){
-  $('prog').classList.remove('hide');
+  $('prog').classList.remove('hide'); $('prog').open = true;
   const m = MODELS[job.model] || MODELS[S.model];
   if (job.status === 'done') {
     setPct(100); $('pTitle').textContent = '✅ Tayyor!'; $('pNote').textContent = 'Natija botga ham yuborildi.';
+    vpSet('done', 100, job);
     const u = job.urls[0];
-    $('res').innerHTML = (job.kind === 'video' ? `<video src="${esc(u)}" controls playsinline autoplay loop muted></video>` : `<img src="${esc(u)}" alt="">`) +
-      `<div class="acts"><a href="${esc(u)}" target="_blank" rel="noopener">${IC.dl}Yuklab olish</a><button id="again">${IC.spark}Yana yaratish</button></div>`;
-    $('again').onclick = () => { $('prog').classList.add('hide'); $('res').innerHTML = ''; scrollTo({ top: 0, behavior: 'smooth' }); };
+    if (!$('res').dataset.u || $('res').dataset.u !== u) {
+      $('res').dataset.u = u;
+      $('res').innerHTML = (job.kind === 'video' ? `<video src="${esc(u)}" controls playsinline autoplay loop muted></video>` : `<img src="${esc(u)}" alt="">`) +
+        `<div class="acts"><a href="${esc(u)}" target="_blank" rel="noopener">${IC.dl}Yuklab olish</a><button id="again">${IC.spark}Yana yaratish</button></div>`;
+      $('again').onclick = () => { $('prog').classList.add('hide'); $('res').innerHTML = ''; $('res').dataset.u = ''; vpSet('idle', 0); scrollTo({ top: 0, behavior: 'smooth' }); };
+    }
     return;
   }
   if (job.status === 'error') {
     $('pTitle').textContent = '❌ Xato'; $('pPct').textContent = '';
-    $('pNote').innerHTML = `<span class="err">${esc(job.error || 'Yaratib bo\'lmadi')}</span>`; $('res').innerHTML = ''; return;
+    $('pNote').innerHTML = `<span class="err">${esc(job.error || 'Yaratib bo\'lmadi')}</span>`; $('res').innerHTML = ''; $('res').dataset.u = '';
+    vpSet('error', 0); return;
   }
   // Taxminiy foiz: o'tgan vaqt / modelning odatiy vaqti
   const el = (Date.now() - (job.created || Date.now())) / 1000;
   setPct(Math.min(95, Math.round(el / etaOf(job.model) * 100)));
-  $('pTitle').textContent = job.status === 'queue' ? `Navbatda${job.queue ? ' (' + job.queue + ')' : ''}…` : (m.kind === 'video' ? 'Video yaratilmoqda…' : 'Rasm yaratilmoqda…');
+  $('pTitle').textContent = job.status === 'queue' ? `Navbatda${job.queue ? ' (' + job.queue + ')' : ''}…` : (m.kind === 'video' ? 'Video render qilinmoqda…' : 'Rasm render qilinmoqda…');
   $('pNote').textContent = 'Ilovani yopsangiz ham natija botga keladi.';
 }
-function setPct(p){ $('pPct').textContent = p + '%'; $('pBar').style.width = p + '%'; }
+function setPct(p){
+  S.pct = p;
+  $('pPct').textContent = p + '%'; $('pBar').style.width = p + '%';
+  if (p < 100) vpSet('run', p);
+  if (S.busy) $('go').innerHTML = goLabel();
+}
 
 async function poll(id, created){
   clearInterval(timer);
@@ -459,15 +789,18 @@ async function poll(id, created){
     }
   };
   showProg(job);
-  timer = setInterval(tick, 4000); tick();
+  // foiz har soniyada silliq o'sadi, server esa har 4 soniyada so'raladi
+  let n = 0;
+  timer = setInterval(() => { if (++n % 4 === 0) tick(); else if (job.status !== 'done' && job.status !== 'error') showProg(job); }, 1000);
+  tick();
 }
 
 $('go').onclick = async () => {
   const prompt = $('prompt').value.trim();
-  if (!prompt) { $('prompt').focus(); haptic('warning'); return; }
-  S.busy = true; render();
-  $('prog').classList.remove('hide'); $('res').innerHTML = ''; setPct(0); $('pTitle').textContent = 'Yuborilmoqda…'; $('pNote').textContent = '';
-  $('prog').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (!prompt) { $('prompt').focus(); $('prompt').closest('details').open = true; haptic('warning'); return; }
+  S.busy = true; S.pct = 0; render();
+  $('prog').classList.remove('hide'); $('prog').open = true; $('res').innerHTML = ''; $('res').dataset.u = ''; setPct(0); $('pTitle').textContent = 'Yuborilmoqda…'; $('pNote').textContent = '';
+  scrollTo({ top: 0, behavior: 'smooth' });
   try {
     const d = await api('/ai/gen', { method: 'POST', body: JSON.stringify({
       initData, model: S.model, prompt, image: S.image,
@@ -479,10 +812,11 @@ $('go').onclick = async () => {
     setInfo(d);
     poll(d.id, created);
   } catch (e) {
-    S.busy = false; render(); haptic('error');
+    S.busy = false; render(); haptic('error'); vpSet('error', 0);
     $('pTitle').textContent = e.code === 'balance' ? '💰 Balans yetmaydi' : '❌ Xato'; $('pPct').textContent = '';
     $('pNote').innerHTML = `<span class="err">${esc(e.message)}</span>` + (e.code === 'balance' ? `<br><button class="topup-cta" id="ctaTop">Balansni to'ldirish</button>` : '');
     if (e.code === 'balance') $('ctaTop').onclick = openTopup;
+    $('prog').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 };
 
@@ -492,18 +826,18 @@ async function loadHist(){
   try {
     const d = await api('/ai/history');
     setInfo(d);
-    if (!d.jobs.length) { $('histList').innerHTML = '<p class="empty" style="grid-column:1/-1">Hali hech narsa yaratilmagan</p>'; return; }
+    if (!d.jobs.length) { $('histList').innerHTML = '<p class="empty">Hali hech narsa yaratilmagan</p>'; return; }
     $('histList').innerHTML = d.jobs.map(j => {
       const u = j.urls[0];
       const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
         : j.status === 'error' ? '❌ Xato' : '⏳ Jarayonda';
-      return `<div class="glass h" data-u="${esc(u || '')}"><div class="m"><span class="kd">${IC[j.kind] || IC.video}</span>${media}</div><div class="t"><b>${esc(j.name)}${j.stars ? `<em>${j.stars} ⭐</em>` : ''}</b><span>${esc(j.prompt)}</span></div></div>`;
+      return `<div class="h" data-u="${esc(u || '')}"><div class="m"><span class="kd">${IC[j.kind] || IC.video}</span>${media}</div><div class="t"><b>${esc(j.name)}${j.stars ? `<em>${j.stars} ⭐</em>` : ''}</b><span>${esc(j.prompt)}</span></div></div>`;
     }).join('');
     document.querySelectorAll('.h[data-u]').forEach(el => el.onclick = () => {
       const u = el.dataset.u; if (!u) return;
       try { tgApp.openLink(u); } catch (e) { open(u, '_blank'); }
     });
-  } catch (e) { $('histList').innerHTML = `<p class="empty err" style="grid-column:1/-1">${esc(e.message)}</p>`; }
+  } catch (e) { $('histList').innerHTML = `<p class="empty err">${esc(e.message)}</p>`; }
 }
 async function refreshLeft(){ try { const d = await api('/ai/history'); setInfo(d); } catch (e) {} }
 function setInfo(d){
@@ -561,12 +895,13 @@ $('packs').addEventListener('click', async e => {
 
 /* ---------- Boshlash ---------- */
 (async function start(){
-  render();
-  if (!initData) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@bu_qandayishlaydi_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/bu_qandayishlaydi_bot">Botni ochish</a>');
+  render(); vpSet('idle', 0);
+  if (!initData && !qs.has('demo')) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@bu_qandayishlaydi_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/bu_qandayishlaydi_bot">Botni ochish</a>');
   if (API) try {
     const md = await api('/ai/models');
     if (md && md.models) { for (const k in md.models) MODELS[k] = { ...(MODELS[k] || {}), ...md.models[k] }; render(); }
   } catch (e) {}
+  if (qs.has('demo')) { S.balance = 250; render(); return; }
   if (!API) return gate('<h1>⚙️ Server ulanmagan</h1><p class="sub">Botga /start yozib, «AI studiya» tugmasi orqali qayta oching.</p>');
   try {
     const d = await api('/ai/history');
