@@ -322,11 +322,87 @@ textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(90,136,207,.3
 .topup-cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:0;border-radius:7px;padding:10px 14px;font:700 13px var(--fb);color:#2a1c00;background:linear-gradient(var(--gold2),var(--gold));cursor:pointer}
 
 button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+
+/* ---------- Bosh sahifa (OpenArt uslubi) ---------- */
+.home{padding:12px 0 calc(40px + env(safe-area-inset-bottom,0px))}
+.home .wrap{display:flex;flex-direction:column;gap:22px}
+.hero{position:relative;border-radius:14px;overflow:hidden;border:1px solid #2e2e2e;
+  background:radial-gradient(120% 90% at 0% 0%,rgba(255,160,51,.28),transparent 55%),radial-gradient(90% 80% at 100% 100%,rgba(71,114,179,.35),transparent 60%),linear-gradient(160deg,#262626,#1b1b1b)}
+.hero-in{position:relative;padding:18px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.hero h1{margin:0;font:700 clamp(21px,5.4vw,30px)/1.15 var(--fb);letter-spacing:-.02em;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--sel)}
+.hero p{margin:0;color:var(--muted);font-size:13.5px}
+.hbox{display:flex;flex-direction:column;gap:10px;background:rgba(16,16,16,.72);border:1px solid #333;border-radius:12px;padding:10px;backdrop-filter:blur(6px)}
+.hbox textarea{width:100%;min-height:64px;resize:none;border:0;background:transparent;color:var(--text);font:500 15px/1.45 var(--fb);padding:4px 4px 0;outline:none}
+.hbox textarea::placeholder{color:var(--dim)}
+.hrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hseg{display:flex;background:var(--field);border:1px solid #333;border-radius:8px;padding:2px}
+.hseg button{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--muted);font:600 12.5px var(--fb);padding:6px 11px;border-radius:6px;cursor:pointer}
+.hseg button.on{background:var(--wid);color:#fff}
+.hgo{margin-left:auto;display:flex;align-items:center;gap:7px;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;
+  background:linear-gradient(var(--sel),var(--sel2));color:#1a1003;font:700 14px var(--fb)}
+.hgo .ic{width:15px;height:15px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:0 2px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid #333;background:#1c1c1c;color:#cfcfcf;border-radius:999px;padding:5px 11px;font:500 12px var(--fb);cursor:pointer;white-space:nowrap}
+.chips button:hover{border-color:#4a4a4a;color:#fff}
+.sh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.sh h2{margin:0;font:700 16px var(--fb);letter-spacing:-.01em}
+.sh button{border:0;background:none;color:var(--muted);font:500 13px var(--fb);cursor:pointer;padding:0}
+.sh button:hover{color:#fff}
+.hm-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  margin:0 calc(-1 * max(10px,env(safe-area-inset-left,0px)));padding:0 max(10px,env(safe-area-inset-left,0px)) 2px}
+.hm-row::-webkit-scrollbar{display:none}
+.hm{flex:0 0 min(64%,230px);scroll-snap-align:start;text-align:left;border:1px solid #2c2c2c;border-radius:12px;background:var(--pnl);overflow:hidden;cursor:pointer;padding:0;color:inherit;font:inherit;display:flex;flex-direction:column;transition:transform .15s,border-color .15s}
+.hm:hover{border-color:#4a4a4a;transform:translateY(-2px)}
+.hm .cv{position:relative;aspect-ratio:16/10;max-width:100%;background:var(--g)}
+.hm .cv:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,.55))}
+.hm .cv .lt{position:absolute;right:10px;bottom:2px;font:800 64px/1 var(--fb);color:rgba(255,255,255,.22);letter-spacing:-.04em}
+.hm .cv .tg{position:absolute;left:8px;top:8px;z-index:1;display:flex;gap:5px}
+.hm .cv .tg span{font:700 10px var(--fb);letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:4px;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;gap:4px}
+.hm .cv .tg span.pro{background:linear-gradient(90deg,var(--gold),var(--gold2));color:#2a1c00}
+.hm .cv .tg .ic{width:12px;height:12px}
+.hm .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
+.hm .bd b{font:600 14px var(--fb)}
+.hm .bd span{color:var(--muted);font-size:12.5px}
+.hm .bd .pr{display:flex;align-items:center;gap:4px;margin-top:3px;font:600 12px var(--fm);color:var(--gold2)}
+.tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tool{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid #2c2c2c;border-radius:10px;background:var(--pnl);padding:11px;cursor:pointer;color:inherit;font:inherit}
+.tool:hover{background:var(--pnlh)}
+.tool i{flex:none;width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:var(--tc,#333)}
+.tool i .ic{width:18px;height:18px;color:#fff}
+.tool div{min-width:0;display:flex;flex-direction:column}
+.tool b{font:600 13px var(--fb)}
+.tool span{color:var(--muted);font-size:11.5px;line-height:1.3}
+.recent{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.recent .rc{position:relative;aspect-ratio:1;max-width:100%;border-radius:8px;overflow:hidden;background:var(--pnl);border:1px solid #2a2a2a;cursor:pointer}
+.recent .rc img,.recent .rc video{width:100%;height:100%;object-fit:cover;display:block}
+.recent .rc .kd{position:absolute;left:5px;top:5px;width:20px;height:20px;border-radius:5px;background:rgba(0,0,0,.6);display:grid;place-items:center}
+.recent .rc .kd .ic{width:12px;height:12px}
+.recent .rc .st{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.rempty{border:1px dashed #3a3a3a;border-radius:10px;padding:18px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ---------- Noutbuk / katta ekran ---------- */
+@media (min-width:900px){
+  .topbar{padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+  .home .wrap{max-width:1180px;margin:0 auto;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+  .hero-in{padding:34px 34px 28px;max-width:760px}
+  .hm-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;margin:0;padding:0}
+  .hm-row .hm:nth-child(n+9){display:none}
+  .tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .recent{grid-template-columns:repeat(6,minmax(0,1fr))}
+  #make{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,1fr);align-items:start;max-width:1280px;margin:0 auto;gap:0}
+  #make .vp{position:sticky;top:96px;height:calc(100vh - 120px);min-height:420px;border:1px solid var(--sep);border-radius:10px;margin:14px 0 14px 20px}
+  #make .props{padding-bottom:110px}
+  .go{left:auto;right:max(24px,env(safe-area-inset-right,0px));width:min(440px,calc(44vw - 40px))}
+  .histv .wrap{max-width:1180px;margin:0 auto}
+}
+body.on-home:after,body.on-hist:after{display:none}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 @media (max-width:360px){.row-l{grid-template-columns:1fr}.row-l>label,.row-l>span{text-align:left}}
 </style>
 </head>
-<body>
+<body class="on-home">
 <header class="topbar" id="mainHead">
   <div class="tb-row">
     <div class="logo">
@@ -335,8 +411,9 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
     </div>
     <button class="balchip" id="balChip" aria-label="Balans va to'ldirish"><svg class="star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg><b id="balV">…</b><span class="plus"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
   </div>
-  <nav class="ws" id="tabs" data-on="make">
-    <button class="on" data-tab="make"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Yaratish</button>
+  <nav class="ws" id="tabs" data-on="home">
+    <button class="on" data-tab="home"><svg class="ic" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Bosh sahifa</button>
+    <button data-tab="make"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Yaratish</button>
     <button data-tab="hist"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>Tarix</button>
   </nav>
 </header>
@@ -359,7 +436,40 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
 <div class="gate hide" id="gate"></div>
 
 <div id="app">
-  <section id="make">
+  <section id="home" class="home"><div class="wrap">
+    <div class="hero"><div class="hero-in">
+      <h1>G'oyangizni <em>videoga</em> aylantiring</h1>
+      <p>Kling, Veo, Seedance, Sora va Nano Banana bir joyda. Yozing, model tanlang, tayyor.</p>
+      <div class="hbox">
+        <textarea id="hPrompt" placeholder="Nimani yaratamiz? Masalan: tog' ustida quyosh chiqishi, dron kadri"></textarea>
+        <div class="hrow">
+          <div class="hseg" id="hKind"><button class="on" data-hk="video"><svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="14" rx="3"/><path d="M16.5 10l5-3v10l-5-3z"/></svg>Video</button><button data-hk="image"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>Rasm</button></div>
+          <button class="hgo" id="hGo"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/></svg>Boshlash</button>
+        </div>
+      </div>
+      <div class="chips" id="hIdeas"></div>
+    </div></div>
+
+    <section><div class="sh"><h2>Modellar</h2><button data-tab-go="make">Studiyaga o'tish ›</button></div>
+      <div class="hm-row" id="hModels"></div></section>
+
+    <section><div class="sh"><h2>Tezkor boshlash</h2></div>
+      <div class="tools">
+        <button class="tool" data-tool="img2vid"><i style="--tc:linear-gradient(135deg,#ff8a1f,#ffc56b)"><svg class="ic" viewBox="0 0 24 24"><path d="M5 19c3-7 7-11 14-14M14 5h5v5"/></svg></i><div><b>Rasmni jonlantirish</b><span>Rasm yuklang, video bo'ladi</span></div></button>
+        <button class="tool" data-tool="reels"><i style="--tc:linear-gradient(135deg,#ff4f8b,#7b5cff)"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/></svg></i><div><b>Reels video</b><span>9:16, telefon uchun</span></div></button>
+        <button class="tool" data-tool="youtube"><i style="--tc:linear-gradient(135deg,#e5544f,#ff8a6a)"><svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M10.5 9.5v5l4-2.5z" fill="#fff"/></svg></i><div><b>YouTube video</b><span>16:9, keng kadr</span></div></button>
+        <button class="tool" data-tool="sound"><i style="--tc:linear-gradient(135deg,#2f6fe4,#8a5cf6)"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 010 6"/></svg></i><div><b>Ovozli video</b><span>Veo 3.1, tovush bilan</span></div></button>
+        <button class="tool" data-tool="photo"><i style="--tc:linear-gradient(135deg,#ffd84d,#f08a24)"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg></i><div><b>Rasm yaratish</b><span>Nano Banana, tez</span></div></button>
+        <button class="tool" data-tool="edit"><i style="--tc:linear-gradient(135deg,#0f8f74,#26d39a)"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></i><div><b>Rasmni tahrirlash</b><span>So'z bilan o'zgartiring</span></div></button>
+        <button class="tool" data-tool="pro"><i style="--tc:linear-gradient(135deg,#7a5410,#f2c14e)"><svg class="ic" viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg></i><div><b>Premium sifat</b><span>Kling 3.0, Seedance 2.0</span></div></button>
+        <button class="tool" data-tool="story"><i style="--tc:linear-gradient(135deg,#0b0b0b,#6a6a6a)"><svg class="ic" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/></svg></i><div><b>Hikoya video</b><span>Sora 2 Pro, 12 s gacha</span></div></button>
+      </div></section>
+
+    <section><div class="sh"><h2>Oxirgi ishlaringiz</h2><button data-tab-go="hist">Hammasi ›</button></div>
+      <div id="hRecent"><div class="rempty">Yuklanmoqda…</div></div></section>
+  </div></section>
+
+  <section id="make" class="hide">
     <div class="vp" id="vp">
       <canvas id="vp3d"></canvas>
       <div class="vp-info" id="vpInfo"><b>Kamera ko'rinishi</b><span>(1) Video | Kling 2.5 Turbo</span></div>
@@ -421,7 +531,7 @@ button:focus-visible,label:focus-visible,a:focus-visible,textarea:focus-visible,
   <section id="hist" class="hide histv"><div class="wrap"><div class="hist" id="histList"></div></div></section>
 </div>
 
-<button class="go" id="go">Yaratish</button>
+<button class="go hide" id="go">Yaratish</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -477,7 +587,7 @@ const IDEAS = [
   "Choyxonada bug'lanayotgan choy, yaqin kadr, iliq yorug'lik"
 ];
 
-const S = { tab: 'make', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
+const S = { tab: 'home', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
 const $ = id => document.getElementById(id);
 const IC = {
   image: '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>',
@@ -512,6 +622,7 @@ function goLabel(){
   return `${IC.play}${m.kind === 'video' ? 'Video yaratish' : 'Rasm yaratish'}${price ? `<span class="gp">${IC.star}${price}</span>` : ''}`;
 }
 function render(){
+  renderHome();
   const m = MODELS[S.model];
   const card = ([k, v]) => {
     const p = priceOf(k, S.duration, v.audio ? S.audio : true, '');
@@ -580,11 +691,15 @@ document.addEventListener('click', e => {
   if (t.dataset.aud) S.audio = t.dataset.aud === '1';
   if (t.dataset.tab) {
     document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b === t));
+    $('home').classList.toggle('hide', t.dataset.tab !== 'home');
     $('make').classList.toggle('hide', t.dataset.tab !== 'make');
     $('hist').classList.toggle('hide', t.dataset.tab !== 'hist');
     S.tab = t.dataset.tab; $('tabs').dataset.on = S.tab;
+    document.body.className = 'on-' + S.tab;
     $('go').classList.toggle('hide', t.dataset.tab !== 'make');
     if (t.dataset.tab === 'hist') loadHist();
+    if (t.dataset.tab === 'home') loadRecent();
+    scrollTo({ top: 0 });
   }
   try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {}
   render();
@@ -1081,15 +1196,86 @@ $('packs').addEventListener('click', async e => {
   } catch (err) { $('payNote').textContent = '❌ ' + err.message; }
 });
 
+
+/* ---------- Bosh sahifa ---------- */
+const H = { kind: 'video' };
+function goTab(name){ const b = document.querySelector(`#tabs [data-tab="${name}"]`); if (b) b.click(); }
+function renderHome(){
+  if (!$('hModels')) return;
+  const list = Object.entries(MODELS).sort((a, b) => (a[1].kind === 'image') - (b[1].kind === 'image') || (a[1].tier === 'pro') - (b[1].tier === 'pro'));
+  $('hModels').innerHTML = list.map(([k, v]) => {
+    const b = BRAND[k] || { g: 'linear-gradient(135deg,#444,#777)', l: v.name[0] };
+    const p = priceOf(k, v.durations && v.durations[0], true, '');
+    return `<button class="hm" data-hm="${k}" style="--g:${b.g}"><span class="cv"><span class="tg"><span>${IC[v.kind] || IC.video}${v.kind === 'video' ? 'Video' : 'Rasm'}</span>${v.tier === 'pro' ? '<span class="pro">Premium</span>' : ''}</span><span class="lt">${b.l}</span></span><span class="bd"><b>${esc(v.name)}</b><span>${esc((v.desc || '').replace(/^(Video|Rasm) · /, ''))}</span>${p ? `<span class="pr">${IC.star}${p}${v.durations && v.durations.length ? ' dan' : ''}</span>` : ''}</span></button>`;
+  }).join('');
+}
+function homeIdeas(){ $('hIdeas').innerHTML = IDEAS.map((t, i) => `<button data-hidea="${i}">${esc(t.split(',')[0])}</button>`).join(''); }
+function pickModel(k){ if (MODELS[k]) S.model = k; }
+function toStudio(opts = {}){
+  if (opts.model) pickModel(opts.model);
+  else if (opts.kind && MODELS[S.model].kind !== opts.kind) { const f = Object.entries(MODELS).find(([, v]) => v.kind === opts.kind && v.tier !== 'pro'); if (f) S.model = f[0]; }
+  if (opts.aspect && MODELS[S.model].aspects.includes(opts.aspect)) S.aspect = opts.aspect;
+  if (opts.prompt != null && opts.prompt !== '') { $('prompt').value = opts.prompt; $('prompt').dispatchEvent(new Event('input')); }
+  goTab('make');
+  render();
+  if (opts.upload) setTimeout(() => { const u = $('upBtn'); if (u) { u.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }, 120);
+  else if (opts.focus) setTimeout(() => $('prompt').focus({ preventScroll: true }), 120);
+}
+async function loadRecent(){
+  if (!API || !initData) { $('hRecent').innerHTML = '<div class="rempty">Yaratgan ishlaringiz shu yerda chiqadi</div>'; return; }
+  try {
+    const d = await api('/ai/history'); setInfo(d);
+    const jobs = (d.jobs || []).slice(0, 6);
+    if (!jobs.length) { $('hRecent').innerHTML = '<div class="rempty">Hali hech narsa yaratilmagan. Birinchisini hozir yarating</div>'; return; }
+    $('hRecent').innerHTML = '<div class="recent">' + jobs.map(j => {
+      const u = j.urls && j.urls[0];
+      const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
+        : `<span class="st">${j.status === 'error' ? 'Xato' : 'Jarayonda'}</span>`;
+      return `<div class="rc" data-ru="${esc(u || '')}">${media}<span class="kd">${IC[j.kind] || IC.video}</span></div>`;
+    }).join('') + '</div>';
+  } catch (e) { $('hRecent').innerHTML = `<div class="rempty">${esc(e.message)}</div>`; }
+}
+document.addEventListener('click', e => {
+  const hk = e.target.closest('[data-hk]');
+  if (hk) { H.kind = hk.dataset.hk; document.querySelectorAll('[data-hk]').forEach(b => b.classList.toggle('on', b === hk)); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
+  const hi = e.target.closest('[data-hidea]');
+  if (hi) { $('hPrompt').value = IDEAS[+hi.dataset.hidea]; $('hPrompt').focus(); return; }
+  const hm = e.target.closest('[data-hm]');
+  if (hm) { toStudio({ model: hm.dataset.hm, prompt: $('hPrompt').value.trim(), focus: true }); return; }
+  const tg2 = e.target.closest('[data-tab-go]');
+  if (tg2) { goTab(tg2.dataset.tabGo); return; }
+  const rc = e.target.closest('[data-ru]');
+  if (rc) { const u = rc.dataset.ru; if (u) { try { tgApp.openLink(u); } catch (er) { open(u, '_blank'); } } return; }
+  const tl = e.target.closest('[data-tool]');
+  if (tl) {
+    const T = {
+      img2vid: { kind: 'video', upload: true },
+      reels:   { kind: 'video', aspect: '9:16', focus: true },
+      youtube: { kind: 'video', aspect: '16:9', focus: true },
+      sound:   { model: 'veo-fast', focus: true },
+      photo:   { model: 'nano', focus: true },
+      edit:    { model: 'nano', upload: true },
+      pro:     { model: 'kling3', focus: true },
+      story:   { model: 'sora', focus: true }
+    }[tl.dataset.tool] || {};
+    T.prompt = $('hPrompt').value.trim();
+    toStudio(T); return;
+  }
+});
+$('hGo').onclick = () => {
+  const p = $('hPrompt').value.trim();
+  toStudio({ kind: H.kind, prompt: p, focus: !p });
+};
+
 /* ---------- Boshlash ---------- */
 (async function start(){
-  render(); vpSet('idle', 0);
+  homeIdeas(); render(); vpSet('idle', 0);
   if (!initData && !qs.has('demo')) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@bu_qandayishlaydi_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/bu_qandayishlaydi_bot">Botni ochish</a>');
   if (API) try {
     const md = await api('/ai/models');
     if (md && md.models) { for (const k in md.models) MODELS[k] = { ...(MODELS[k] || {}), ...md.models[k] }; render(); }
   } catch (e) {}
-  if (qs.has('demo')) { S.balance = 250; render(); return; }
+  if (qs.has('demo')) { S.balance = 250; render(); loadRecent(); return; }
   if (!API) return gate('<h1>⚙️ Server ulanmagan</h1><p class="sub">Botga /start yozib, «AI studiya» tugmasi orqali qayta oching.</p>');
   try {
     const d = await api('/ai/history');
@@ -1098,6 +1284,7 @@ $('packs').addEventListener('click', async e => {
     if (e.code === 'denied' || e.code === 'auth') return gate(`<h1>🔒 Hozircha yopiq</h1><p class="sub">${esc(e.message)}</p>`);
     $('balV').textContent = '—';
   }
+  loadRecent();
   if (qs.get('topup') === '1') openTopup();
   // Oldingi tugallanmagan ishni davom ettirish
   try {
