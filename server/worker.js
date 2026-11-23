@@ -1,4 +1,4 @@
-// ★★★ VERSIYA 6 — Protos AI: /ovoz (ElevenLabs ovoz, fal.ai orqali) + admin panel ★★★
+// ★★★ VERSIYA 7 — Protos AI: ovoz o'zbekcha (eleven-v3), nemischa faqat admin uchun ★★★
 /* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -153,6 +153,9 @@ const AI_MODELS = {
   'voice': {
     name: 'ElevenLabs ovoz', kind: 'audio', tier: 'std', desc: 'Ovoz · matndan diktor ovozi',
     text: 'fal-ai/elevenlabs/tts/multilingual-v2', aspects: ['auto'], maxText: 10000,
+    // o'zbekcha faqat Eleven v3'da bor (5 000 belgigacha), qolganlari Multilingual v2 (10 000)
+    endpointFor: b => b.lang === 'uz' ? 'fal-ai/elevenlabs/tts/eleven-v3' : 'fal-ai/elevenlabs/tts/multilingual-v2',
+    maxFor: l => l === 'uz' ? 5000 : 10000,
     cost: b => Math.max(0.01, 0.10 * String(b.prompt || '').length / 1000), // fal.ai: $0.10 / 1000 belgi
     build: b => ({ text: b.prompt, voice: (VOICES[String(b.voice || '').toLowerCase()] || VOICES.daniel).id, stability: 0.5, similarity_boost: 0.75, speed: 1,
       apply_text_normalization: 'auto', ...(b.lang ? { language_code: b.lang } : {}) })
@@ -185,7 +188,10 @@ const VOICES = {
   charlotte: { id: 'Charlotte', d: "ayol, yumshoq" },
   alice: { id: 'Alice', d: "ayol, aniq va jiddiy" }
 };
-const LANGS = { de: 'nemischa', ru: 'ruscha', en: 'inglizcha' };
+const LANGS = { uz: "o'zbekcha", de: 'nemischa', ru: 'ruscha', en: 'inglizcha' };
+const ADMIN_LANGS = ['de', 'uz', 'ru', 'en'], USER_LANGS = ['uz'];   // nemischa — faqat egasi uchun
+const langsFor = (env, uid) => isAdmin(env, uid) ? ADMIN_LANGS : USER_LANGS;
+const pickLang = (env, uid, l) => { const L = langsFor(env, uid); return L.includes(l) ? l : L[0]; };
 const getBal = async (env, uid) => Number(await env.VOTES.get('bal:' + uid) || 0);
 const setBal = (env, uid, v) => { const n = Math.max(0, Math.round(v)); return env.VOTES.put('bal:' + uid, String(n), { metadata: { v: n } }); };
 async function addBal(env, uid, delta){ const v = (await getBal(env, uid)) + delta; await setBal(env, uid, v); return Math.max(0, v); }
@@ -399,7 +405,10 @@ async function aiGenerate(req, env, origin){
   const a = await aiUser(req, env, b.initData); if (a.err) return a.err;
   const m = AI_MODELS[b.model]; if (!m) return json({ error: 'model', msg: "Noma'lum model" }, 400);
   b.prompt = String(b.prompt || '').trim().slice(0, m.maxText || 2500);
-  if (m.kind === 'audio') { b.voice = VOICES[String(b.voice || '').toLowerCase()] ? String(b.voice).toLowerCase() : 'daniel'; b.lang = LANGS[b.lang] ? b.lang : 'de'; }
+  if (m.kind === 'audio') {
+    b.voice = VOICES[String(b.voice || '').toLowerCase()] ? String(b.voice).toLowerCase() : 'daniel';
+    b.lang = pickLang(env, a.user.id, b.lang); b.prompt = b.prompt.slice(0, m.maxFor(b.lang));
+  }
   if (!b.prompt) return json({ error: 'prompt', msg: 'Tavsif yozing' }, 400);
   if (b.aspect && !m.aspects.includes(b.aspect)) b.aspect = m.aspects[0];
   if (b.duration && !(m.durations || []).includes(String(b.duration))) b.duration = (m.durations || [])[0];
@@ -422,7 +431,7 @@ async function aiGenerate(req, env, origin){
   }
   const refund = async () => { if (!free) await addBal(env, a.user.id, price); };
 
-  const endpoint = img ? m.img : m.text;
+  const endpoint = m.kind === 'audio' ? m.endpointFor(b) : img ? m.img : m.text;
   const hook = `${origin}/fal?k=${encodeURIComponent(env.WEBHOOK_SECRET || '')}`;
   const r = await fetch(FAL_QUEUE + endpoint + '?fal_webhook=' + encodeURIComponent(hook), {
     method: 'POST',
@@ -490,7 +499,7 @@ async function aiHistory(req, env){
   const day = new Date().toISOString().slice(0, 10);
   const used = Number(await env.VOTES.get(`lim:${a.user.id}:${day}`) || 0);
   return json({ jobs: jobs.map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
-    balance: await getBal(env, a.user.id), free: isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1', packs: PACKS });
+    balance: await getBal(env, a.user.id), free: isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1', admin: isAdmin(env, a.user.id), packs: PACKS });
 }
 
 // fal.ai tayyor bo'lganda shu yerga xabar beradi — Mini App yopiq bo'lsa ham natija botga keladi
@@ -518,7 +527,8 @@ async function startTTS(env, origin, from, text, o){
   if (!allowedIds(env).has(String(from.id)) && !(await isPublic(env))) return { error: "Hozircha bu bo'lim yopiq." };
   const m = AI_MODELS.voice;
   const full = String(text || '').trim();
-  const b = { prompt: full.slice(0, m.maxText), voice: (VOICES[o.voice] || VOICES.daniel).id, lang: LANGS[o.lang] ? o.lang : 'de' };
+  const lang = pickLang(env, from.id, o.lang), max = m.maxFor(lang);
+  const b = { prompt: full.slice(0, max), voice: (VOICES[o.voice] || VOICES.daniel).id, lang };
   if (!b.prompt) return { error: "Matn bo'sh." };
   const day = new Date().toISOString().slice(0, 10), lk = `lim:${from.id}:${day}`;
   const used = Number(await env.VOTES.get(lk) || 0), limit = Number(env.DAILY_LIMIT || 30);
@@ -531,7 +541,7 @@ async function startTTS(env, origin, from, text, o){
     await setBal(env, from.id, bal - price);
   }
   const hook = `${origin}/fal?k=${encodeURIComponent(env.WEBHOOK_SECRET || '')}`;
-  const r = await fetch(FAL_QUEUE + m.text + '?fal_webhook=' + encodeURIComponent(hook), {
+  const r = await fetch(FAL_QUEUE + m.endpointFor(b) + '?fal_webhook=' + encodeURIComponent(hook), {
     method: 'POST', headers: { Authorization: 'Key ' + env.FAL_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(m.build(b))
   });
   const d = await r.json().catch(() => ({}));
@@ -546,17 +556,18 @@ async function startTTS(env, origin, from, text, o){
   await saveJob(env, job);
   const hk = 'hist:' + from.id, hist = (await env.VOTES.get(hk, 'json')) || [];
   hist.unshift(job.id); await env.VOTES.put(hk, JSON.stringify(hist.slice(0, 40)));
-  return { ok: true, chars: b.prompt.length, cut: full.length > m.maxText, voice: b.voice, lang: b.lang, price, free };
+  return { ok: true, chars: b.prompt.length, cut: full.length > max, max, voice: b.voice, lang: b.lang, price, free };
 }
 
-async function ovozHelp(env, chat, st){
-  const v = VOICES[st.voice] || VOICES.daniel;
+async function ovozHelp(env, chat, st, uid){
+  const v = VOICES[st.voice] || VOICES.daniel, L = langsFor(env, uid);
+  const max = AI_MODELS.voice.maxFor(st.lang).toLocaleString('ru');
   await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text:
-    `🎙 <b>Ovoz yaratish</b>\n\nEndi matnni yuboring — xabar yoki <b>.txt fayl</b> (10 000 belgigacha). Diktor ovozi MP3 bo'lib keladi.\n\n` +
-    `Ovoz: <b>${v.id}</b> — ${v.d}\nTil: <b>${LANGS[st.lang] || 'nemischa'}</b>\nNarx: 1 000 belgi ≈ ${priceStars(env, AI_MODELS.voice, { prompt: 'x'.repeat(1000) })} ⭐\n\n` +
-    `<b>O'zgartirish:</b> /ovoz daniel · /ovoz george ru · /ovoz alice en\n` +
+    `🎙 <b>Ovoz yaratish</b>\n\nEndi matnni yuboring — xabar yoki <b>.txt fayl</b> (${max} belgigacha). Diktor ovozi MP3 bo'lib keladi.\n\n` +
+    `Ovoz: <b>${v.id}</b> — ${v.d}\nTil: <b>${LANGS[st.lang]}</b>\nNarx: 1 000 belgi ≈ ${priceStars(env, AI_MODELS.voice, { prompt: 'x'.repeat(1000) })} ⭐\n\n` +
+    `<b>Ovozni almashtirish:</b> /ovoz george\n` +
     Object.entries(VOICES).map(([k, x]) => `• <code>${k}</code> — ${x.d}`).join('\n') +
-    `\nTillar: <code>de</code> nemischa, <code>ru</code> ruscha, <code>en</code> inglizcha` });
+    (L.length > 1 ? `\n\n<b>Til:</b> ` + L.map(l => `<code>${l}</code> ${LANGS[l]}`).join(', ') + ` — masalan /ovoz alice ${L[1]}` : '') });
 }
 
 // Telegram'dan .txt faylni o'qish
@@ -574,7 +585,7 @@ async function runTTS(env, origin, m, text, st){
   if (res.error) return tg(env, 'sendMessage', { chat_id: m.chat.id, text: '❌ ' + res.error });
   await tg(env, 'sendMessage', { chat_id: m.chat.id, parse_mode: 'HTML', text:
     `⏳ Ovoz tayyorlanmoqda: <b>${res.chars}</b> belgi · ${res.voice} · ${LANGS[res.lang]}${res.free ? '' : ` · ${res.price} ⭐`}` +
-    (res.cut ? `\n⚠️ Matn 10 000 belgidan uzun edi — qolgan qismini alohida yuboring.` : '') + `\nTayyor bo'lgach shu yerga keladi.` });
+    (res.cut ? `\n⚠️ Matn ${res.max.toLocaleString('ru')} belgidan uzun edi — qolgan qismini alohida yuboring.` : '') + `\nTayyor bo'lgach shu yerga keladi.` });
 }
 
 /* ---------------- Bot (webhook) ---------------- */
@@ -627,12 +638,12 @@ async function onUpdate(update, env, origin){
 
   if (cmd === '/ovoz' || cmd === '/voice') {
     const prev = (await env.VOTES.get(ttsKey, 'json')) || (await env.VOTES.get('ttspref:' + m.from.id, 'json')) || {};
-    const st = { voice: prev.voice || 'daniel', lang: prev.lang || 'de' };
+    const st = { voice: prev.voice || 'daniel', lang: pickLang(env, m.from.id, prev.lang) };
     const words = m.text.trim().split(/\s+/).slice(1);
     let i = 0;
     for (; i < words.length && i < 2; i++) {
       const w = words[i].toLowerCase();
-      if (VOICES[w]) st.voice = w; else if (LANGS[w]) st.lang = w; else break;
+      if (VOICES[w]) st.voice = w; else if (langsFor(env, m.from.id).includes(w)) st.lang = w; else break;
     }
     await env.VOTES.put('ttspref:' + m.from.id, JSON.stringify(st));
     const rest = words.slice(i).join(' ').trim();
@@ -642,7 +653,7 @@ async function onUpdate(update, env, origin){
       await env.VOTES.delete(ttsKey); await runTTS(env, origin, m, body, st); return;
     }
     await env.VOTES.put(ttsKey, JSON.stringify(st), { expirationTtl: 1800 });
-    await ovozHelp(env, chat, st); return;
+    await ovozHelp(env, chat, st, m.from.id); return;
   }
   if (!cmd.startsWith('/')) {
     const st = await env.VOTES.get(ttsKey, 'json');
@@ -708,7 +719,7 @@ export default {
         models: Object.fromEntries(Object.entries(AI_MODELS).map(([k, m]) => [k, {
           name: m.name, kind: m.kind, tier: m.tier, desc: m.desc, aspects: m.aspects, durations: m.durations || [],
           audio: !!m.audio, imgAspect: m.imgAspect !== false,
-          ...(m.kind === 'audio' ? { maxText: m.maxText, voices: Object.entries(VOICES).map(([k, v]) => ({ key: k, name: v.id, desc: v.d })), langs: LANGS,
+          ...(m.kind === 'audio' ? { maxText: m.maxText, voices: Object.entries(VOICES).map(([k, v]) => ({ key: k, name: v.id, desc: v.d })), langs: LANGS, adminLangs: ADMIN_LANGS, userLangs: USER_LANGS, maxByLang: { uz: 5000 },
             rate: { perChar: 0.10 / 1000 * Number(env.MARKUP_STD || 1.6) / Number(env.STAR_USD || 0.01), min: priceStars(env, m, { prompt: '' }) } } : {}),
           // narx jadvali: har bir davomiylik (va ovoz) uchun Stars
           res: m.res || [],
@@ -747,6 +758,6 @@ export default {
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 6)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 7)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };

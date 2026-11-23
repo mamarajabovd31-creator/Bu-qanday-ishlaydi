@@ -520,8 +520,8 @@ body.on-home:after,body.on-hist:after{display:none}
         <div class="pb">
           <p class="slbl">Diktor</p>
           <div class="vcs" id="voices"></div>
-          <p class="slbl" style="margin-top:14px">Til</p>
-          <div class="enum" id="langs"></div>
+          <div id="langBox"><p class="slbl" style="margin-top:14px">Til</p>
+          <div class="enum" id="langs"></div></div>
           <label class="txtup" for="txtFile"><span class="dic"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><b>Matnni .txt fayldan yuklash</b><small id="txtInfo">Uzun ssenariy uchun qulay</small></label>
           <input type="file" id="txtFile" accept=".txt,text/plain" class="hide">
         </div>
@@ -593,7 +593,7 @@ let MODELS = {
   'sora':         { name: 'Sora 2 Pro',        kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya', aspects: ['9:16','16:9'], durations: ['4','8','12'], prices: {} },
   'voice':        { name: 'ElevenLabs ovoz',   kind: 'audio', tier: 'std', desc: 'Ovoz · matndan diktor ovozi', aspects: ['auto'], durations: [], prices: {}, maxText: 10000,
                     voices: [{ key: 'daniel', name: 'Daniel', desc: 'erkak, yangiliklar diktori' }, { key: 'george', name: 'George', desc: 'erkak, iliq hikoyachi' }, { key: 'brian', name: 'Brian', desc: 'erkak, chuqur ovoz' }, { key: 'bill', name: 'Bill', desc: 'erkak, keksa, salobatli' }, { key: 'charlotte', name: 'Charlotte', desc: 'ayol, yumshoq' }, { key: 'alice', name: 'Alice', desc: 'ayol, aniq va jiddiy' }],
-                    langs: { de: 'nemischa', ru: 'ruscha', en: 'inglizcha' }, rate: { perChar: 0.016, min: 2 } }
+                    langs: { uz: "o'zbekcha", de: 'nemischa', ru: 'ruscha', en: 'inglizcha' }, adminLangs: ['de','uz','ru','en'], userLangs: ['uz'], maxByLang: { uz: 5000 }, rate: { perChar: 0.016, min: 2 } }
 };
 const ETA = { image: 25, audio: 35, video: 130, 'veo': 150, 'sora': 180, 'seedance-pro': 160 };
 const etaOf = k => ETA[k] || (MODELS[k] ? ETA[MODELS[k].kind] : 120);
@@ -603,6 +603,8 @@ function priceOf(k, dur, audio, res){
   const r = m.res && m.res.length ? (m.res.includes(res) ? res : m.res[0]) : '';
   return m.prices[`${d}|${r}|${audio === false ? 0 : 1}`] || 0;
 }
+const aLangs = m => (S.admin ? m.adminLangs : m.userLangs) || Object.keys(m.langs || {});
+const aMax = m => ((m.maxByLang || {})[S.lang]) || m.maxText || 10000;
 const audioPrice = (m, n) => m.rate ? Math.max(m.rate.min, Math.ceil(m.rate.perChar * n - 1e-9)) : 0;
 const curPrice = () => { const m = MODELS[S.model]; if (m.kind === 'audio') return audioPrice(m, $('prompt').value.trim().length || 0); return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
 const KN = { video: 'Video', image: 'Rasm', audio: 'Ovoz' };
@@ -629,7 +631,7 @@ const IDEAS = [
   "Choyxonada bug'lanayotgan choy, yaqin kadr, iliq yorug'lik"
 ];
 
-const S = { voice: 'daniel', lang: 'de', tab: 'home', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
+const S = { voice: 'daniel', lang: '', admin: false, tab: 'home', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
 const $ = id => document.getElementById(id);
 const IC = {
   image: '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>',
@@ -707,17 +709,19 @@ function render(){
   const isA = m.kind === 'audio';
   $('upPnl').classList.toggle('hide', isA); $('outPnl').classList.toggle('hide', isA); $('voicePnl').classList.toggle('hide', !isA);
   $('ideas').classList.toggle('hide', isA);
-  $('prompt').placeholder = isA ? "Diktor o'qiydigan matnni yozing yoki pastdan .txt fayl yuklang. Masalan: Im Jahr 1913 war Argentinien reicher als Deutschland…" : "Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik";
-  $('prompt').maxLength = isA ? (m.maxText || 10000) : 2500;
-  $('pHint').textContent = isA ? `${(m.maxText || 10000).toLocaleString('ru')} belgigacha (~10 daqiqa ovoz). Narx matn uzunligiga qarab.` : 'Ingliz tilida yozsangiz natija aniqroq chiqadi.';
+  $('prompt').placeholder = isA ? (S.lang === 'de' ? "Diktor o'qiydigan matnni yozing yoki pastdan .txt fayl yuklang. Masalan: Im Jahr 1913 war Argentinien reicher als Deutschland…" : "Diktor o'qiydigan matnni yozing yoki pastdan .txt fayl yuklang. Masalan: 1913-yilda Argentina Germaniyadan boy edi…") : "Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik";
+  if (isA && !aLangs(m).includes(S.lang)) S.lang = aLangs(m)[0] || 'uz';
+  $('prompt').maxLength = isA ? aMax(m) : 2500;
+  $('pHint').textContent = isA ? `${aMax(m).toLocaleString('ru')} belgigacha (~${Math.round(aMax(m) / 1000)} daqiqa ovoz). Narx matn uzunligiga qarab.` : 'Ingliz tilida yozsangiz natija aniqroq chiqadi.';
   updCnt();
   if (isA) {
     const vs = m.voices || [];
     if (!vs.find(v => v.key === S.voice) && vs[0]) S.voice = vs[0].key;
     $('voices').innerHTML = vs.map(v => `<button class="vc ${v.key === S.voice ? 'on' : ''}" data-voice="${esc(v.key)}"><span class="va">${esc(v.name[0])}</span><span class="vt"><b>${esc(v.name)}</b><small>${esc(v.desc)}</small></span></button>`).join('');
-    const L = m.langs || {};
-    if (!L[S.lang]) S.lang = Object.keys(L)[0] || 'de';
-    $('langs').innerHTML = Object.entries(L).map(([k, n]) => `<button class="${k === S.lang ? 'on' : ''}" data-lang="${k}">${esc(n[0].toUpperCase() + n.slice(1))}</button>`).join('');
+    const L = m.langs || {}, AL2 = aLangs(m).filter(k => L[k]);
+    if (!AL2.includes(S.lang)) S.lang = AL2[0] || 'uz';
+    $('langBox').classList.toggle('hide', AL2.length < 2);
+    $('langs').innerHTML = AL2.map(k => [k, L[k]]).map(([k, n]) => `<button class="${k === S.lang ? 'on' : ''}" data-lang="${k}">${esc(n[0].toUpperCase() + n.slice(1))}</button>`).join('');
     fitEnum($('langs'));
     const vv = vs.find(v => v.key === S.voice);
     $('voiceSum').textContent = [vv ? vv.name : '', (L[S.lang] || '')].filter(Boolean).join(' · ');
@@ -746,7 +750,7 @@ document.addEventListener('click', e => {
   const vb = e.target.closest('[data-voice]');
   if (vb) { S.voice = vb.dataset.voice; try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
   const lb = e.target.closest('[data-lang]');
-  if (lb) { S.lang = lb.dataset.lang; try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
+  if (lb) { S.lang = lb.dataset.lang; S.langPicked = true; try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
   const idea = e.target.closest('[data-idea]');
   if (idea) { $('prompt').value = IDEAS[+idea.dataset.idea]; $('prompt').dispatchEvent(new Event('input')); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab],[data-r]'); if (!t) return;
@@ -795,14 +799,14 @@ let durDrag = false;
 document.addEventListener('pointerdown', e => { if (e.target.closest('#durSf')) { durDrag = true; durFromX(e.clientX); } });
 document.addEventListener('pointermove', e => { if (durDrag) durFromX(e.clientX); });
 document.addEventListener('pointerup', () => { durDrag = false; });
-function updCnt(){ const m = MODELS[S.model], n = $('prompt').value.length; $('cnt').textContent = m.kind === 'audio' ? `${n.toLocaleString('ru')} / ${(m.maxText || 10000).toLocaleString('ru')} belgi` : n + ' belgi'; }
+function updCnt(){ const m = MODELS[S.model], n = $('prompt').value.length; $('cnt').textContent = m.kind === 'audio' ? `${n.toLocaleString('ru')} / ${aMax(m).toLocaleString('ru')} belgi` : n + ' belgi'; }
 $('prompt').addEventListener('input', () => { updCnt(); if (MODELS[S.model].kind === 'audio' && !S.busy) $('go').innerHTML = goLabel(); });
 // .txt fayldan matn
 $('txtFile').addEventListener('change', async e => {
   const f = e.target.files[0]; if (!f) return;
   if (f.size > 200000) { $('txtInfo').textContent = 'Fayl juda katta (200 KB gacha)'; e.target.value = ''; return; }
   const t = (await f.text()).replace(/^\uFEFF/, '').trim();
-  const max = MODELS[S.model].maxText || 10000;
+  const max = aMax(MODELS[S.model]);
   $('prompt').value = t.slice(0, max); $('prompt').dispatchEvent(new Event('input'));
   $('txtInfo').textContent = `${f.name} · ${t.length.toLocaleString('ru')} belgi` + (t.length > max ? ` — ${max.toLocaleString('ru')} tasi olindi` : '');
   e.target.value = '';
@@ -1225,6 +1229,7 @@ async function refreshLeft(){ try { const d = await api('/ai/history'); setInfo(
 function setInfo(d){
   if (d.balance != null) S.balance = d.balance;
   if (d.free != null) S.free = d.free;
+  if (d.admin != null) { const was = S.admin; S.admin = !!d.admin; if (S.admin && !was && !S.langPicked) S.lang = 'de'; }
   if (d.packs) S.packs = d.packs;
   if (d.left != null) $('left').textContent = `Bugungi limit: yana ${d.left} ta yaratish`;
   render();
