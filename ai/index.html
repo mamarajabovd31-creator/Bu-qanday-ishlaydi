@@ -550,6 +550,7 @@ try { if (API) localStorage.setItem('ai_api', API); else API = localStorage.getI
 // Modellar va narxlar serverdan keladi (/ai/models). Bu — server javob bermaguncha zaxira ro'yxat.
 let MODELS = {
   'nano':         { name: 'Nano Banana 2',     kind: 'image', tier: 'std', desc: 'Rasm · tez va arzon', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], prices: {} },
+  'seedream':     { name: 'Seedream 4.5',      kind: 'image', tier: 'std', desc: 'Rasm · multfilm va illyustratsiya', aspects: ['auto','1:1','9:16','16:9','3:4','4:3'], durations: [], prices: {} },
   'kling':        { name: 'Kling 2.5 Turbo',   kind: 'video', tier: 'std', desc: 'Video · arzon, ovozsiz', aspects: ['9:16','16:9','1:1'], durations: ['5','10'], imgAspect: false, prices: {} },
   'veo-fast':     { name: 'Veo 3.1 Fast',      kind: 'video', tier: 'std', desc: 'Video · Google, ovozli', aspects: ['9:16','16:9'], durations: ['4','6','8'], audio: true, prices: {} },
   'nano-pro':     { name: 'Nano Banana Pro',   kind: 'image', tier: 'pro', desc: 'Rasm · eng sifatli', aspects: ['auto','1:1','9:16','16:9','4:5','3:4','4:3'], durations: [], prices: {} },
@@ -574,6 +575,7 @@ const ASPU = { auto: 'O\'zi tanlaydi', '9:16': 'Reels, TikTok', '16:9': 'YouTube
 const BRAND = {
   'nano':         { g: 'linear-gradient(135deg,#ffd84d,#f08a24)', l: 'N', f: ['Tez', 'Tahrirlaydi'] },
   'nano-pro':     { g: 'linear-gradient(135deg,#7a5410,#f2c14e 60%,#fff0b8)', l: 'N', f: ['Eng sifatli', 'Matn yozadi'] },
+  'seedream':     { g: 'linear-gradient(135deg,#1f3fbf,#38b6ff 60%,#b8f0ff)', l: 'S', f: ['Multfilm', '2K'] },
   'kling':        { g: 'linear-gradient(135deg,#0f8f74,#26d39a)', l: 'K', f: ['Arzon', '10 s gacha'] },
   'veo-fast':     { g: 'linear-gradient(135deg,#2f6fe4,#8a5cf6)', l: 'V', f: ['Ovozli', '1080p'] },
   'kling3':       { g: 'linear-gradient(135deg,#064e45,#15b98a 70%,#9cf5d4)', l: 'K', f: ['Ovozli', '15 s gacha'] },
