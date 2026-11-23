@@ -1,5 +1,5 @@
 // ★★★ VERSIYA 6 — Protos AI: /ovoz (ElevenLabs ovoz, fal.ai orqali) + admin panel ★★★
-/* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
+/* "Protos AI" (Toby Land loyihasi) — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
    - Bot ichida rasm va video yaratadi (fal.ai orqali):
@@ -31,7 +31,7 @@
 */
 
 const SITE = 'https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/';
-const CHANNEL = 'https://t.me/buqanday_ishlaydi1';
+const CHANNEL = 'https://t.me/tobyland_uz';
 
 /* ---------------- Yordamchilar ---------------- */
 const CORS = {
