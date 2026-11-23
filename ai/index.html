@@ -258,6 +258,27 @@ textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(90,136,207,.3
 .pct{font:600 22px var(--fm);font-variant-numeric:tabular-nums;color:var(--sel)}
 .bar{height:6px;border-radius:14px;background:var(--field);overflow:hidden;margin:10px 0 4px}
 .bar i{display:block;height:100%;width:0;border-radius:14px;background:linear-gradient(90deg,var(--sel2),var(--sel));transition:width .7s ease}
+.vcs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.vc{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid #3a3a3a;background:linear-gradient(#333,#2c2c2c);color:#ddd;border-radius:14px;padding:9px 10px;cursor:pointer;font:inherit;min-width:0;transition:border-color .2s,background .2s}
+.vc .va{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 15px var(--fm);color:#fff;background:linear-gradient(135deg,#2b1055,#7b2ff7 55%,#f107a3)}
+.vc .vt{min-width:0;display:flex;flex-direction:column}
+.vc b{font-size:13px}
+.vc small{font-size:10.5px;color:var(--muted);line-height:1.25;overflow:hidden;text-overflow:ellipsis}
+.vc.on{border-color:var(--blue2);background:linear-gradient(rgba(90,136,207,.28),rgba(71,114,179,.16));color:#fff;box-shadow:0 0 0 1px var(--blue2) inset}
+.vc.on small{color:#c9d8f0}
+.txtup{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:14px;border:1.5px dashed #444;border-radius:14px;padding:14px;cursor:pointer;text-align:center}
+.txtup b{font-size:13px}
+.txtup small{font-size:11px;color:var(--muted)}
+.aud{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px;border-radius:12px;background:linear-gradient(135deg,rgba(123,47,247,.25),rgba(241,7,163,.12));border:1px solid #3a2a55}
+.aud .aic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7b2ff7,#f107a3);color:#fff}
+.aud .aic svg{width:20px;height:20px}
+.aud div{display:flex;flex-direction:column}
+.aud small{color:var(--muted);font-size:11.5px}
+.res audio{width:100%;margin-top:10px;display:block}
+.hau{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#fff;background:linear-gradient(135deg,#2b1055,#7b2ff7 55%,#f107a3)}
+.hau svg{width:28px;height:28px}
+.hau b{font-size:12.5px}
+.hau small{font-size:10.5px;opacity:.8}
 .res img,.res video{width:100%;border-radius:12px;display:block;background:#000;margin-top:12px;border:1px solid #111}
 .acts{display:flex;gap:6px;margin-top:10px}
 .acts a,.acts button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border:1px solid #474747;background:var(--wid);color:#eee;border-radius:12px;padding:11px;font:600 13px var(--fb);cursor:pointer}
@@ -491,11 +512,22 @@ body.on-home:after,body.on-hist:after{display:none}
         <div class="pb">
           <textarea id="prompt" placeholder="Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik"></textarea>
           <div class="ideas" id="ideas"></div>
-          <p class="hint">Ingliz tilida yozsangiz natija aniqroq chiqadi.</p>
+          <p class="hint" id="pHint">Ingliz tilida yozsangiz natija aniqroq chiqadi.</p>
         </div>
       </details>
 
-      <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg><span id="upLbl">Rasm (ixtiyoriy)</span></summary>
+      <details class="pnl hide" id="voicePnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>Ovoz sozlamalari<span class="sval" id="voiceSum"></span></summary>
+        <div class="pb">
+          <p class="slbl">Diktor</p>
+          <div class="vcs" id="voices"></div>
+          <p class="slbl" style="margin-top:14px">Til</p>
+          <div class="enum" id="langs"></div>
+          <label class="txtup" for="txtFile"><span class="dic"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><b>Matnni .txt fayldan yuklash</b><small id="txtInfo">Uzun ssenariy uchun qulay</small></label>
+          <input type="file" id="txtFile" accept=".txt,text/plain" class="hide">
+        </div>
+      </details>
+
+      <details class="pnl" id="upPnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg><span id="upLbl">Rasm (ixtiyoriy)</span></summary>
         <div class="pb">
           <div class="up">
             <label for="file" id="upBtn" class="drop" tabindex="0"></label>
@@ -509,7 +541,7 @@ body.on-home:after,body.on-hist:after{display:none}
         </div>
       </details>
 
-      <details class="pnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="14" rx="3"/><path d="M16.5 10l5-3v10l-5-3z"/></svg>Chiqish sozlamalari<span class="sval" id="outSum"></span></summary>
+      <details class="pnl" id="outPnl" open><summary><svg class="ic chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg><svg class="ic sic" viewBox="0 0 24 24"><rect x="2.5" y="5" width="14" height="14" rx="3"/><path d="M16.5 10l5-3v10l-5-3z"/></svg>Chiqish sozlamalari<span class="sval" id="outSum"></span></summary>
         <div class="pb">
           <p class="slbl">O'lcham <em id="aspHint"></em></p>
           <div class="acards" id="aspects"></div>
@@ -558,9 +590,12 @@ let MODELS = {
   'seedance':     { name: 'Seedance 2.0 Fast', kind: 'video', tier: 'pro', desc: "Video · ovozli, harakat zo'r", aspects: ['auto','9:16','16:9','1:1','3:4','4:3'], durations: ['5','8','10'], prices: {} },
   'seedance-pro': { name: 'Seedance 2.0',      kind: 'video', tier: 'pro', desc: 'Video · eng yaxshi sifat', aspects: ['auto','9:16','16:9','1:1','3:4','4:3'], durations: ['5','8','10'], prices: {} },
   'veo':          { name: 'Veo 3.1',           kind: 'video', tier: 'pro', desc: 'Video · Google, eng real', aspects: ['9:16','16:9'], durations: ['4','6','8'], audio: true, prices: {} },
-  'sora':         { name: 'Sora 2 Pro',        kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya', aspects: ['9:16','16:9'], durations: ['4','8','12'], prices: {} }
+  'sora':         { name: 'Sora 2 Pro',        kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya', aspects: ['9:16','16:9'], durations: ['4','8','12'], prices: {} },
+  'voice':        { name: 'ElevenLabs ovoz',   kind: 'audio', tier: 'std', desc: 'Ovoz · matndan diktor ovozi', aspects: ['auto'], durations: [], prices: {}, maxText: 10000,
+                    voices: [{ key: 'daniel', name: 'Daniel', desc: 'erkak, yangiliklar diktori' }, { key: 'george', name: 'George', desc: 'erkak, iliq hikoyachi' }, { key: 'brian', name: 'Brian', desc: 'erkak, chuqur ovoz' }, { key: 'bill', name: 'Bill', desc: 'erkak, keksa, salobatli' }, { key: 'charlotte', name: 'Charlotte', desc: 'ayol, yumshoq' }, { key: 'alice', name: 'Alice', desc: 'ayol, aniq va jiddiy' }],
+                    langs: { de: 'nemischa', ru: 'ruscha', en: 'inglizcha' }, rate: { perChar: 0.016, min: 2 } }
 };
-const ETA = { image: 25, video: 130, 'veo': 150, 'sora': 180, 'seedance-pro': 160 };
+const ETA = { image: 25, audio: 35, video: 130, 'veo': 150, 'sora': 180, 'seedance-pro': 160 };
 const etaOf = k => ETA[k] || (MODELS[k] ? ETA[MODELS[k].kind] : 120);
 function priceOf(k, dur, audio, res){
   const m = MODELS[k]; if (!m || !m.prices) return 0;
@@ -568,7 +603,9 @@ function priceOf(k, dur, audio, res){
   const r = m.res && m.res.length ? (m.res.includes(res) ? res : m.res[0]) : '';
   return m.prices[`${d}|${r}|${audio === false ? 0 : 1}`] || 0;
 }
-const curPrice = () => { const m = MODELS[S.model]; return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
+const audioPrice = (m, n) => m.rate ? Math.max(m.rate.min, Math.ceil(m.rate.perChar * n - 1e-9)) : 0;
+const curPrice = () => { const m = MODELS[S.model]; if (m.kind === 'audio') return audioPrice(m, $('prompt').value.trim().length || 0); return priceOf(S.model, S.duration, m.audio ? S.audio : true, S.res); };
+const KN = { video: 'Video', image: 'Rasm', audio: 'Ovoz' };
 const AL = { auto: 'Avto', '1:1': '1:1', '9:16': '9:16', '16:9': '16:9', '4:5': '4:5', '3:4': '3:4', '4:3': '4:3' };
 const AW = { '9:16': 'Reels', '16:9': 'YouTube', '1:1': 'Kvadrat' };
 const ASPU = { auto: 'O\'zi tanlaydi', '9:16': 'Reels, TikTok', '16:9': 'YouTube', '1:1': 'Post', '4:5': 'Instagram', '3:4': 'Portret', '4:3': 'Landshaft' };
@@ -582,7 +619,8 @@ const BRAND = {
   'seedance':     { g: 'linear-gradient(135deg,#ff4f8b,#7b5cff)', l: 'S', f: ['Ovozli', 'Harakat'] },
   'seedance-pro': { g: 'linear-gradient(135deg,#3a1d8f,#c24bd6 60%,#ff8fb1)', l: 'S', f: ['Ovozli', '1080p'] },
   'veo':          { g: 'linear-gradient(135deg,#0d3a8a,#3c7cf0 55%,#b78cff)', l: 'V', f: ['Ovozli', 'Eng real'] },
-  'sora':         { g: 'linear-gradient(135deg,#0b0b0b,#4a4a4a 60%,#d9d9d9)', l: 'S', f: ['Hikoya', '12 s gacha'] }
+  'sora':         { g: 'linear-gradient(135deg,#0b0b0b,#4a4a4a 60%,#d9d9d9)', l: 'S', f: ['Hikoya', '12 s gacha'] },
+  'voice':        { g: 'linear-gradient(135deg,#2b1055,#7b2ff7 55%,#f107a3)', l: 'E', f: ['Diktor', '10 000 belgi'] }
 };
 const IDEAS = [
   "Kosmonavt mushuk Oy yuzasida sakramoqda, kinematografik, sekin harakat",
@@ -591,7 +629,7 @@ const IDEAS = [
   "Choyxonada bug'lanayotgan choy, yaqin kadr, iliq yorug'lik"
 ];
 
-const S = { tab: 'home', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
+const S = { voice: 'daniel', lang: 'de', tab: 'home', model: 'kling', aspect: '9:16', duration: '5', audio: true, res: '', image: null, busy: false, balance: null, free: false, pct: 0, packs: [100, 300, 500, 1000, 2500] };
 const $ = id => document.getElementById(id);
 const IC = {
   image: '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>',
@@ -602,7 +640,9 @@ const IC = {
   swap: '<svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5"/><path d="M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5"/></svg>',
   dl: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>',
   spark: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/></svg>',
-  play: '<svg class="ic" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>'
+  play: '<svg class="ic" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>',
+  audio: '<svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>',
+  txt: '<svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>'
 };
 const AR = a => { const m = /^(\d+):(\d+)$/.exec(a); if (!m) return ''; const w = +m[1], h = +m[2], k = 13 / Math.max(w, h); return `<i class="ar" style="width:${Math.round(w*k)}px;height:${Math.round(h*k)}px"></i>`; };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
@@ -623,20 +663,20 @@ function gate(html){ $('gate').innerHTML = html; $('gate').classList.remove('hid
 function goLabel(){
   const m = MODELS[S.model], price = curPrice();
   if (S.busy) return `<span class="spin"></span>Render: <span class="gpct">${S.pct}%</span>`;
-  return `${IC.play}${m.kind === 'video' ? 'Video yaratish' : 'Rasm yaratish'}${price ? `<span class="gp">${IC.star}${price}</span>` : ''}`;
+  return `${IC.play}${m.kind === 'video' ? 'Video yaratish' : m.kind === 'audio' ? 'Ovoz yaratish' : 'Rasm yaratish'}${price ? `<span class="gp">${IC.star}${price}</span>` : ''}`;
 }
 function render(){
   renderHome();
   const m = MODELS[S.model];
   const card = ([k, v]) => {
-    const p = priceOf(k, S.duration, v.audio ? S.audio : true, '');
+    const p = v.kind === 'audio' ? audioPrice(v, 1000) : priceOf(k, S.duration, v.audio ? S.audio : true, '');
     const b = BRAND[k] || { g: 'linear-gradient(135deg,#444,#777)', l: v.name[0], f: [] };
-    return `<button class="mc ${k === S.model ? 'on' : ''}" data-m="${k}" style="--g:${b.g}"><span class="ban"><span class="ki">${IC[v.kind] || IC.video}</span>${v.tier === 'pro' ? '<span class="tag">PRO</span>' : ''}<span class="lt">${b.l}</span></span><span class="bd"><b>${esc(v.name)}</b><span class="fe">${b.f.map(x => `<i>${esc(x)}</i>`).join('')}</span>${p ? `<span class="pr">${IC.star}${p}${v.durations.length ? ' <small>dan</small>' : ''}</span>` : ''}</span><i class="ck"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i></button>`;
+    return `<button class="mc ${k === S.model ? 'on' : ''}" data-m="${k}" style="--g:${b.g}"><span class="ban"><span class="ki">${IC[v.kind] || IC.video}</span>${v.tier === 'pro' ? '<span class="tag">PRO</span>' : ''}<span class="lt">${b.l}</span></span><span class="bd"><b>${esc(v.name)}</b><span class="fe">${b.f.map(x => `<i>${esc(x)}</i>`).join('')}</span>${p ? `<span class="pr">${IC.star}${p}${v.durations.length ? ' <small>dan</small>' : v.kind === 'audio' ? ' <small>/1000 belgi</small>' : ''}</span>` : ''}</span><i class="ck"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i></button>`;
   };
   const kf = m.kind;
   const list = Object.entries(MODELS).filter(([, v]) => v.kind === kf).sort((a, b) => (a[1].tier === 'pro') - (b[1].tier === 'pro'));
   $('models').innerHTML =
-    `<div class="enum kseg" style="grid-template-columns:1fr 1fr"><button class="${kf === 'video' ? 'on' : ''}" data-k="video">${IC.video}Video</button><button class="${kf === 'image' ? 'on' : ''}" data-k="image">${IC.image}Rasm</button></div>` +
+    `<div class="enum kseg" style="grid-template-columns:1fr 1fr 1fr"><button class="${kf === 'video' ? 'on' : ''}" data-k="video">${IC.video}Video</button><button class="${kf === 'image' ? 'on' : ''}" data-k="image">${IC.image}Rasm</button><button class="${kf === 'audio' ? 'on' : ''}" data-k="audio">${IC.audio}Ovoz</button></div>` +
     `<div class="mgrid">${list.map(card).join('')}</div>`;
   $('modelSum').textContent = m.name;
   if (!m.aspects.includes(S.aspect)) S.aspect = m.aspects[0];
@@ -664,6 +704,24 @@ function render(){
   $('audT').innerHTML = `<button class="cbx ${S.audio ? 'on' : ''}" data-aud="${S.audio ? '0' : '1'}"><span class="bx"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Ovoz va musiqa qo'shish<br><small>${S.audio ? 'Video ovoz bilan chiqadi' : 'Video ovozsiz chiqadi (arzonroq)'}</small></span></button>`;
   $('upLbl').textContent = m.kind === 'video' ? 'Boshlang\'ich rasm (ixtiyoriy)' : 'Tahrirlash uchun rasm (ixtiyoriy)';
   $('upHint').textContent = m.kind === 'video' ? 'Rasm yuklasangiz, video shu rasmdan boshlanadi.' : 'Rasm yuklasangiz, uni tavsifga ko\'ra o\'zgartiradi.';
+  const isA = m.kind === 'audio';
+  $('upPnl').classList.toggle('hide', isA); $('outPnl').classList.toggle('hide', isA); $('voicePnl').classList.toggle('hide', !isA);
+  $('ideas').classList.toggle('hide', isA);
+  $('prompt').placeholder = isA ? "Diktor o'qiydigan matnni yozing yoki pastdan .txt fayl yuklang. Masalan: Im Jahr 1913 war Argentinien reicher als Deutschland…" : "Masalan: Toshkent ko'chasida yomg'irli kecha, neon chiroqlar, kamera sekin oldinga suriladi, kinematografik";
+  $('prompt').maxLength = isA ? (m.maxText || 10000) : 2500;
+  $('pHint').textContent = isA ? `${(m.maxText || 10000).toLocaleString('ru')} belgigacha (~10 daqiqa ovoz). Narx matn uzunligiga qarab.` : 'Ingliz tilida yozsangiz natija aniqroq chiqadi.';
+  updCnt();
+  if (isA) {
+    const vs = m.voices || [];
+    if (!vs.find(v => v.key === S.voice) && vs[0]) S.voice = vs[0].key;
+    $('voices').innerHTML = vs.map(v => `<button class="vc ${v.key === S.voice ? 'on' : ''}" data-voice="${esc(v.key)}"><span class="va">${esc(v.name[0])}</span><span class="vt"><b>${esc(v.name)}</b><small>${esc(v.desc)}</small></span></button>`).join('');
+    const L = m.langs || {};
+    if (!L[S.lang]) S.lang = Object.keys(L)[0] || 'de';
+    $('langs').innerHTML = Object.entries(L).map(([k, n]) => `<button class="${k === S.lang ? 'on' : ''}" data-lang="${k}">${esc(n[0].toUpperCase() + n.slice(1))}</button>`).join('');
+    fitEnum($('langs'));
+    const vv = vs.find(v => v.key === S.voice);
+    $('voiceSum').textContent = [vv ? vv.name : '', (L[S.lang] || '')].filter(Boolean).join(' · ');
+  }
   $('go').innerHTML = goLabel();
   if (!S.image) $('upBtn').innerHTML = `<span class="dic">${IC.up}</span><b>Rasm yuklash</b><small>Galereyadan tanlang · JPG, PNG</small>`;
   $('phTag').textContent = m.kind === 'video' ? '1-KADR' : 'ASL RASM';
@@ -685,6 +743,10 @@ document.addEventListener('click', e => {
   if (kb) { if (MODELS[S.model].kind !== kb.dataset.k) { const f = Object.entries(MODELS).find(([, v]) => v.kind === kb.dataset.k && v.tier !== 'pro') || Object.entries(MODELS).find(([, v]) => v.kind === kb.dataset.k); if (f) S.model = f[0]; } try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
   const ds = e.target.closest('[data-dstep]');
   if (ds) { const L = MODELS[S.model].durations, i = L.indexOf(S.duration) + +ds.dataset.dstep; if (L[i]) { S.duration = L[i]; render(); } try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
+  const vb = e.target.closest('[data-voice]');
+  if (vb) { S.voice = vb.dataset.voice; try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
+  const lb = e.target.closest('[data-lang]');
+  if (lb) { S.lang = lb.dataset.lang; try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} render(); return; }
   const idea = e.target.closest('[data-idea]');
   if (idea) { $('prompt').value = IDEAS[+idea.dataset.idea]; $('prompt').dispatchEvent(new Event('input')); try { tgApp.HapticFeedback.selectionChanged(); } catch (er) {} return; }
   const t = e.target.closest('[data-m],[data-a],[data-d],[data-aud],[data-tab],[data-r]'); if (!t) return;
@@ -733,7 +795,18 @@ let durDrag = false;
 document.addEventListener('pointerdown', e => { if (e.target.closest('#durSf')) { durDrag = true; durFromX(e.clientX); } });
 document.addEventListener('pointermove', e => { if (durDrag) durFromX(e.clientX); });
 document.addEventListener('pointerup', () => { durDrag = false; });
-$('prompt').addEventListener('input', () => { $('cnt').textContent = $('prompt').value.length + ' belgi'; });
+function updCnt(){ const m = MODELS[S.model], n = $('prompt').value.length; $('cnt').textContent = m.kind === 'audio' ? `${n.toLocaleString('ru')} / ${(m.maxText || 10000).toLocaleString('ru')} belgi` : n + ' belgi'; }
+$('prompt').addEventListener('input', () => { updCnt(); if (MODELS[S.model].kind === 'audio' && !S.busy) $('go').innerHTML = goLabel(); });
+// .txt fayldan matn
+$('txtFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 200000) { $('txtInfo').textContent = 'Fayl juda katta (200 KB gacha)'; e.target.value = ''; return; }
+  const t = (await f.text()).replace(/^\uFEFF/, '').trim();
+  const max = MODELS[S.model].maxText || 10000;
+  $('prompt').value = t.slice(0, max); $('prompt').dispatchEvent(new Event('input'));
+  $('txtInfo').textContent = `${f.name} · ${t.length.toLocaleString('ru')} belgi` + (t.length > max ? ` — ${max.toLocaleString('ru')} tasi olindi` : '');
+  e.target.value = '';
+});
 
 /* =========================================================
    3D viewport (Blender uslubida)
@@ -791,8 +864,9 @@ function vpSet(state, pct, job){
 }
 function vpSync(){
   const m = MODELS[S.model];
-  $('vpInfo').innerHTML = `<b>Kamera ko'rinishi</b><span>(1) ${m.kind === 'video' ? 'Video' : 'Rasm'} | ${esc(m.name)}</span>`;
+  $('vpInfo').innerHTML = `<b>Kamera ko'rinishi</b><span>(1) ${KN[m.kind] || 'Video'} | ${esc(m.name)}</span>`;
   const hideAspect = m.kind === 'video' && m.imgAspect === false && S.image;
+  if (m.kind === 'audio') { const vv = (m.voices || []).find(v => v.key === S.voice); $('fLabel').textContent = [vv ? vv.name : '', (m.langs || {})[S.lang] || ''].filter(Boolean).join(' · '); layoutFrame(); if (VP.state === 'idle') vpSet('idle', 0); if (VP.ok) VP.setObject('video', false); return; }
   $('fLabel').textContent = [hideAspect ? 'rasm o\'lchami' : (S.aspect === 'auto' ? 'Avto' : S.aspect + (AW[S.aspect] ? ' ' + AW[S.aspect] : '')), m.durations.length ? S.duration + ' s' : '', S.res].filter(Boolean).join(' · ');
   layoutFrame();
   if (VP.state === 'idle') vpSet('idle', 0);
@@ -1058,7 +1132,7 @@ function showProg(job){
     const u = job.urls[0];
     if (!$('res').dataset.u || $('res').dataset.u !== u) {
       $('res').dataset.u = u;
-      $('res').innerHTML = (job.kind === 'video' ? `<video src="${esc(u)}" controls playsinline autoplay loop muted></video>` : `<img src="${esc(u)}" alt="">`) +
+      $('res').innerHTML = (job.kind === 'video' ? `<video src="${esc(u)}" controls playsinline autoplay loop muted></video>` : job.kind === 'audio' ? `<div class="aud"><span class="aic">${IC.audio}</span><div><b>${esc(job.voice || 'Ovoz')}</b><small>MP3 · botga ham yuborildi</small></div></div><audio src="${esc(u)}" controls preload="metadata"></audio>` : `<img src="${esc(u)}" alt="">`) +
         `<div class="acts"><a href="${esc(u)}" target="_blank" rel="noopener">${IC.dl}Yuklab olish</a><button id="again">${IC.spark}Yana yaratish</button></div>`;
       $('again').onclick = () => { $('prog').classList.add('hide'); $('res').innerHTML = ''; $('res').dataset.u = ''; vpSet('idle', 0); scrollTo({ top: 0, behavior: 'smooth' }); };
     }
@@ -1072,7 +1146,7 @@ function showProg(job){
   // Taxminiy foiz: o'tgan vaqt / modelning odatiy vaqti
   const el = (Date.now() - (job.created || Date.now())) / 1000;
   setPct(Math.min(95, Math.round(el / etaOf(job.model) * 100)));
-  $('pTitle').textContent = job.status === 'queue' ? `Navbatda${job.queue ? ' (' + job.queue + ')' : ''}…` : (m.kind === 'video' ? 'Video render qilinmoqda…' : 'Rasm render qilinmoqda…');
+  $('pTitle').textContent = job.status === 'queue' ? `Navbatda${job.queue ? ' (' + job.queue + ')' : ''}…` : (m.kind === 'video' ? 'Video render qilinmoqda…' : m.kind === 'audio' ? 'Ovoz yozilmoqda…' : 'Rasm render qilinmoqda…');
   $('pNote').textContent = 'Ilovani yopsangiz ham natija botga keladi.';
 }
 function setPct(p){
@@ -1110,7 +1184,8 @@ $('go').onclick = async () => {
   scrollTo({ top: 0, behavior: 'smooth' });
   try {
     const d = await api('/ai/gen', { method: 'POST', body: JSON.stringify({
-      initData, model: S.model, prompt, image: S.image,
+      initData, model: S.model, prompt, image: MODELS[S.model].kind === 'audio' ? null : S.image,
+      voice: MODELS[S.model].kind === 'audio' ? S.voice : undefined, lang: MODELS[S.model].kind === 'audio' ? S.lang : undefined,
       aspect: MODELS[S.model].imgAspect === false && S.image ? undefined : S.aspect,
       duration: MODELS[S.model].durations.length ? S.duration : undefined, res: S.res || undefined, audio: MODELS[S.model].audio ? S.audio : undefined
     }) });
@@ -1136,7 +1211,7 @@ async function loadHist(){
     if (!d.jobs.length) { $('histList').innerHTML = '<p class="empty">Hali hech narsa yaratilmagan</p>'; return; }
     $('histList').innerHTML = d.jobs.map(j => {
       const u = j.urls[0];
-      const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
+      const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : j.kind === 'audio' ? `<span class="hau">${IC.audio}<b>${esc(j.voice || 'Ovoz')}</b><small>${(j.prompt || '').length} belgi</small></span>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
         : j.status === 'error' ? '❌ Xato' : '⏳ Jarayonda';
       return `<div class="h" data-u="${esc(u || '')}"><div class="m"><span class="kd">${IC[j.kind] || IC.video}</span>${media}</div><div class="t"><b>${esc(j.name)}${j.stars ? `<em>${j.stars} ⭐</em>` : ''}</b><span>${esc(j.prompt)}</span></div></div>`;
     }).join('');
@@ -1206,11 +1281,12 @@ const H = { kind: 'video' };
 function goTab(name){ const b = document.querySelector(`#tabs [data-tab="${name}"]`); if (b) b.click(); }
 function renderHome(){
   if (!$('hModels')) return;
-  const list = Object.entries(MODELS).sort((a, b) => (a[1].kind === 'image') - (b[1].kind === 'image') || (a[1].tier === 'pro') - (b[1].tier === 'pro'));
+  const KO = { video: 0, image: 1, audio: 2 };
+  const list = Object.entries(MODELS).sort((a, b) => (KO[a[1].kind] || 0) - (KO[b[1].kind] || 0) || (a[1].tier === 'pro') - (b[1].tier === 'pro'));
   $('hModels').innerHTML = list.map(([k, v]) => {
     const b = BRAND[k] || { g: 'linear-gradient(135deg,#444,#777)', l: v.name[0] };
-    const p = priceOf(k, v.durations && v.durations[0], true, '');
-    return `<button class="hm" data-hm="${k}" style="--g:${b.g}"><span class="cv"><span class="tg"><span>${IC[v.kind] || IC.video}${v.kind === 'video' ? 'Video' : 'Rasm'}</span>${v.tier === 'pro' ? '<span class="pro">Premium</span>' : ''}</span><span class="lt">${b.l}</span></span><span class="bd"><b>${esc(v.name)}</b><span>${esc((v.desc || '').replace(/^(Video|Rasm) · /, ''))}</span>${p ? `<span class="pr">${IC.star}${p}${v.durations && v.durations.length ? ' dan' : ''}</span>` : ''}</span></button>`;
+    const p = v.kind === 'audio' ? audioPrice(v, 1000) : priceOf(k, v.durations && v.durations[0], true, '');
+    return `<button class="hm" data-hm="${k}" style="--g:${b.g}"><span class="cv"><span class="tg"><span>${IC[v.kind] || IC.video}${KN[v.kind] || 'Video'}</span>${v.tier === 'pro' ? '<span class="pro">Premium</span>' : ''}</span><span class="lt">${b.l}</span></span><span class="bd"><b>${esc(v.name)}</b><span>${esc((v.desc || '').replace(/^(Video|Rasm|Ovoz) · /, ''))}</span>${p ? `<span class="pr">${IC.star}${p}${v.durations && v.durations.length ? ' dan' : v.kind === 'audio' ? ' / 1000 belgi' : ''}</span>` : ''}</span></button>`;
   }).join('');
 }
 function homeIdeas(){ $('hIdeas').innerHTML = IDEAS.map((t, i) => `<button data-hidea="${i}">${esc(t.split(',')[0])}</button>`).join(''); }
@@ -1233,7 +1309,7 @@ async function loadRecent(){
     if (!jobs.length) { $('hRecent').innerHTML = '<div class="rempty">Hali hech narsa yaratilmagan. Birinchisini hozir yarating</div>'; return; }
     $('hRecent').innerHTML = '<div class="recent">' + jobs.map(j => {
       const u = j.urls && j.urls[0];
-      const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
+      const media = j.status === 'done' && u ? (j.kind === 'video' ? `<video src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : j.kind === 'audio' ? `<span class="hau">${IC.audio}<b>${esc(j.voice || 'Ovoz')}</b></span>` : `<img src="${esc(u)}" loading="lazy" alt="">`)
         : `<span class="st">${j.status === 'error' ? 'Xato' : 'Jarayonda'}</span>`;
       return `<div class="rc" data-ru="${esc(u || '')}">${media}<span class="kd">${IC[j.kind] || IC.video}</span></div>`;
     }).join('') + '</div>';
