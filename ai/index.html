@@ -1350,7 +1350,7 @@ $('hGo').onclick = () => {
 /* ---------- Boshlash ---------- */
 (async function start(){
   homeIdeas(); render(); vpSet('idle', 0);
-  if (!initData && !qs.has('demo')) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@bu_qandayishlaydi_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/bu_qandayishlaydi_bot">Botni ochish</a>');
+  if (!initData && !qs.has('demo')) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@ProtosAI_uz_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/ProtosAI_uz_bot">Botni ochish</a>');
   if (API) try {
     const md = await api('/ai/models');
     if (md && md.models) { for (const k in md.models) MODELS[k] = { ...(MODELS[k] || {}), ...md.models[k] }; render(); }
