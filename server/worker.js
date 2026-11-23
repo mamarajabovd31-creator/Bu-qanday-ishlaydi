@@ -154,7 +154,7 @@ const AI_MODELS = {
     name: 'ElevenLabs ovoz', kind: 'audio', tier: 'std', desc: 'Ovoz · matndan diktor ovozi',
     text: 'fal-ai/elevenlabs/tts/multilingual-v2', aspects: ['auto'], maxText: 10000,
     cost: b => Math.max(0.01, 0.10 * String(b.prompt || '').length / 1000), // fal.ai: $0.10 / 1000 belgi
-    build: b => ({ text: b.prompt, voice: b.voice || 'Daniel', stability: 0.5, similarity_boost: 0.75, speed: 1,
+    build: b => ({ text: b.prompt, voice: (VOICES[String(b.voice || '').toLowerCase()] || VOICES.daniel).id, stability: 0.5, similarity_boost: 0.75, speed: 1,
       apply_text_normalization: 'auto', ...(b.lang ? { language_code: b.lang } : {}) })
   },
   'sora': {
@@ -398,14 +398,14 @@ async function aiGenerate(req, env, origin){
   let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
   const a = await aiUser(req, env, b.initData); if (a.err) return a.err;
   const m = AI_MODELS[b.model]; if (!m) return json({ error: 'model', msg: "Noma'lum model" }, 400);
-  if (m.kind === 'audio') return json({ error: 'model', msg: "Ovoz botda: /ovoz buyrug'i" }, 400);
-  b.prompt = String(b.prompt || '').trim().slice(0, 2500);
+  b.prompt = String(b.prompt || '').trim().slice(0, m.maxText || 2500);
+  if (m.kind === 'audio') { b.voice = VOICES[String(b.voice || '').toLowerCase()] ? String(b.voice).toLowerCase() : 'daniel'; b.lang = LANGS[b.lang] ? b.lang : 'de'; }
   if (!b.prompt) return json({ error: 'prompt', msg: 'Tavsif yozing' }, 400);
   if (b.aspect && !m.aspects.includes(b.aspect)) b.aspect = m.aspects[0];
   if (b.duration && !(m.durations || []).includes(String(b.duration))) b.duration = (m.durations || [])[0];
   if (!m.res || !m.res.includes(b.res)) b.res = m.res ? m.res[0] : undefined;
   if (!m.audio) delete b.audio;
-  const img = typeof b.image === 'string' && /^data:image\/(png|jpe?g|webp);base64,/.test(b.image) && b.image.length < 7e6 ? b.image : null;
+  const img = m.kind !== 'audio' && typeof b.image === 'string' && /^data:image\/(png|jpe?g|webp);base64,/.test(b.image) && b.image.length < 7e6 ? b.image : null;
 
   // Kunlik limit (pul tejash uchun)
   const day = new Date().toISOString().slice(0, 10), lk = `lim:${a.user.id}:${day}`;
@@ -439,6 +439,7 @@ async function aiGenerate(req, env, origin){
   const job = {
     id: d.request_id, uid: a.user.id, model: b.model, kind: m.kind, prompt: b.prompt,
     aspect: b.aspect || '', duration: b.duration || '', withImage: !!img,
+    ...(m.kind === 'audio' ? { voice: VOICES[b.voice].id, lang: b.lang } : {}),
     cost: Math.round(m.cost(b) * 1000) / 1000, stars: price, charged: free ? 0 : price, res: b.res || '',
     status: 'queue', status_url: d.status_url, response_url: d.response_url, created: Date.now()
   };
@@ -449,7 +450,7 @@ async function aiGenerate(req, env, origin){
   return json({ id: job.id, kind: m.kind, left: limit - used - 1, balance: await getBal(env, a.user.id), free });
 }
 
-const pub = j => ({ stars: j.stars || 0, res: j.res || '', id: j.id, model: j.model, name: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: j.prompt, status: j.status, urls: j.urls || [], error: j.error || '', created: j.created, done_at: j.done_at || 0, queue: j.queue_position, aspect: j.aspect, duration: j.duration });
+const pub = j => ({ stars: j.stars || 0, res: j.res || '', id: j.id, model: j.model, name: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: j.prompt, status: j.status, urls: j.urls || [], error: j.error || '', created: j.created, done_at: j.done_at || 0, queue: j.queue_position, aspect: j.aspect, duration: j.duration, voice: j.voice || '' });
 
 async function aiJob(req, env, id){
   const a = await aiUser(req, env); if (a.err) return a.err;
@@ -488,7 +489,7 @@ async function aiHistory(req, env){
   const jobs = (await Promise.all(ids.slice(0, 30).map(id => env.VOTES.get('job:' + id, 'json')))).filter(Boolean);
   const day = new Date().toISOString().slice(0, 10);
   const used = Number(await env.VOTES.get(`lim:${a.user.id}:${day}`) || 0);
-  return json({ jobs: jobs.filter(j => j.kind !== 'audio').map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
+  return json({ jobs: jobs.map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
     balance: await getBal(env, a.user.id), free: isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1', packs: PACKS });
 }
 
@@ -543,6 +544,8 @@ async function startTTS(env, origin, from, text, o){
     cost: Math.round(m.cost(b) * 1000) / 1000, stars: price, charged: free ? 0 : price,
     status: 'queue', status_url: d.status_url, response_url: d.response_url, created: Date.now() };
   await saveJob(env, job);
+  const hk = 'hist:' + from.id, hist = (await env.VOTES.get(hk, 'json')) || [];
+  hist.unshift(job.id); await env.VOTES.put(hk, JSON.stringify(hist.slice(0, 40)));
   return { ok: true, chars: b.prompt.length, cut: full.length > m.maxText, voice: b.voice, lang: b.lang, price, free };
 }
 
@@ -702,9 +705,11 @@ export default {
       return json({
         starUsd: Number(env.STAR_USD || 0.01),
         markup: { std: Number(env.MARKUP_STD || 1.6), pro: Number(env.MARKUP_PRO || 2.2) },
-        models: Object.fromEntries(Object.entries(AI_MODELS).filter(([, m]) => m.kind !== 'audio').map(([k, m]) => [k, {
+        models: Object.fromEntries(Object.entries(AI_MODELS).map(([k, m]) => [k, {
           name: m.name, kind: m.kind, tier: m.tier, desc: m.desc, aspects: m.aspects, durations: m.durations || [],
           audio: !!m.audio, imgAspect: m.imgAspect !== false,
+          ...(m.kind === 'audio' ? { maxText: m.maxText, voices: Object.entries(VOICES).map(([k, v]) => ({ key: k, name: v.id, desc: v.d })), langs: LANGS,
+            rate: { perChar: 0.10 / 1000 * Number(env.MARKUP_STD || 1.6) / Number(env.STAR_USD || 0.01), min: priceStars(env, m, { prompt: '' }) } } : {}),
           // narx jadvali: har bir davomiylik (va ovoz) uchun Stars
           res: m.res || [],
           // narx jadvali: "davomiylik|sifat|ovoz" → Stars
