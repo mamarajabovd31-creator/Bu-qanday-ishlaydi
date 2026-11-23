@@ -1,4 +1,4 @@
-// ★★★ VERSIYA 4 — Protos AI: yangi dizayn, rasmli /start menyusi ★★★
+// ★★★ VERSIYA 5 — Protos AI: admin panel (/admin) ★★★
 /* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -10,6 +10,7 @@
    - /start yoki /ai — «🎬 AI studiya» Mini App'ini ochadi (sayt/ai/).
    - Tayyor rasm/video botga ham yuboriladi (Mini App yopilgan bo'lsa ham).
    - /id — Telegram ID raqamingizni aytadi (ADMIN_ID uchun kerak).
+   - /admin — faqat egasi uchun: statistika, foydalanuvchilar, balans qo'shish, botni hamma uchun ochish.
    - Hozircha faqat ruxsat berilgan odamlar ishlata oladi (ADMIN_ID va ALLOWED_IDS).
 
    Cloudflare sozlamalari (Settings → Variables and Secrets):
@@ -167,7 +168,7 @@ function priceStars(env, m, b){
 
 const isAdmin = (env, uid) => String(uid) === String(env.ADMIN_ID || '');
 const getBal = async (env, uid) => Number(await env.VOTES.get('bal:' + uid) || 0);
-const setBal = (env, uid, v) => env.VOTES.put('bal:' + uid, String(Math.max(0, Math.round(v))));
+const setBal = (env, uid, v) => { const n = Math.max(0, Math.round(v)); return env.VOTES.put('bal:' + uid, String(n), { metadata: { v: n } }); };
 async function addBal(env, uid, delta){ const v = (await getBal(env, uid)) + delta; await setBal(env, uid, v); return Math.max(0, v); }
 // To'ldirish paketlari (Stars)
 const PACKS = [100, 300, 500, 1000, 2500];
@@ -176,11 +177,140 @@ function allowedIds(env){
   return new Set([env.ADMIN_ID, ...String(env.ALLOWED_IDS || '').split(',')].map(s => String(s || '').trim()).filter(Boolean));
 }
 // Mini App so'rovi: Telegram foydalanuvchisini tekshiradi va ruxsatini ko'radi
+// Foydalanuvchilarni eslab qolish (admin panel uchun). Yozish kam bo'lsin: 6 soatda bir marta yangilanadi.
+async function touchUser(env, u){
+  if (!u || !u.id) return;
+  const key = 'user:' + u.id, now = Date.now();
+  const old = await env.VOTES.getWithMetadata(key).catch(() => null);
+  const md = (old && old.metadata) || null;
+  if (md && now - (md.l || 0) < 6 * 3600 * 1000) return;
+  const meta = { n: String([u.first_name, u.last_name].filter(Boolean).join(' ')).slice(0, 60), un: String(u.username || '').slice(0, 40), f: (md && md.f) || now, l: now };
+  await env.VOTES.put(key, '1', { metadata: meta });
+}
+// "Hamma uchun ochiq" rejimi: Cloudflare'dagi PUBLIC=1 yoki admin paneldagi tugma
+async function isPublic(env){ return env.PUBLIC === '1' || (await env.VOTES.get('cfg:public')) === '1'; }
+
 async function aiUser(req, env, bodyInit){
   const user = await verifyInitData(bodyInit || req.headers.get('X-Init-Data'), env.BOT_TOKEN);
   if (!user || !user.id) return { err: json({ error: 'auth', msg: "Telegram ichida oching" }, 401) };
-  if (env.PUBLIC !== '1' && !allowedIds(env).has(String(user.id))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
+  await touchUser(env, user).catch(() => {});
+  if (!allowedIds(env).has(String(user.id)) && !(await isPublic(env))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
   return { user };
+}
+
+/* ---------------- Admin panel (faqat ADMIN_ID) ---------------- */
+async function adminUser(req, env, bodyInit){
+  const user = await verifyInitData(bodyInit || req.headers.get('X-Init-Data'), env.BOT_TOKEN);
+  if (!user || !user.id) return { err: json({ error: 'auth', msg: 'Telegram ichida oching' }, 401) };
+  if (!isAdmin(env, user.id)) return { err: json({ error: 'denied', msg: "Bu sahifa faqat bot egasi uchun" }, 403) };
+  return { user };
+}
+// KV'dagi kalitlarni metadata bilan o'qish (sahifalab)
+async function listAll(env, prefix, max = 20000){
+  const out = []; let cursor;
+  do {
+    const r = await env.VOTES.list({ prefix, cursor, limit: 1000 });
+    out.push(...r.keys); cursor = r.list_complete ? null : r.cursor;
+  } while (cursor && out.length < max);
+  return out;
+}
+const dayOf = t => new Date(t + 5 * 3600 * 1000).toISOString().slice(0, 10); // Toshkent vaqti (UTC+5)
+
+async function adminStats(req, env){
+  const a = await adminUser(req, env); if (a.err) return a.err;
+  const starUsd = Number(env.STAR_USD || 0.01);
+  const [jobKeys, payKeys, userKeys] = await Promise.all([listAll(env, 'job:'), listAll(env, 'pay:'), listAll(env, 'user:')]);
+  // Eski ishlarda (admin paneldan oldin) metadata yo'q — ularni o'qib olamiz (ko'pi bilan 300 ta)
+  let fill = 0;
+  const jobs = await Promise.all(jobKeys.map(async k => {
+    if (k.metadata && k.metadata.t) return k.metadata;
+    if (fill++ > 300) return null;
+    const j = await env.VOTES.get(k.name, 'json'); if (!j) return null;
+    return { u: j.uid, m: j.model, k: j.kind, c: j.cost || 0, s: j.charged || 0, st: j.status, t: j.created, w: j.withImage ? 1 : 0 };
+  }));
+  const pays = await Promise.all(payKeys.map(async k => {
+    if (k.metadata && k.metadata.t) return k.metadata;
+    const p = await env.VOTES.get(k.name, 'json'); return p ? { u: p.uid, a: p.amount, t: p.at } : null;
+  }));
+  const now = Date.now(), today = dayOf(now), DAY = 86400000;
+  const ranges = { today: d => d === today, d7: (d, t) => now - t < 7 * DAY, d30: (d, t) => now - t < 30 * DAY, all: () => true };
+  const blank = () => ({ jobs: 0, images: 0, videos: 0, errors: 0, cost: 0, stars: 0, paid: 0, payments: 0, active: new Set(), newUsers: 0 });
+  const R = Object.fromEntries(Object.keys(ranges).map(k => [k, blank()]));
+  const models = {}, series = {};
+  for (let i = 13; i >= 0; i--) series[dayOf(now - i * DAY)] = { jobs: 0, cost: 0, stars: 0, paid: 0 };
+  for (const j of jobs) {
+    if (!j || !j.t) continue;
+    const d = dayOf(j.t), err = j.st === 'error';
+    for (const [k, f] of Object.entries(ranges)) if (f(d, j.t)) {
+      const r = R[k]; r.jobs++; if (j.k === 'video') r.videos++; else r.images++;
+      if (err) r.errors++; else { r.cost += j.c || 0; r.stars += j.s || 0; }
+      r.active.add(String(j.u));
+    }
+    if (now - j.t < 30 * DAY) {
+      const m = models[j.m] || (models[j.m] = { name: AI_MODELS[j.m] ? AI_MODELS[j.m].name : j.m, kind: j.k, jobs: 0, errors: 0, cost: 0, stars: 0 });
+      m.jobs++; if (err) m.errors++; else { m.cost += j.c || 0; m.stars += j.s || 0; }
+    }
+    if (series[d]) { series[d].jobs++; if (!err) { series[d].cost += j.c || 0; series[d].stars += j.s || 0; } }
+  }
+  for (const p of pays) {
+    if (!p || !p.t) continue; const d = dayOf(p.t);
+    for (const [k, f] of Object.entries(ranges)) if (f(d, p.t)) { R[k].paid += p.a || 0; R[k].payments++; }
+    if (series[d]) series[d].paid += p.a || 0;
+  }
+  for (const u of userKeys) {
+    const f = u.metadata && u.metadata.f; if (!f) continue;
+    for (const [k, fn] of Object.entries(ranges)) if (fn(dayOf(f), f)) R[k].newUsers++;
+  }
+  const r2 = x => Math.round(x * 1000) / 1000;
+  const out = {};
+  for (const [k, r] of Object.entries(R)) {
+    const revenue = r.stars * starUsd;
+    out[k] = { jobs: r.jobs, images: r.images, videos: r.videos, errors: r.errors, cost: r2(r.cost), stars: r.stars, revenue: r2(revenue),
+      profit: r2(revenue - r.cost), paid: r.paid, paidUsd: r2(r.paid * starUsd), payments: r.payments, active: r.active.size, newUsers: r.newUsers };
+  }
+  // oxirgi 12 ta ish (to'liq ma'lumot bilan)
+  const recentKeys = jobKeys.filter(k => k.metadata && k.metadata.t).sort((x, y) => y.metadata.t - x.metadata.t).slice(0, 12);
+  const recent = (await Promise.all(recentKeys.map(k => env.VOTES.get(k.name, 'json')))).filter(Boolean).map(j => ({
+    id: j.id, uid: j.uid, model: AI_MODELS[j.model] ? AI_MODELS[j.model].name : j.model, kind: j.kind, prompt: String(j.prompt || '').slice(0, 140),
+    status: j.status, cost: j.cost || 0, stars: j.charged || 0, created: j.created, url: (j.urls || [])[0] || '', error: String(j.error || '').slice(0, 160)
+  }));
+  return json({ ranges: out, models: Object.values(models).map(m => ({ ...m, cost: r2(m.cost) })).sort((x, y) => y.jobs - x.jobs),
+    series: Object.entries(series).map(([d, v]) => ({ d, ...v, cost: r2(v.cost) })), recent, totals: { users: userKeys.length },
+    config: { public: await isPublic(env), publicEnv: env.PUBLIC === '1', starUsd, markup: { std: Number(env.MARKUP_STD || 1.6), pro: Number(env.MARKUP_PRO || 2.2) }, dailyLimit: Number(env.DAILY_LIMIT || 30), allowed: [...allowedIds(env)] } });
+}
+
+async function adminUsers(req, env){
+  const a = await adminUser(req, env); if (a.err) return a.err;
+  const [userKeys, balKeys, jobKeys] = await Promise.all([listAll(env, 'user:'), listAll(env, 'bal:'), listAll(env, 'job:')]);
+  const users = {};
+  const U = id => users[id] || (users[id] = { id, name: '', username: '', first: 0, last: 0, balance: 0, jobs: 0, cost: 0, stars: 0 });
+  for (const k of userKeys) { const id = k.name.slice(5), m = k.metadata || {}; Object.assign(U(id), { name: m.n || '', username: m.un || '', first: m.f || 0, last: m.l || 0 }); }
+  await Promise.all(balKeys.map(async k => {
+    const id = k.name.slice(4);
+    U(id).balance = k.metadata && typeof k.metadata.v === 'number' ? k.metadata.v : Number(await env.VOTES.get(k.name) || 0);
+  }));
+  for (const k of jobKeys) { const m = k.metadata; if (!m || !m.u) continue; const u = U(String(m.u)); u.jobs++; if (m.st !== 'error') { u.cost += m.c || 0; u.stars += m.s || 0; } if ((m.t || 0) > u.last) u.last = m.t; }
+  const list = Object.values(users).map(u => ({ ...u, cost: Math.round(u.cost * 1000) / 1000, admin: isAdmin(env, u.id) })).sort((x, y) => (y.last || 0) - (x.last || 0));
+  return json({ users: list.slice(0, 500), total: list.length });
+}
+
+async function adminBalance(req, env){
+  let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
+  const a = await adminUser(req, env, b.initData); if (a.err) return a.err;
+  const uid = String(b.uid || '').replace(/\D/g, ''), delta = Math.round(Number(b.delta));
+  if (!uid || !Number.isFinite(delta) || !delta || Math.abs(delta) > 100000) return json({ error: 'bad', msg: "Foydalanuvchi ID va miqdorni to'g'ri kiriting" }, 400);
+  const bal = await addBal(env, uid, delta);
+  await env.VOTES.put('adm:' + Date.now() + ':' + uid, JSON.stringify({ uid, delta, by: a.user.id }), { expirationTtl: 86400 * 365, metadata: { u: uid, d: delta, t: Date.now() } });
+  if (b.notify !== false && delta > 0)
+    await tg(env, 'sendMessage', { chat_id: uid, parse_mode: 'HTML', text: `🎁 Balansingizga <b>+${delta} ⭐</b> qo'shildi!\nHozirgi balans: <b>${bal} ⭐</b>` }).catch(() => {});
+  return json({ ok: true, uid, balance: bal });
+}
+
+async function adminConfig(req, env){
+  let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
+  const a = await adminUser(req, env, b.initData); if (a.err) return a.err;
+  if (typeof b.public === 'boolean') await env.VOTES.put('cfg:public', b.public ? '1' : '0');
+  return json({ ok: true, public: await isPublic(env), publicEnv: env.PUBLIC === '1' });
 }
 
 // fal javobidan rasm/video manzillarini ajratib olish
@@ -213,7 +343,8 @@ async function failNotice(env, job){
   await tg(env, 'sendMessage', { chat_id: job.uid, text: `❌ Yaratib bo'lmadi: ${String(job.error).slice(0, 300)}${back}` });
 }
 
-const saveJob = (env, job) => env.VOTES.put('job:' + job.id, JSON.stringify(job), { expirationTtl: 86400 * 30 });
+const saveJob = (env, job) => env.VOTES.put('job:' + job.id, JSON.stringify(job), { expirationTtl: 86400 * 60,
+  metadata: { u: job.uid, m: job.model, k: job.kind, c: job.cost || 0, s: job.charged || 0, st: job.status, t: job.created, w: job.withImage ? 1 : 0 } });
 
 // Natijani fal'dan olib, saqlab, botga yuboradi
 async function finishJob(env, job, out){
@@ -370,7 +501,7 @@ async function onUpdate(update, env, origin){
     const sp = m.successful_payment;
     const key = 'pay:' + sp.telegram_payment_charge_id;
     if (await env.VOTES.get(key)) return; // takroriy xabar
-    await env.VOTES.put(key, JSON.stringify({ uid: m.from.id, amount: sp.total_amount, at: Date.now() }));
+    await env.VOTES.put(key, JSON.stringify({ uid: m.from.id, amount: sp.total_amount, at: Date.now() }), { metadata: { u: m.from.id, a: sp.total_amount, t: Date.now() } });
     const bal = await addBal(env, m.from.id, sp.total_amount);
     await tg(env, 'sendMessage', { chat_id: m.chat.id, parse_mode: 'HTML',
       text: `✅ Balans to'ldirildi: <b>+${sp.total_amount} ⭐</b>\nHozirgi balans: <b>${bal} ⭐</b>`,
@@ -380,6 +511,7 @@ async function onUpdate(update, env, origin){
         text: `💰 <b>Yangi to'lov!</b> ${esc(m.from.first_name || '')}${m.from.username ? ' (@' + esc(m.from.username) + ')' : ''} — <b>${sp.total_amount} ⭐</b>` });
     return;
   }
+  if (m.from) await touchUser(env, m.from).catch(() => {});
   if (!m.text) return;
   const chat = m.chat.id;
   const cmd = m.text.trim().split(/[\s@]/)[0].toLowerCase();
@@ -401,6 +533,10 @@ async function onUpdate(update, env, origin){
     if (env.ADMIN_ID) await tg(env, 'sendMessage', { chat_id: env.ADMIN_ID, text: `🆘 /paysupport: ${m.from.first_name || ''} (id ${m.from.id})` });
   } else if (cmd === '/id') {
     await tg(env, 'sendMessage', { chat_id: chat, text: `🆔 ${m.from.id}` });
+  } else if (cmd === '/admin') {
+    if (!isAdmin(env, m.from.id)) return;
+    await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: '🛠 <b>Protos admin paneli</b>\nStatistika, daromad, foydalanuvchilar va sozlamalar.',
+      reply_markup: { inline_keyboard: [[{ text: '📊 Admin panelni ochish', web_app: { url: SITE + 'admin/?api=' + encodeURIComponent(origin) } }]] } });
   }
 }
 
@@ -430,6 +566,11 @@ export default {
     if (url.pathname === '/ai/history' && req.method === 'GET') return aiHistory(req, env);
     if (url.pathname === '/ai/invoice' && req.method === 'POST') return aiInvoice(req, env);
     if (url.pathname === '/fal' && req.method === 'POST') return falWebhook(req, env);
+    // Admin panel
+    if (url.pathname === '/admin/stats' && req.method === 'GET') return adminStats(req, env);
+    if (url.pathname === '/admin/users' && req.method === 'GET') return adminUsers(req, env);
+    if (url.pathname === '/admin/balance' && req.method === 'POST') return adminBalance(req, env);
+    if (url.pathname === '/admin/config' && req.method === 'POST') return adminConfig(req, env);
 
     if (url.pathname === '/tg' && req.method === 'POST') {
       if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== env.WEBHOOK_SECRET) return new Response('no', { status: 403 });
@@ -455,6 +596,6 @@ export default {
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 4)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 5)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };
