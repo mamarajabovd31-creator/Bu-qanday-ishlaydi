@@ -516,12 +516,16 @@ async function onUpdate(update, env, origin){
   const chat = m.chat.id;
   const cmd = m.text.trim().split(/[\s@]/)[0].toLowerCase();
 
+  const admUrl = SITE + 'admin/?api=' + encodeURIComponent(origin);
+  if (isAdmin(env, m.from.id)) await adminMenu(env).catch(() => {});
+
   if (cmd === '/start' || cmd === '/ai') {
     const bal = await getBal(env, m.from.id);
     const kb = { inline_keyboard: [
       [{ text: '✨ Protos studiyasini ochish', web_app: { url: appUrl } }],
       [{ text: `⭐ Balans: ${bal}`, web_app: { url: appUrl + '&topup=1' } }, { text: '📢 Kanal', url: CHANNEL }]
     ] };
+    if (isAdmin(env, m.from.id)) kb.inline_keyboard.push([{ text: '📊 Admin panel', web_app: { url: admUrl } }]);
     const caption = `🏛 <b>PROTOS AI</b>\n<i>πρῶτος — birinchi</i>\n\nTasavvuringizni bir necha daqiqada video va rasmga aylantiring.\n\n🖼 <b>Rasm</b> — Nano Banana 2 · Nano Banana Pro\n🎬 <b>Video</b> — Kling · Veo · Seedance · Sora\n👑 <b>Premium</b> — kinematografik sifat, ovoz bilan\n\nTayyor natija shu chatga ham keladi.`;
     const ph = await tg(env, 'sendPhoto', { chat_id: chat, photo: SITE + 'img/protos-cover.png', caption, parse_mode: 'HTML', reply_markup: kb });
     if (!ph.ok) await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: caption, reply_markup: kb });
@@ -536,8 +540,25 @@ async function onUpdate(update, env, origin){
   } else if (cmd === '/admin') {
     if (!isAdmin(env, m.from.id)) return;
     await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text: '🛠 <b>Protos admin paneli</b>\nStatistika, daromad, foydalanuvchilar va sozlamalar.',
-      reply_markup: { inline_keyboard: [[{ text: '📊 Admin panelni ochish', web_app: { url: SITE + 'admin/?api=' + encodeURIComponent(origin) } }]] } });
+      reply_markup: { inline_keyboard: [[{ text: '📊 Admin panelni ochish', web_app: { url: admUrl } }]] } });
   }
+}
+
+// Admin uchun «/» menyusida ⚙️ Admin panel (faqat admin chatida ko'rinadi), bir marta o'rnatiladi
+const USER_CMDS = [
+  { command: 'start', description: 'Boshlash' },
+  { command: 'ai', description: 'Protos studiyasi — video va rasm yaratish' },
+  { command: 'balans', description: 'Balansim' },
+  { command: 'paysupport', description: "To'lov bo'yicha yordam" },
+  { command: 'id', description: 'Telegram ID raqamim' }
+];
+async function adminMenu(env, force){
+  if (!env.ADMIN_ID) return;
+  if (!force && await env.VOTES.get('cfg:admcmds') === '5') return;
+  const r = await tg(env, 'setMyCommands', { scope: { type: 'chat', chat_id: Number(env.ADMIN_ID) },
+    commands: [{ command: 'admin', description: '⚙️ Admin panel — statistika va boshqaruv' }, ...USER_CMDS] });
+  if (r.ok) await env.VOTES.put('cfg:admcmds', '5');
+  return r;
 }
 
 export default {
@@ -582,13 +603,8 @@ export default {
     if (url.pathname === '/setup') {
       if (!env.WEBHOOK_SECRET || url.searchParams.get('key') !== env.WEBHOOK_SECRET) return new Response('Kalit noto\'g\'ri', { status: 403 });
       const hook = await tg(env, 'setWebhook', { url: url.origin + '/tg', secret_token: env.WEBHOOK_SECRET, allowed_updates: ['message', 'pre_checkout_query'] });
-      const cmds = await tg(env, 'setMyCommands', { commands: [
-        { command: 'start', description: 'Boshlash' },
-        { command: 'ai', description: 'Protos studiyasi — video va rasm yaratish' },
-        { command: 'balans', description: 'Balansim' },
-        { command: 'paysupport', description: "To'lov bo'yicha yordam" },
-        { command: 'id', description: 'Telegram ID raqamim' }
-      ] });
+      const cmds = await tg(env, 'setMyCommands', { commands: USER_CMDS });
+      await adminMenu(env, true).catch(() => {});
       await tg(env, 'setChatMenuButton', { menu_button: { type: 'web_app', text: 'Protos AI', web_app: { url: AI_APP + '?api=' + encodeURIComponent(url.origin) } } });
       const ok = hook.ok && cmds.ok;
       return new Response(ok ? "✅ Tayyor! Bot serverga ulandi. Endi botga /id yozing." : '❌ Xato: ' + JSON.stringify({ hook, cmds }), {
