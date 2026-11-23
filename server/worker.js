@@ -1,4 +1,4 @@
-// ★★★ VERSIYA 5 — Protos AI: admin panel (/admin) ★★★
+// ★★★ VERSIYA 6 — Protos AI: /ovoz (ElevenLabs ovoz, fal.ai orqali) + admin panel ★★★
 /* "Bu qanday ishlaydi?" — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -149,6 +149,14 @@ const AI_MODELS = {
     cost: b => (b.audio === false ? 0.20 : 0.40) * sec(b, 8),
     build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || '9:16', duration: (b.duration || '8') + 's', resolution: '1080p', generate_audio: b.audio !== false, ...(img ? { image_url: img } : {}) })
   },
+  /* ---------- Ovoz (faqat botda: /ovoz) ---------- */
+  'voice': {
+    name: 'ElevenLabs ovoz', kind: 'audio', tier: 'std', desc: 'Ovoz · matndan diktor ovozi',
+    text: 'fal-ai/elevenlabs/tts/multilingual-v2', aspects: ['auto'], maxText: 10000,
+    cost: b => Math.max(0.01, 0.10 * String(b.prompt || '').length / 1000), // fal.ai: $0.10 / 1000 belgi
+    build: b => ({ text: b.prompt, voice: b.voice || 'Daniel', stability: 0.5, similarity_boost: 0.75, speed: 1,
+      apply_text_normalization: 'auto', ...(b.lang ? { language_code: b.lang } : {}) })
+  },
   'sora': {
     name: 'Sora 2 Pro', kind: 'video', tier: 'pro', desc: 'Video · OpenAI, hikoya',
     text: 'fal-ai/sora-2/text-to-video/pro', img: 'fal-ai/sora-2/image-to-video/pro',
@@ -167,6 +175,17 @@ function priceStars(env, m, b){
 }
 
 const isAdmin = (env, uid) => String(uid) === String(env.ADMIN_ID || '');
+
+// /ovoz uchun ovozlar (ElevenLabs tayyor ovozlari) va tillar
+const VOICES = {
+  daniel: { id: 'Daniel', d: "erkak, yangiliklar diktori — hujjatli film uchun" },
+  george: { id: 'George', d: "erkak, iliq hikoyachi" },
+  brian: { id: 'Brian', d: "erkak, chuqur ovoz" },
+  bill: { id: 'Bill', d: "erkak, keksa, salobatli" },
+  charlotte: { id: 'Charlotte', d: "ayol, yumshoq" },
+  alice: { id: 'Alice', d: "ayol, aniq va jiddiy" }
+};
+const LANGS = { de: 'nemischa', ru: 'ruscha', en: 'inglizcha' };
 const getBal = async (env, uid) => Number(await env.VOTES.get('bal:' + uid) || 0);
 const setBal = (env, uid, v) => { const n = Math.max(0, Math.round(v)); return env.VOTES.put('bal:' + uid, String(n), { metadata: { v: n } }); };
 async function addBal(env, uid, delta){ const v = (await getBal(env, uid)) + delta; await setBal(env, uid, v); return Math.max(0, v); }
@@ -242,7 +261,7 @@ async function adminStats(req, env){
     if (!j || !j.t) continue;
     const d = dayOf(j.t), err = j.st === 'error';
     for (const [k, f] of Object.entries(ranges)) if (f(d, j.t)) {
-      const r = R[k]; r.jobs++; if (j.k === 'video') r.videos++; else r.images++;
+      const r = R[k]; r.jobs++; if (j.k === 'video') r.videos++; else if (j.k !== 'audio') r.images++;
       if (err) r.errors++; else { r.cost += j.c || 0; r.stars += j.s || 0; }
       r.active.add(String(j.u));
     }
@@ -317,6 +336,7 @@ async function adminConfig(req, env){
 function falUrls(out){
   if (!out) return [];
   if (out.video && out.video.url) return [out.video.url];
+  if (out.audio && out.audio.url) return [out.audio.url];
   if (Array.isArray(out.images)) return out.images.map(i => i && i.url).filter(Boolean);
   if (out.image && out.image.url) return [out.image.url];
   return [];
@@ -325,6 +345,14 @@ function falUrls(out){
 async function sendResult(env, job){
   if (job.sent) return;
   job.sent = true;
+  if (job.kind === 'audio') {
+    const cap = `🎙 <b>Ovoz tayyor</b> · ${esc(job.voice || '')} · ${(job.prompt || '').length} belgi\n<i>${esc(job.prompt).slice(0, 300)}${(job.prompt || '').length > 300 ? '…' : ''}</i>`;
+    for (const u of job.urls || []) {
+      const r = await tg(env, 'sendAudio', { chat_id: job.uid, audio: u, caption: cap, parse_mode: 'HTML', title: 'Protos ovoz — ' + (job.voice || ''), performer: 'Protos AI' });
+      if (!r.ok) await tg(env, 'sendMessage', { chat_id: job.uid, parse_mode: 'HTML', text: `${cap}\n\n⬇️ <a href="${esc(u)}">MP3 yuklab olish</a>` });
+    }
+    return;
+  }
   const cap = `${job.kind === 'video' ? '🎬' : '🖼'} <b>${esc(AI_MODELS[job.model] ? AI_MODELS[job.model].name : job.model)}</b>\n${esc(job.prompt).slice(0, 900)}`;
   for (const u of job.urls || []) {
     const r = await tg(env, job.kind === 'video' ? 'sendVideo' : 'sendPhoto', {
@@ -370,6 +398,7 @@ async function aiGenerate(req, env, origin){
   let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
   const a = await aiUser(req, env, b.initData); if (a.err) return a.err;
   const m = AI_MODELS[b.model]; if (!m) return json({ error: 'model', msg: "Noma'lum model" }, 400);
+  if (m.kind === 'audio') return json({ error: 'model', msg: "Ovoz botda: /ovoz buyrug'i" }, 400);
   b.prompt = String(b.prompt || '').trim().slice(0, 2500);
   if (!b.prompt) return json({ error: 'prompt', msg: 'Tavsif yozing' }, 400);
   if (b.aspect && !m.aspects.includes(b.aspect)) b.aspect = m.aspects[0];
@@ -459,7 +488,7 @@ async function aiHistory(req, env){
   const jobs = (await Promise.all(ids.slice(0, 30).map(id => env.VOTES.get('job:' + id, 'json')))).filter(Boolean);
   const day = new Date().toISOString().slice(0, 10);
   const used = Number(await env.VOTES.get(`lim:${a.user.id}:${day}`) || 0);
-  return json({ jobs: jobs.map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
+  return json({ jobs: jobs.filter(j => j.kind !== 'audio').map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
     balance: await getBal(env, a.user.id), free: isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1', packs: PACKS });
 }
 
@@ -479,6 +508,70 @@ async function falWebhook(req, env){
     await saveJob(env, job);
   }
   return new Response('ok');
+}
+
+/* ---------------- Ovoz (/ovoz) ---------------- */
+// Matndan ovoz: fal.ai navbatiga qo'yadi, natija webhook orqali botga MP3 bo'lib keladi
+async function startTTS(env, origin, from, text, o){
+  if (!env.FAL_KEY) return { error: "Serverda FAL_KEY yo'q." };
+  if (!allowedIds(env).has(String(from.id)) && !(await isPublic(env))) return { error: "Hozircha bu bo'lim yopiq." };
+  const m = AI_MODELS.voice;
+  const full = String(text || '').trim();
+  const b = { prompt: full.slice(0, m.maxText), voice: (VOICES[o.voice] || VOICES.daniel).id, lang: LANGS[o.lang] ? o.lang : 'de' };
+  if (!b.prompt) return { error: "Matn bo'sh." };
+  const day = new Date().toISOString().slice(0, 10), lk = `lim:${from.id}:${day}`;
+  const used = Number(await env.VOTES.get(lk) || 0), limit = Number(env.DAILY_LIMIT || 30);
+  if (used >= limit) return { error: `Bugungi limit tugadi (${limit} ta).` };
+  const price = priceStars(env, m, b);
+  const free = isAdmin(env, from.id) && env.ADMIN_PAYS !== '1';
+  if (!free) {
+    const bal = await getBal(env, from.id);
+    if (bal < price) return { error: `Balans yetmaydi: kerak ${price} ⭐, sizda ${bal} ⭐. /balans` };
+    await setBal(env, from.id, bal - price);
+  }
+  const hook = `${origin}/fal?k=${encodeURIComponent(env.WEBHOOK_SECRET || '')}`;
+  const r = await fetch(FAL_QUEUE + m.text + '?fal_webhook=' + encodeURIComponent(hook), {
+    method: 'POST', headers: { Authorization: 'Key ' + env.FAL_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(m.build(b))
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.request_id) {
+    if (!free) await addBal(env, from.id, price);
+    return { error: r.status === 401 || r.status === 403 ? "FAL_KEY noto'g'ri" : r.status === 402 || /balance|credit|locked/i.test(JSON.stringify(d)) ? "fal.ai balansi tugagan" : (d.detail ? JSON.stringify(d.detail).slice(0, 300) : 'fal xatosi ' + r.status) };
+  }
+  await env.VOTES.put(lk, String(used + 1), { expirationTtl: 86400 * 2 });
+  const job = { id: d.request_id, uid: from.id, model: 'voice', kind: 'audio', prompt: b.prompt, voice: b.voice, lang: b.lang,
+    cost: Math.round(m.cost(b) * 1000) / 1000, stars: price, charged: free ? 0 : price,
+    status: 'queue', status_url: d.status_url, response_url: d.response_url, created: Date.now() };
+  await saveJob(env, job);
+  return { ok: true, chars: b.prompt.length, cut: full.length > m.maxText, voice: b.voice, lang: b.lang, price, free };
+}
+
+async function ovozHelp(env, chat, st){
+  const v = VOICES[st.voice] || VOICES.daniel;
+  await tg(env, 'sendMessage', { chat_id: chat, parse_mode: 'HTML', text:
+    `🎙 <b>Ovoz yaratish</b>\n\nEndi matnni yuboring — xabar yoki <b>.txt fayl</b> (10 000 belgigacha). Diktor ovozi MP3 bo'lib keladi.\n\n` +
+    `Ovoz: <b>${v.id}</b> — ${v.d}\nTil: <b>${LANGS[st.lang] || 'nemischa'}</b>\nNarx: 1 000 belgi ≈ ${priceStars(env, AI_MODELS.voice, { prompt: 'x'.repeat(1000) })} ⭐\n\n` +
+    `<b>O'zgartirish:</b> /ovoz daniel · /ovoz george ru · /ovoz alice en\n` +
+    Object.entries(VOICES).map(([k, x]) => `• <code>${k}</code> — ${x.d}`).join('\n') +
+    `\nTillar: <code>de</code> nemischa, <code>ru</code> ruscha, <code>en</code> inglizcha` });
+}
+
+// Telegram'dan .txt faylni o'qish
+async function readTxt(env, doc){
+  if (!doc || doc.file_size > 200000) return null;
+  if (!/text\/plain/.test(doc.mime_type || '') && !/\.txt$/i.test(doc.file_name || '')) return null;
+  const f = await tg(env, 'getFile', { file_id: doc.file_id });
+  if (!f.ok) return null;
+  const r = await fetch(`https://api.telegram.org/file/bot${env.BOT_TOKEN}/${f.result.file_path}`);
+  return r.ok ? (await r.text()).replace(/^\uFEFF/, '') : null;
+}
+
+async function runTTS(env, origin, m, text, st){
+  const res = await startTTS(env, origin, m.from, text, st);
+  if (res.error) return tg(env, 'sendMessage', { chat_id: m.chat.id, text: '❌ ' + res.error });
+  await tg(env, 'sendMessage', { chat_id: m.chat.id, parse_mode: 'HTML', text:
+    `⏳ Ovoz tayyorlanmoqda: <b>${res.chars}</b> belgi · ${res.voice} · ${LANGS[res.lang]}${res.free ? '' : ` · ${res.price} ⭐`}` +
+    (res.cut ? `\n⚠️ Matn 10 000 belgidan uzun edi — qolgan qismini alohida yuboring.` : '') + `\nTayyor bo'lgach shu yerga keladi.` });
 }
 
 /* ---------------- Bot (webhook) ---------------- */
@@ -512,12 +605,48 @@ async function onUpdate(update, env, origin){
     return;
   }
   if (m.from) await touchUser(env, m.from).catch(() => {});
+  if (isAdmin(env, m.from.id)) await adminMenu(env).catch(() => {});
+
+  // /ovoz kutilayotgan bo'lsa: .txt fayl yoki oddiy matn ovozga aylanadi
+  const ttsKey = m.from ? 'tts:' + m.from.id : '';
+  if (m.document && ttsKey) {
+    const st = await env.VOTES.get(ttsKey, 'json');
+    if (st) {
+      const t = await readTxt(env, m.document);
+      if (t == null) { await tg(env, 'sendMessage', { chat_id: m.chat.id, text: "❌ Faqat .txt fayl (200 KB gacha) qabul qilinadi." }); return; }
+      await env.VOTES.delete(ttsKey);
+      await runTTS(env, origin, m, t, st); return;
+    }
+  }
   if (!m.text) return;
   const chat = m.chat.id;
   const cmd = m.text.trim().split(/[\s@]/)[0].toLowerCase();
 
+  if (cmd === '/ovoz' || cmd === '/voice') {
+    const prev = (await env.VOTES.get(ttsKey, 'json')) || (await env.VOTES.get('ttspref:' + m.from.id, 'json')) || {};
+    const st = { voice: prev.voice || 'daniel', lang: prev.lang || 'de' };
+    const words = m.text.trim().split(/\s+/).slice(1);
+    let i = 0;
+    for (; i < words.length && i < 2; i++) {
+      const w = words[i].toLowerCase();
+      if (VOICES[w]) st.voice = w; else if (LANGS[w]) st.lang = w; else break;
+    }
+    await env.VOTES.put('ttspref:' + m.from.id, JSON.stringify(st));
+    const rest = words.slice(i).join(' ').trim();
+    if (rest) {
+      // buyruq va sozlama so'zlaridan keyingi matn (qatorlar saqlanadi)
+      const body = m.text.trim().replace(new RegExp('^\\S+(?:\\s+\\S+){' + i + '}\\s*'), '');
+      await env.VOTES.delete(ttsKey); await runTTS(env, origin, m, body, st); return;
+    }
+    await env.VOTES.put(ttsKey, JSON.stringify(st), { expirationTtl: 1800 });
+    await ovozHelp(env, chat, st); return;
+  }
+  if (!cmd.startsWith('/')) {
+    const st = await env.VOTES.get(ttsKey, 'json');
+    if (st) { await env.VOTES.delete(ttsKey); await runTTS(env, origin, m, m.text, st); return; }
+  }
+
   const admUrl = SITE + 'admin/?api=' + encodeURIComponent(origin);
-  if (isAdmin(env, m.from.id)) await adminMenu(env).catch(() => {});
 
   if (cmd === '/start' || cmd === '/ai') {
     const bal = await getBal(env, m.from.id);
@@ -548,16 +677,17 @@ async function onUpdate(update, env, origin){
 const USER_CMDS = [
   { command: 'start', description: 'Boshlash' },
   { command: 'ai', description: 'Protos studiyasi — video va rasm yaratish' },
+  { command: 'ovoz', description: 'Matndan diktor ovozi (MP3)' },
   { command: 'balans', description: 'Balansim' },
   { command: 'paysupport', description: "To'lov bo'yicha yordam" },
   { command: 'id', description: 'Telegram ID raqamim' }
 ];
 async function adminMenu(env, force){
   if (!env.ADMIN_ID) return;
-  if (!force && await env.VOTES.get('cfg:admcmds') === '5') return;
+  if (!force && await env.VOTES.get('cfg:admcmds') === '6') return;
   const r = await tg(env, 'setMyCommands', { scope: { type: 'chat', chat_id: Number(env.ADMIN_ID) },
     commands: [{ command: 'admin', description: '⚙️ Admin panel — statistika va boshqaruv' }, ...USER_CMDS] });
-  if (r.ok) await env.VOTES.put('cfg:admcmds', '5');
+  if (r.ok) await env.VOTES.put('cfg:admcmds', '6');
   return r;
 }
 
@@ -572,7 +702,7 @@ export default {
       return json({
         starUsd: Number(env.STAR_USD || 0.01),
         markup: { std: Number(env.MARKUP_STD || 1.6), pro: Number(env.MARKUP_PRO || 2.2) },
-        models: Object.fromEntries(Object.entries(AI_MODELS).map(([k, m]) => [k, {
+        models: Object.fromEntries(Object.entries(AI_MODELS).filter(([, m]) => m.kind !== 'audio').map(([k, m]) => [k, {
           name: m.name, kind: m.kind, tier: m.tier, desc: m.desc, aspects: m.aspects, durations: m.durations || [],
           audio: !!m.audio, imgAspect: m.imgAspect !== false,
           // narx jadvali: har bir davomiylik (va ovoz) uchun Stars
@@ -612,6 +742,6 @@ export default {
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 5)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 6)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };
