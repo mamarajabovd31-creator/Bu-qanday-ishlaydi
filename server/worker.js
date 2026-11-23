@@ -83,6 +83,17 @@ const AI_MODELS = {
     res: ['1K', '2K'], cost: b => b.res === '2K' ? 0.06 : 0.04,
     build: (b, img) => ({ prompt: b.prompt, aspect_ratio: b.aspect || 'auto', num_images: 1, resolution: b.res || '1K', output_format: 'jpeg', ...(img ? { image_urls: [img] } : {}) })
   },
+  'seedream': {
+    name: 'Seedream 4.5', kind: 'image', tier: 'std', desc: 'Rasm · multfilm va illyustratsiya',
+    text: 'fal-ai/bytedance/seedream/v4.5/text-to-image', img: 'fal-ai/bytedance/seedream/v4.5/edit',
+    aspects: ['auto', '1:1', '9:16', '16:9', '3:4', '4:3'],
+    cost: () => 0.04,
+    build: (b, img) => ({
+      prompt: b.prompt, num_images: 1,
+      image_size: ({ 'auto': 'auto_2K', '1:1': 'square_hd', '9:16': 'portrait_16_9', '16:9': 'landscape_16_9', '3:4': 'portrait_4_3', '4:3': 'landscape_4_3' })[b.aspect || 'auto'] || 'auto_2K',
+      ...(img ? { image_urls: [img] } : {})
+    })
+  },
   'kling': {
     name: 'Kling 2.5 Turbo', kind: 'video', tier: 'std', desc: 'Video · arzon, ovozsiz',
     text: 'fal-ai/kling-video/v2.5-turbo/pro/text-to-video', img: 'fal-ai/kling-video/v2.5-turbo/pro/image-to-video',
