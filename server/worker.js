@@ -1,4 +1,4 @@
-// ★★★ VERSIYA 6 — Protos AI: /ovoz (ElevenLabs ovoz, fal.ai orqali) + admin panel ★★★
+// ★★★ VERSIYA 7 — Protos AI: sayt orqali ishlash (Telegram bilan kirish) + /ovoz + admin panel ★★★
 /* "Protos AI" (Toby Land loyihasi) — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -8,6 +8,8 @@
    - Har bir ishning narxi Telegram Stars'da. Foydalanuvchi balansni Stars bilan to'ldiradi, har bir ish uchun yechiladi,
      xato bo'lsa avtomatik qaytariladi. /balans — balans, /paysupport — to'lov bo'yicha yordam.
    - /start yoki /ai — «🎬 AI studiya» Mini App'ini ochadi (sayt/ai/).
+   - Sayt (brauzer) orqali ham ishlaydi: odam «Telegram bilan kirish» tugmasini bosadi, balans bot bilan bir xil.
+     Buning uchun BotFather'da: /setdomain → @ProtosAI_uz_bot → mamarajabovd31-creator.github.io
    - Tayyor rasm/video botga ham yuboriladi (Mini App yopilgan bo'lsa ham).
    - /id — Telegram ID raqamingizni aytadi (ADMIN_ID uchun kerak).
    - /admin — faqat egasi uchun: statistika, foydalanuvchilar, balans qo'shish, botni hamma uchun ochish.
@@ -32,12 +34,13 @@
 
 const SITE = 'https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/';
 const CHANNEL = 'https://t.me/tobyland_uz';
+const WEBSITE = SITE + 'protos/';
 
 /* ---------------- Yordamchilar ---------------- */
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Init-Data'
+  'Access-Control-Allow-Headers': 'Content-Type, X-Init-Data, X-Session'
 };
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...CORS } });
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -65,6 +68,47 @@ async function verifyInitData(initData, token){
   const age = Date.now() / 1000 - Number(p.get('auth_date') || 0);
   if (!(age < 86400 * 7)) return null; // bir haftadan eski ma'lumot qabul qilinmaydi
   try { return JSON.parse(p.get('user') || 'null'); } catch (e) { return null; }
+}
+
+/* ---------------- Sayt orqali kirish (Telegram Login) ---------------- */
+// Telegram Login tugmasi bergan ma'lumotni tekshiradi (https://core.telegram.org/widgets/login)
+async function verifyLogin(d, token){
+  if (!d || !d.hash || !d.id || !token) return null;
+  const check = Object.keys(d).filter(k => k !== 'hash' && d[k] != null && d[k] !== '').sort().map(k => `${k}=${d[k]}`).join('\n');
+  const enc = new TextEncoder();
+  const secret = await crypto.subtle.digest('SHA-256', enc.encode(token));
+  const key = await crypto.subtle.importKey('raw', secret, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  if (hex(await crypto.subtle.sign('HMAC', key, enc.encode(check))) !== String(d.hash)) return null;
+  if (!(Date.now() / 1000 - Number(d.auth_date || 0) < 86400)) return null;
+  return { id: Number(d.id), first_name: d.first_name || '', last_name: d.last_name || '', username: d.username || '', photo_url: d.photo_url || '' };
+}
+const b64u = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = s => Uint8Array.from(atob(String(s).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function sessKey(env){
+  const raw = new TextEncoder().encode('protos-web:' + (env.WEBHOOK_SECRET || '') + ':' + (env.BOT_TOKEN || ''));
+  return crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+}
+// Saytga kirgan odamga 30 kunlik imzolangan "kalit" beriladi
+async function makeSession(env, u){
+  const body = b64u(new TextEncoder().encode(JSON.stringify({ id: u.id, first_name: u.first_name, last_name: u.last_name, username: u.username, exp: Date.now() + 30 * 86400e3 })));
+  const sig = b64u(new Uint8Array(await crypto.subtle.sign('HMAC', await sessKey(env), new TextEncoder().encode(body))));
+  return body + '.' + sig;
+}
+async function readSession(env, tok){
+  try {
+    const [body, sig] = String(tok || '').split('.'); if (!body || !sig) return null;
+    const good = b64u(new Uint8Array(await crypto.subtle.sign('HMAC', await sessKey(env), new TextEncoder().encode(body))));
+    if (good !== sig) return null;
+    const u = JSON.parse(new TextDecoder().decode(unb64u(body)));
+    return u && u.id && u.exp > Date.now() ? u : null;
+  } catch (e) { return null; }
+}
+async function webLogin(req, env){
+  let d; try { d = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
+  const u = await verifyLogin(d, env.BOT_TOKEN);
+  if (!u) return json({ error: 'auth', msg: "Telegram orqali kirishni tasdiqlab bo'lmadi. Qayta urinib ko'ring." }, 401);
+  await touchUser(env, u).catch(() => {});
+  return json({ token: await makeSession(env, u), user: { id: u.id, name: [u.first_name, u.last_name].filter(Boolean).join(' '), username: u.username, photo: u.photo_url } });
 }
 
 /* ---------------- AI studiya (fal.ai) ---------------- */
@@ -210,8 +254,9 @@ async function touchUser(env, u){
 async function isPublic(env){ return env.PUBLIC === '1' || (await env.VOTES.get('cfg:public')) === '1'; }
 
 async function aiUser(req, env, bodyInit){
-  const user = await verifyInitData(bodyInit || req.headers.get('X-Init-Data'), env.BOT_TOKEN);
-  if (!user || !user.id) return { err: json({ error: 'auth', msg: "Telegram ichida oching" }, 401) };
+  // 1) Telegram ichidan (Mini App) yoki 2) saytdan (Telegram bilan kirgan, X-Session)
+  const user = (await verifyInitData(bodyInit || req.headers.get('X-Init-Data'), env.BOT_TOKEN)) || (await readSession(env, req.headers.get('X-Session')));
+  if (!user || !user.id) return { err: json({ error: 'auth', msg: "Avval Telegram orqali kiring" }, 401) };
   await touchUser(env, user).catch(() => {});
   if (!allowedIds(env).has(String(user.id)) && !(await isPublic(env))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
   return { user };
@@ -655,7 +700,8 @@ async function onUpdate(update, env, origin){
     const bal = await getBal(env, m.from.id);
     const kb = { inline_keyboard: [
       [{ text: '✨ Protos studiyasini ochish', web_app: { url: appUrl } }],
-      [{ text: `⭐ Balans: ${bal}`, web_app: { url: appUrl + '&topup=1' } }, { text: '📢 Kanal', url: CHANNEL }]
+      [{ text: `⭐ Balans: ${bal}`, web_app: { url: appUrl + '&topup=1' } }, { text: '📢 Kanal', url: CHANNEL }],
+      [{ text: '🌐 Sayt: kompyuterda ishlash', url: WEBSITE }]
     ] };
     if (isAdmin(env, m.from.id)) kb.inline_keyboard.push([{ text: '📊 Admin panel', web_app: { url: admUrl } }]);
     const caption = `🏛 <b>PROTOS AI</b>\n<i>πρῶτος — birinchi</i>\n\nTasavvuringizni bir necha daqiqada video va rasmga aylantiring.\n\n🖼 <b>Rasm</b> — Nano Banana 2 · Nano Banana Pro\n🎬 <b>Video</b> — Kling · Veo · Seedance · Sora\n👑 <b>Premium</b> — kinematografik sifat, ovoz bilan\n\nTayyor natija shu chatga ham keladi.`;
@@ -717,6 +763,7 @@ export default {
             (m.res || ['']).flatMap(rs => [true, false].map(au => [`${d}|${rs}|${au ? 1 : 0}`, priceStars(env, m, { duration: d, res: rs || undefined, audio: au })]))))
         }]))
       });
+    if (url.pathname === '/web/login' && req.method === 'POST') return webLogin(req, env);
     if (url.pathname === '/ai/gen' && req.method === 'POST') return aiGenerate(req, env, url.origin);
     if (url.pathname === '/ai/job' && req.method === 'GET') return aiJob(req, env, url.searchParams.get('id') || '');
     if (url.pathname === '/ai/history' && req.method === 'GET') return aiHistory(req, env);
@@ -747,6 +794,6 @@ export default {
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 6)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 7)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };
