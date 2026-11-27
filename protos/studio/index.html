@@ -1424,7 +1424,7 @@ const LOGO = document.querySelector('.logo svg').outerHTML.replace('<svg ', '<sv
 function loginGate(msg){
   if (!API || !window.PROTOS_GOOGLE_CLIENT_ID) return gate('<h1>⚙️ Tez orada</h1><p class="sub">Sayt sozlanmoqda. Birozdan keyin qayta oching.</p>');
   gate(`${LOGO}<h1>Protos AI'ga kirish</h1><p class="sub">${esc(msg || "Rasm, video va ovoz yaratish uchun Google akkauntingiz bilan kiring. Parol kerak emas.")}</p>` +
-    `<div class="tglogin" id="gLogin"></div><p class="sub small" id="loginNote">Kirish orqali siz <a href="../oferta/" style="color:inherit">ommaviy oferta</a> shartlariga rozilik bildirasiz.</p>`);
+    `<div class="tglogin" id="gLogin"></div><p class="sub small" id="loginNote">Kirish orqali siz <a href="../oferta/" style="color:inherit">ommaviy oferta</a> va <a href="../maxfiylik/" style="color:inherit">maxfiylik siyosati</a> shartlariga rozilik bildirasiz.</p>`);
   (function mount(n){
     if (!(window.google && google.accounts && google.accounts.id)) { if (n < 100) setTimeout(() => mount(n + 1), 100); else $('loginNote').textContent = "Google tugmasi yuklanmadi. Internetni tekshirib, sahifani yangilang."; return; }
     google.accounts.id.initialize({ client_id: window.PROTOS_GOOGLE_CLIENT_ID, callback: protosAuth, ux_mode: 'popup' });
