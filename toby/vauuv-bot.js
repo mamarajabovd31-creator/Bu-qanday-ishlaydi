@@ -5,7 +5,7 @@
    Sozlash: Settings → Variables and Secrets → BOT_TOKEN (Secret) = BotFather bergan token.
    Keyin bir marta oching: https://<worker-manzili>/setup */
 
-const APP_URL = 'https://mamarajabovd31-creator.github.io/bu-qanday-ishlaydi/vauuv/';
+const APP_URL = 'https://mamarajabovd31-creator.github.io/Bu-qanday-ishlaydi/vauuv/';
 const APP_BTN = { inline_keyboard: [[{ text: '🗿 Ilovani ochish', web_app: { url: APP_URL } }]] };
 
 async function tg(env, method, body){
