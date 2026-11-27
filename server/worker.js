@@ -388,6 +388,14 @@ async function adminConfig(req, env){
   return json({ ok: true, public: await isPublic(env), publicEnv: env.PUBLIC === '1' });
 }
 
+// fal xatolarini odam tushunadigan qilib yozish
+function niceErr(e){
+  const t = String(e || '');
+  if (/no_media_generated/.test(t)) return "Model natija chiqara olmadi. Nima tasvirlanishini aniq yozing (masalan: «tog' ustida quyosh chiqishi»), uslublarni bir-biriga zid qilmang.";
+  if (/content_policy|safety|nsfw|moderation/i.test(t)) return "Tavsif xavfsizlik filtridan o'tmadi. Boshqacharoq yozib ko'ring.";
+  if (/image_url|download|fetch/i.test(t) && /image/i.test(t)) return "Yuklangan rasmni o'qib bo'lmadi. Boshqa rasm yuklab ko'ring.";
+  return t.slice(0, 300);
+}
 // fal javobidan rasm/video manzillarini ajratib olish
 function falUrls(out){
   if (!out) return [];
@@ -438,7 +446,7 @@ async function finishJob(env, job, out){
   if (!out) {
     const r = await fetch(job.response_url, { headers: { Authorization: 'Key ' + env.FAL_KEY } });
     out = await r.json().catch(() => null);
-    if (!r.ok) { job.status = 'error'; job.error = (out && (out.detail && JSON.stringify(out.detail) || out.error)) || ('fal ' + r.status); }
+    if (!r.ok) { job.status = 'error'; job.error = niceErr((out && (out.detail && JSON.stringify(out.detail) || out.error)) || ('fal ' + r.status)); }
   }
   if (job.status !== 'error') {
     job.urls = falUrls(out);
@@ -564,7 +572,7 @@ async function falWebhook(req, env){
   if (d.status === 'OK' && d.payload) await finishJob(env, job, d.payload);
   else if (d.status === 'ERROR' && job.status !== 'done' && job.status !== 'error') {
     job.status = 'error'; job.done_at = Date.now();
-    job.error = (d.payload && d.payload.detail && JSON.stringify(d.payload.detail)) || d.error || 'xato';
+    job.error = niceErr((d.payload && d.payload.detail && JSON.stringify(d.payload.detail)) || d.error || 'xato');
     await failNotice(env, job);
     await saveJob(env, job);
   }

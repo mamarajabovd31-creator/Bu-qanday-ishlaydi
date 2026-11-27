@@ -1232,6 +1232,17 @@ async function poll(id, created){
 $('go').onclick = async () => {
   const prompt = $('prompt').value.trim();
   if (!prompt) { $('prompt').focus(); $('prompt').closest('details').open = true; haptic('warning'); return; }
+  // Faqat uslub so'zlari bo'lsa (nima tasvirlanishi yozilmagan) — model natija bermaydi
+  if (MODELS[S.model].kind !== 'audio') {
+    let rest = prompt.toLowerCase();
+    (window.PROTOS_TAGS || []).forEach(t => { rest = rest.split(t.toLowerCase()).join(' '); });
+    if (rest.replace(/[\s,.;:!?-]+/g, '').length < 3) {
+      $('prompt').focus(); $('prompt').closest('details').open = true; haptic('warning');
+      $('pNote').innerHTML = '<span class="err">Uslubdan tashqari <b>nima</b> tasvirlanishini yozing. Masalan: «tog\' ustida quyosh chiqishi».</span>';
+      $('prog').classList.remove('hide'); $('prog').open = true; $('pTitle').textContent = 'Tavsif kerak'; $('res').innerHTML = '';
+      return;
+    }
+  }
   S.busy = true; S.pct = 0; render();
   $('prog').classList.remove('hide'); $('prog').open = true; $('res').innerHTML = ''; $('res').dataset.u = ''; setPct(0); $('pTitle').textContent = 'Yuborilmoqda…'; $('pNote').textContent = '';
   scrollTo({ top: 0, behavior: 'smooth' });
@@ -1491,6 +1502,7 @@ window.logout = logout;
     video: 'smooth camera movement, cinematic lighting, rich detail, natural motion',
     image: 'highly detailed, sharp focus, balanced composition, soft light'
   };
+  window.PROTOS_TAGS = [...STYLES.map(x => x[1]), BOOST.video, BOOST.image];
   const P = () => $('prompt');
   const has = (txt, tag) => txt.toLowerCase().includes(tag.toLowerCase());
   function setPrompt(v){ P().value = v.replace(/^,\s*/, '').replace(/,\s*,/g, ','); P().dispatchEvent(new Event('input')); try { updCnt(); } catch (e) {} }
@@ -1505,7 +1517,7 @@ window.logout = logout;
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-sty]');
-    if (b) { const s = STYLES[+b.dataset.sty][1]; has(P().value, s) ? delTag(s) : addTag(s); syncStyles(); try { tgApp.HapticFeedback.selectionChanged(); } catch (x) {} return; }
+    if (b) { const s = STYLES[+b.dataset.sty][1]; if (has(P().value, s)) delTag(s); else { STYLES.forEach(x => { if (x[1] !== s) delTag(x[1]); }); addTag(s); } syncStyles(); try { tgApp.HapticFeedback.selectionChanged(); } catch (x) {} return; }
     if (e.target.closest('#pEnh')) {
       const m = MODELS[S.model] || {}, tag = BOOST[m.kind] || BOOST.video;
       if (!P().value.trim()) { const t = "Avval nimani yaratishni yozing, keyin boyitamiz."; try { IN_TG && tgApp.showAlert ? tgApp.showAlert(t) : alert(t); } catch (x) { alert(t); } return; }
