@@ -1,4 +1,4 @@
-// ★★★ VERSIYA 7 — Protos AI: sayt orqali ishlash (Telegram bilan kirish) + /ovoz + admin panel ★★★
+// ★★★ VERSIYA 8 — Protos AI: alohida sayt (Google bilan kirish, so'mdagi balans, Click/Payme) + bot + admin panel ★★★
 /* "Protos AI" (Toby Land loyihasi) — AI studiya boti (Cloudflare Worker).
 
    Nima qiladi:
@@ -8,8 +8,19 @@
    - Har bir ishning narxi Telegram Stars'da. Foydalanuvchi balansni Stars bilan to'ldiradi, har bir ish uchun yechiladi,
      xato bo'lsa avtomatik qaytariladi. /balans — balans, /paysupport — to'lov bo'yicha yordam.
    - /start yoki /ai — «🎬 AI studiya» Mini App'ini ochadi (sayt/ai/).
-   - Sayt (brauzer) orqali ham ishlaydi: odam «Telegram bilan kirish» tugmasini bosadi, balans bot bilan bir xil.
-     Buning uchun BotFather'da: /setdomain → @ProtosAI_uz_bot → mamarajabovd31-creator.github.io
+   - ALOHIDA SAYT (protos/studio/): Telegram'siz. Google akkaunt bilan kirish, balans so'mda, to'lov Click va Payme orqali.
+     Sayt foydalanuvchilari ("g:..." ID) bot foydalanuvchilaridan alohida: o'z balansi, o'z tarixi.
+
+   Sayt uchun sozlamalar (Settings → Variables and Secrets):
+     GOOGLE_CLIENT_ID   — Google Cloud'dan olingan OAuth Client ID (Text)  ← busiz saytga kirib bo'lmaydi
+     ADMIN_EMAIL        — (ixtiyoriy) sizning Gmail'ingiz: saytda siz bepul yaratasiz (Text)
+     UZS_PER_USD        — (ixtiyoriy) 1 dollar necha so'm, standart 12800 (Text)
+     PAYME_MERCHANT_ID  — Payme kassa ID (Text)            ┐ Payme ulanganda
+     PAYME_KEY          — Payme kassa kaliti (Secret)       │ Payme kabinetida "endpoint": https://<worker>/pay/payme
+     PAYME_TEST         — (ixtiyoriy) 1 = Payme test rejimi ┘
+     CLICK_SERVICE_ID   — Click servis ID (Text)            ┐ Click ulanganda
+     CLICK_MERCHANT_ID  — Click merchant ID (Text)          │ Prepare URL:  https://<worker>/pay/click/prepare
+     CLICK_SECRET_KEY   — Click maxfiy kalit (Secret)       ┘ Complete URL: https://<worker>/pay/click/complete
    - Tayyor rasm/video botga ham yuboriladi (Mini App yopilgan bo'lsa ham).
    - /id — Telegram ID raqamingizni aytadi (ADMIN_ID uchun kerak).
    - /admin — faqat egasi uchun: statistika, foydalanuvchilar, balans qo'shish, botni hamma uchun ochish.
@@ -90,7 +101,7 @@ async function sessKey(env){
 }
 // Saytga kirgan odamga 30 kunlik imzolangan "kalit" beriladi
 async function makeSession(env, u){
-  const body = b64u(new TextEncoder().encode(JSON.stringify({ id: u.id, first_name: u.first_name, last_name: u.last_name, username: u.username, exp: Date.now() + 30 * 86400e3 })));
+  const body = b64u(new TextEncoder().encode(JSON.stringify({ id: u.id, first_name: u.first_name, last_name: u.last_name, username: u.username, email: u.email || '', exp: Date.now() + 30 * 86400e3 })));
   const sig = b64u(new Uint8Array(await crypto.subtle.sign('HMAC', await sessKey(env), new TextEncoder().encode(body))));
   return body + '.' + sig;
 }
@@ -258,7 +269,7 @@ async function aiUser(req, env, bodyInit){
   const user = (await verifyInitData(bodyInit || req.headers.get('X-Init-Data'), env.BOT_TOKEN)) || (await readSession(env, req.headers.get('X-Session')));
   if (!user || !user.id) return { err: json({ error: 'auth', msg: "Avval Telegram orqali kiring" }, 401) };
   await touchUser(env, user).catch(() => {});
-  if (!allowedIds(env).has(String(user.id)) && !(await isPublic(env))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
+  if (!isWeb(user.id) && !allowedIds(env).has(String(user.id)) && !(await isPublic(env))) return { err: json({ error: 'denied', msg: "Hozircha bu bo'lim yopiq. Tez orada hamma uchun ochiladi!" }, 403) };
   return { user };
 }
 
@@ -361,11 +372,11 @@ async function adminUsers(req, env){
 async function adminBalance(req, env){
   let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
   const a = await adminUser(req, env, b.initData); if (a.err) return a.err;
-  const uid = String(b.uid || '').replace(/\D/g, ''), delta = Math.round(Number(b.delta));
+  const rawId = String(b.uid || '').trim(), uid = /^g:\d+$/.test(rawId) ? rawId : rawId.replace(/\D/g, ''), delta = Math.round(Number(b.delta));
   if (!uid || !Number.isFinite(delta) || !delta || Math.abs(delta) > 100000) return json({ error: 'bad', msg: "Foydalanuvchi ID va miqdorni to'g'ri kiriting" }, 400);
   const bal = await addBal(env, uid, delta);
   await env.VOTES.put('adm:' + Date.now() + ':' + uid, JSON.stringify({ uid, delta, by: a.user.id }), { expirationTtl: 86400 * 365, metadata: { u: uid, d: delta, t: Date.now() } });
-  if (b.notify !== false && delta > 0)
+  if (b.notify !== false && delta > 0 && !isWeb(uid))
     await tg(env, 'sendMessage', { chat_id: uid, parse_mode: 'HTML', text: `🎁 Balansingizga <b>+${delta} ⭐</b> qo'shildi!\nHozirgi balans: <b>${bal} ⭐</b>` }).catch(() => {});
   return json({ ok: true, uid, balance: bal });
 }
@@ -390,6 +401,7 @@ function falUrls(out){
 async function sendResult(env, job){
   if (job.sent) return;
   job.sent = true;
+  if (isWeb(job.uid)) return; // sayt foydalanuvchisi natijani saytda ko'radi
   if (job.kind === 'audio') {
     const cap = `🎙 <b>Ovoz tayyor</b> · ${esc(job.voice || '')} · ${(job.prompt || '').length} belgi\n<i>${esc(job.prompt).slice(0, 300)}${(job.prompt || '').length > 300 ? '…' : ''}</i>`;
     for (const u of job.urls || []) {
@@ -413,6 +425,7 @@ async function sendResult(env, job){
 async function failNotice(env, job){
   let back = '';
   if (job.charged && !job.refunded) { job.refunded = true; await addBal(env, job.uid, job.charged); back = `\n↩️ ${job.charged} ⭐ balansingizga qaytarildi.`; }
+  if (isWeb(job.uid)) return;
   await tg(env, 'sendMessage', { chat_id: job.uid, text: `❌ Yaratib bo'lmadi: ${String(job.error).slice(0, 300)}${back}` });
 }
 
@@ -458,11 +471,11 @@ async function aiGenerate(req, env, origin){
   if (used >= limit) return json({ error: 'limit', msg: `Bugungi limit tugadi (${limit} ta)` }, 429);
 
   // To'lov: egasi bepul, boshqalar balansdan to'laydi
-  const price = priceStars(env, m, b);
-  const free = isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1';
+  const price = priceFor(env, a.user.id, m, b);
+  const free = isAdminAny(env, a.user) && env.ADMIN_PAYS !== '1';
   if (!free) {
     const bal = await getBal(env, a.user.id);
-    if (bal < price) return json({ error: 'balance', msg: `Balans yetmaydi: kerak ${price} ⭐, sizda ${bal} ⭐`, need: price, balance: bal }, 402);
+    if (bal < price) return json({ error: 'balance', msg: isWeb(a.user.id) ? `Balans yetmaydi: kerak ${sum(price)}, sizda ${sum(bal)}` : `Balans yetmaydi: kerak ${price} ⭐, sizda ${bal} ⭐`, need: price, balance: bal }, 402);
     await setBal(env, a.user.id, bal - price);
   }
   const refund = async () => { if (!free) await addBal(env, a.user.id, price); };
@@ -534,8 +547,10 @@ async function aiHistory(req, env){
   const jobs = (await Promise.all(ids.slice(0, 30).map(id => env.VOTES.get('job:' + id, 'json')))).filter(Boolean);
   const day = new Date().toISOString().slice(0, 10);
   const used = Number(await env.VOTES.get(`lim:${a.user.id}:${day}`) || 0);
+  const web = isWeb(a.user.id);
   return json({ jobs: jobs.map(pub), left: Math.max(0, Number(env.DAILY_LIMIT || 30) - used),
-    balance: await getBal(env, a.user.id), free: isAdmin(env, a.user.id) && env.ADMIN_PAYS !== '1', packs: PACKS });
+    balance: await getBal(env, a.user.id), free: isAdminAny(env, a.user) && env.ADMIN_PAYS !== '1', packs: web ? WEB_PACKS : PACKS,
+    currency: web ? 'uzs' : 'stars', ...(web ? { user: { email: a.user.email || '', name: [a.user.first_name, a.user.last_name].filter(Boolean).join(' ') }, pay: payProviders(env) } : {}) });
 }
 
 // fal.ai tayyor bo'lganda shu yerga xabar beradi — Mini App yopiq bo'lsa ham natija botga keladi
@@ -622,6 +637,223 @@ async function runTTS(env, origin, m, text, st){
     (res.cut ? `\n⚠️ Matn 10 000 belgidan uzun edi — qolgan qismini alohida yuboring.` : '') + `\nTayyor bo'lgach shu yerga keladi.` });
 }
 
+
+/* ================= ALOHIDA SAYT: Google bilan kirish, so'mdagi balans, Click va Payme ================= */
+const isWeb = uid => String(uid || '').startsWith('g:');
+const WEB_PACKS = [10000, 30000, 50000, 100000, 250000]; // so'm
+const sum = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+// Saytdagi narx (so'm): fal.ai narxi × ustama × dollar kursi, 100 so'mga yaxlitlanadi
+function priceUzs(env, m, b){
+  const mk = Number(m.tier === 'pro' ? (env.MARKUP_PRO || 2.2) : (env.MARKUP_STD || 1.6));
+  return Math.max(500, Math.ceil(m.cost(b) * mk * Number(env.UZS_PER_USD || 12800) / 100) * 100);
+}
+const priceFor = (env, uid, m, b) => isWeb(uid) ? priceUzs(env, m, b) : priceStars(env, m, b);
+const isAdminAny = (env, u) => !!u && (isAdmin(env, u.id) || (!!u.email && !!env.ADMIN_EMAIL && String(u.email).toLowerCase() === String(env.ADMIN_EMAIL).trim().toLowerCase()));
+const payProviders = env => ({ payme: !!(env.PAYME_MERCHANT_ID && env.PAYME_KEY), click: !!(env.CLICK_SERVICE_ID && env.CLICK_MERCHANT_ID && env.CLICK_SECRET_KEY) });
+
+function webModels(env){
+  const mk = m => Number(m.tier === 'pro' ? (env.MARKUP_PRO || 2.2) : (env.MARKUP_STD || 1.6)), rate = Number(env.UZS_PER_USD || 12800);
+  return json({ currency: 'uzs', models: Object.fromEntries(Object.entries(AI_MODELS).map(([k, m]) => [k, {
+    name: m.name, kind: m.kind, tier: m.tier, desc: m.desc, aspects: m.aspects, durations: m.durations || [], audio: !!m.audio, imgAspect: m.imgAspect !== false, res: m.res || [],
+    ...(m.kind === 'audio' ? { maxText: m.maxText, voices: Object.entries(VOICES).map(([k, v]) => ({ key: k, name: v.id, desc: v.d })), langs: LANGS,
+      rate: { perChar: 0.10 / 1000 * mk(m) * rate, min: priceUzs(env, m, { prompt: '' }), round: 100 } } : {}),
+    prices: Object.fromEntries((m.durations && m.durations.length ? m.durations : ['0']).flatMap(d =>
+      (m.res || ['']).flatMap(rs => [true, false].map(au => [`${d}|${rs}|${au ? 1 : 0}`, priceUzs(env, m, { duration: d, res: rs || undefined, audio: au })]))))
+  }])) });
+}
+
+// Google bilan kirish: Google bergan ID-tokenni Google'ning o'zida tekshiramiz
+async function googleLogin(req, env){
+  if (!env.GOOGLE_CLIENT_ID) return json({ error: 'nokey', msg: "Serverda GOOGLE_CLIENT_ID yo'q" }, 500);
+  let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
+  const r = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(String(b.credential || '')));
+  const t = await r.json().catch(() => null);
+  const ok = r.ok && t && t.aud === env.GOOGLE_CLIENT_ID && ['accounts.google.com', 'https://accounts.google.com'].includes(t.iss)
+    && Number(t.exp) * 1000 > Date.now() && String(t.email_verified) === 'true' && t.sub;
+  if (!ok) return json({ error: 'auth', msg: "Google orqali kirishni tasdiqlab bo'lmadi. Qayta urinib ko'ring." }, 401);
+  const u = { id: 'g:' + t.sub, first_name: t.given_name || t.name || '', last_name: t.family_name || '', username: t.email, email: t.email, photo_url: t.picture || '' };
+  await touchUser(env, u).catch(() => {});
+  return json({ token: await makeSession(env, u), user: { id: u.id, name: t.name || t.email, email: t.email, photo: t.picture || '' } });
+}
+
+/* ----- Buyurtma (balansni to'ldirish) ----- */
+const ordKey = id => 'ord:' + id;
+const getOrd = (env, id) => /^\d{6,20}$/.test(String(id)) ? env.VOTES.get(ordKey(id), 'json') : null;
+const putOrd = (env, o) => env.VOTES.put(ordKey(o.id), JSON.stringify(o), { metadata: { u: o.uid, a: o.amount, p: o.provider, st: o.status, t: o.created } });
+// To'lov tasdiqlanganda: balansga qo'shiladi (bir marta)
+async function creditOrder(env, o){
+  if (o.status === 'paid') return o;
+  o.status = 'paid'; o.paid_at = Date.now();
+  await putOrd(env, o);
+  await addBal(env, o.uid, o.amount);
+  if (env.ADMIN_ID) await tg(env, 'sendMessage', { chat_id: env.ADMIN_ID, parse_mode: 'HTML', text: `💰 <b>Saytda to'lov!</b> ${esc(o.email || o.uid)} — <b>${sum(o.amount)}</b> (${o.provider === 'payme' ? 'Payme' : 'Click'})` }).catch(() => {});
+  return o;
+}
+async function debitOrder(env, o){ // to'langan buyurtma bekor qilinsa (qaytarish)
+  if (o.status !== 'paid') return o;
+  o.status = 'refunded'; o.refunded_at = Date.now();
+  await putOrd(env, o); await addBal(env, o.uid, -o.amount);
+  return o;
+}
+
+async function webPay(req, env){
+  let b; try { b = await req.json(); } catch (e) { return json({ error: 'bad json' }, 400); }
+  const a = await aiUser(req, env); if (a.err) return a.err;
+  if (!isWeb(a.user.id)) return json({ error: 'web', msg: "Bu to'lov sayt uchun" }, 400);
+  const amount = Math.round(Number(b.amount)), provider = b.provider === 'click' ? 'click' : 'payme';
+  if (!WEB_PACKS.includes(amount)) return json({ error: 'pack', msg: "Noto'g'ri summa" }, 400);
+  if (!payProviders(env)[provider]) return json({ error: 'soon', msg: (provider === 'payme' ? 'Payme' : 'Click') + " orqali to'lov tez orada ulanadi" }, 503);
+  const id = String(Date.now()) + String(Math.floor(Math.random() * 10));
+  const o = { id, uid: a.user.id, email: a.user.email || '', amount, provider, status: 'new', created: Date.now() };
+  await putOrd(env, o);
+  const back = String(b.back || WEBSITE + 'studio/').slice(0, 300) + (String(b.back || '').includes('?') ? '&' : '?') + 'order=' + id;
+  let url;
+  if (provider === 'payme') {
+    const host = env.PAYME_TEST === '1' ? 'https://checkout.test.paycom.uz/' : 'https://checkout.paycom.uz/';
+    url = host + btoa(`m=${env.PAYME_MERCHANT_ID};ac.order_id=${id};a=${amount * 100};l=uz;c=${back}`);
+  } else {
+    url = 'https://my.click.uz/services/pay?' + new URLSearchParams({ service_id: env.CLICK_SERVICE_ID, merchant_id: env.CLICK_MERCHANT_ID, amount: String(amount), transaction_param: id, return_url: back });
+  }
+  return json({ url, order: id });
+}
+async function webOrder(req, env, id){
+  const a = await aiUser(req, env); if (a.err) return a.err;
+  const o = await getOrd(env, id);
+  if (!o || o.uid !== a.user.id) return json({ error: 'notfound' }, 404);
+  return json({ id: o.id, status: o.status, amount: o.amount, balance: await getBal(env, a.user.id) });
+}
+
+/* ----- Payme Merchant API (JSON-RPC). Payme kabinetida endpoint: https://<worker>/pay/payme ----- */
+const PM_TIMEOUT = 12 * 3600 * 1000;
+const pmErr = (id, code, uz, data) => json({ id, error: { code, message: { uz, ru: uz, en: uz }, ...(data ? { data } : {}) } });
+const pmKey = id => 'pmt:' + id;
+async function paymeApi(req, env){
+  let rpc; try { rpc = await req.json(); } catch (e) { return pmErr(null, -32700, "JSON xato"); }
+  const id = rpc.id, p = rpc.params || {};
+  const auth = req.headers.get('Authorization') || '';
+  let pass = ''; try { pass = atob(auth.replace(/^Basic\s+/i, '')).split(':').slice(1).join(':'); } catch (e) {}
+  if (!env.PAYME_KEY || pass !== env.PAYME_KEY) return pmErr(id, -32504, "Ruxsat yo'q");
+  const ok = result => json({ id, result });
+  const saveTx = tx => env.VOTES.put(pmKey(tx.id), JSON.stringify(tx), { metadata: { t: tx.time } });
+  const view = tx => ({ create_time: tx.create_time, perform_time: tx.perform_time, cancel_time: tx.cancel_time, transaction: tx.order, state: tx.state, reason: tx.reason });
+  async function checkOrder(){
+    const o = await getOrd(env, p.account && p.account.order_id);
+    if (!o || o.provider !== 'payme') return { e: pmErr(id, -31050, 'Buyurtma topilmadi', 'order_id') };
+    if (o.status !== 'new') return { e: pmErr(id, -31051, "Buyurtma to'langan yoki bekor qilingan", 'order_id') };
+    if (Number(p.amount) !== o.amount * 100) return { e: pmErr(id, -31001, "Summa noto'g'ri") };
+    return { o };
+  }
+  async function expire(tx){
+    tx.state = -1; tx.reason = 4; tx.cancel_time = Date.now(); await saveTx(tx);
+    const o = await getOrd(env, tx.order); if (o && o.status === 'new') { o.status = 'cancel'; await putOrd(env, o); }
+  }
+  switch (rpc.method) {
+    case 'CheckPerformTransaction': {
+      const c = await checkOrder(); if (c.e) return c.e;
+      return ok({ allow: true });
+    }
+    case 'CreateTransaction': {
+      const old = await env.VOTES.get(pmKey(p.id), 'json');
+      if (old) {
+        if (old.state !== 1) return pmErr(id, -31008, "Amalni bajarib bo'lmaydi");
+        if (Date.now() - old.create_time > PM_TIMEOUT) { await expire(old); return pmErr(id, -31008, "Vaqt tugagan"); }
+        return ok({ create_time: old.create_time, transaction: old.order, state: 1 });
+      }
+      const c = await checkOrder(); if (c.e) return c.e;
+      if (c.o.tx && c.o.tx !== p.id) {
+        const other = await env.VOTES.get(pmKey(c.o.tx), 'json');
+        if (other && other.state === 1) return pmErr(id, -31050, "Buyurtma bo'yicha boshqa to'lov kutilmoqda", 'order_id');
+      }
+      const tx = { id: p.id, time: Number(p.time) || Date.now(), amount: Number(p.amount), order: c.o.id, create_time: Date.now(), perform_time: 0, cancel_time: 0, state: 1, reason: null };
+      await saveTx(tx); c.o.tx = tx.id; await putOrd(env, c.o);
+      return ok({ create_time: tx.create_time, transaction: tx.order, state: 1 });
+    }
+    case 'PerformTransaction': {
+      const tx = await env.VOTES.get(pmKey(p.id), 'json');
+      if (!tx) return pmErr(id, -31003, "Tranzaksiya topilmadi");
+      if (tx.state === 2) return ok({ transaction: tx.order, perform_time: tx.perform_time, state: 2 });
+      if (tx.state !== 1) return pmErr(id, -31008, "Amalni bajarib bo'lmaydi");
+      if (Date.now() - tx.create_time > PM_TIMEOUT) { await expire(tx); return pmErr(id, -31008, "Vaqt tugagan"); }
+      const o = await getOrd(env, tx.order); if (!o) return pmErr(id, -31050, 'Buyurtma topilmadi', 'order_id');
+      tx.state = 2; tx.perform_time = Date.now(); await saveTx(tx);
+      await creditOrder(env, o);
+      return ok({ transaction: tx.order, perform_time: tx.perform_time, state: 2 });
+    }
+    case 'CancelTransaction': {
+      const tx = await env.VOTES.get(pmKey(p.id), 'json');
+      if (!tx) return pmErr(id, -31003, "Tranzaksiya topilmadi");
+      if (tx.state === 1 || tx.state === 2) {
+        const o = await getOrd(env, tx.order);
+        if (tx.state === 2) { tx.state = -2; if (o) await debitOrder(env, o); }
+        else { tx.state = -1; if (o && o.status === 'new') { o.status = 'cancel'; await putOrd(env, o); } }
+        tx.cancel_time = Date.now(); tx.reason = Number(p.reason) || null; await saveTx(tx);
+      }
+      return ok({ transaction: tx.order, cancel_time: tx.cancel_time, state: tx.state });
+    }
+    case 'CheckTransaction': {
+      const tx = await env.VOTES.get(pmKey(p.id), 'json');
+      if (!tx) return pmErr(id, -31003, "Tranzaksiya topilmadi");
+      return ok(view(tx));
+    }
+    case 'GetStatement': {
+      const from = Number(p.from) || 0, to = Number(p.to) || Date.now();
+      const keys = (await listAll(env, 'pmt:')).filter(k => k.metadata && k.metadata.t >= from && k.metadata.t <= to);
+      const txs = (await Promise.all(keys.map(k => env.VOTES.get(k.name, 'json')))).filter(Boolean).sort((x, y) => x.time - y.time);
+      return ok({ transactions: txs.map(tx => ({ id: tx.id, time: tx.time, amount: tx.amount, account: { order_id: tx.order }, ...view(tx) })) });
+    }
+    default: return pmErr(id, -32601, "Noma'lum metod");
+  }
+}
+
+/* ----- Click (Prepare / Complete). Click kabinetida: /pay/click/prepare va /pay/click/complete ----- */
+async function clickApi(req, env, step){
+  let f; try { f = Object.fromEntries(new URLSearchParams(await req.text())); } catch (e) { f = {}; }
+  const res = (error, error_note, extra = {}) => json({ click_trans_id: f.click_trans_id, merchant_trans_id: f.merchant_trans_id, error, error_note, ...extra });
+  if (!env.CLICK_SECRET_KEY) return res(-8, "Click ulanmagan");
+  const want = md5(String(f.click_trans_id || '') + (f.service_id || '') + env.CLICK_SECRET_KEY + (f.merchant_trans_id || '') + (step ? (f.merchant_prepare_id || '') : '') + (f.amount || '') + (f.action || '') + (f.sign_time || ''));
+  if (want !== String(f.sign_string || '').toLowerCase()) return res(-1, 'SIGN CHECK FAILED!');
+  if (String(f.action) !== String(step)) return res(-3, 'Action not found');
+  if (String(f.service_id) !== String(env.CLICK_SERVICE_ID)) return res(-8, 'Error in request from click');
+  const o = await getOrd(env, f.merchant_trans_id);
+  if (!o || o.provider !== 'click') return res(-5, 'User does not exist');
+  if (Math.abs(Number(f.amount) - o.amount) > 0.01) return res(-2, 'Incorrect parameter amount');
+  if (step === 0) {
+    if (o.status === 'paid') return res(-4, 'Already paid');
+    if (o.status !== 'new') return res(-9, 'Transaction cancelled');
+    o.click_trans_id = String(f.click_trans_id); await putOrd(env, o);
+    return res(0, 'Success', { merchant_prepare_id: Number(o.id) });
+  }
+  if (String(f.merchant_prepare_id) !== String(o.id)) return res(-6, 'Transaction does not exist');
+  if (o.status === 'paid') return res(-4, 'Already paid');
+  if (o.status !== 'new') return res(-9, 'Transaction cancelled');
+  if (Number(f.error) < 0) { o.status = 'cancel'; await putOrd(env, o); return res(-9, 'Transaction cancelled'); }
+  await creditOrder(env, o);
+  return res(0, 'Success', { merchant_confirm_id: Number(o.id) });
+}
+
+// MD5 (Click imzosi uchun; Cloudflare'da tayyor MD5 yo'q)
+function md5(str){
+  const b = new TextEncoder().encode(str), n = b.length, w = new Uint32Array(((n + 8 >>> 6) + 1) * 16);
+  for (let i = 0; i < n; i++) w[i >> 2] |= b[i] << (i % 4 * 8);
+  w[n >> 2] |= 0x80 << (n % 4 * 8); w[w.length - 2] = n * 8;
+  const K = [], S = [7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21];
+  for (let i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296) >>> 0;
+  let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+  for (let o = 0; o < w.length; o += 16) {
+    let A = a0, B = b0, C = c0, D = d0;
+    for (let i = 0; i < 64; i++) {
+      let F, g;
+      if (i < 16) { F = (B & C) | (~B & D); g = i; } else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
+      else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; } else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+      const t = D; D = C; C = B;
+      const x = (A + F + K[i] + w[o + g]) >>> 0, s = S[(i >> 4) * 4 + i % 4];
+      B = (B + ((x << s) | (x >>> (32 - s)))) >>> 0; A = t;
+    }
+    a0 = (a0 + A) >>> 0; b0 = (b0 + B) >>> 0; c0 = (c0 + C) >>> 0; d0 = (d0 + D) >>> 0;
+  }
+  return [a0, b0, c0, d0].map(v => [0, 8, 16, 24].map(sh => ((v >>> sh) & 255).toString(16).padStart(2, '0')).join('')).join('');
+}
+
 /* ---------------- Bot (webhook) ---------------- */
 async function onUpdate(update, env, origin){
   const appUrl = AI_APP + '?api=' + encodeURIComponent(origin);
@@ -701,7 +933,7 @@ async function onUpdate(update, env, origin){
     const kb = { inline_keyboard: [
       [{ text: '✨ Protos studiyasini ochish', web_app: { url: appUrl } }],
       [{ text: `⭐ Balans: ${bal}`, web_app: { url: appUrl + '&topup=1' } }, { text: '📢 Kanal', url: CHANNEL }],
-      [{ text: '🌐 Sayt: kompyuterda ishlash', url: WEBSITE }]
+      [{ text: '🌐 Protos sayti', url: WEBSITE }]
     ] };
     if (isAdmin(env, m.from.id)) kb.inline_keyboard.push([{ text: '📊 Admin panel', web_app: { url: admUrl } }]);
     const caption = `🏛 <b>PROTOS AI</b>\n<i>πρῶτος — birinchi</i>\n\nTasavvuringizni bir necha daqiqada video va rasmga aylantiring.\n\n🖼 <b>Rasm</b> — Nano Banana 2 · Nano Banana Pro\n🎬 <b>Video</b> — Kling · Veo · Seedance · Sora\n👑 <b>Premium</b> — kinematografik sifat, ovoz bilan\n\nTayyor natija shu chatga ham keladi.`;
@@ -747,6 +979,7 @@ export default {
 
 
     // AI studiya
+    if (url.pathname === '/ai/models' && req.method === 'GET' && url.searchParams.get('cur') === 'uzs') return webModels(env);
     if (url.pathname === '/ai/models' && req.method === 'GET')
       return json({
         starUsd: Number(env.STAR_USD || 0.01),
@@ -764,6 +997,13 @@ export default {
         }]))
       });
     if (url.pathname === '/web/login' && req.method === 'POST') return webLogin(req, env);
+    // Alohida sayt: Google bilan kirish va to'lovlar
+    if (url.pathname === '/w/login' && req.method === 'POST') return googleLogin(req, env);
+    if (url.pathname === '/w/pay' && req.method === 'POST') return webPay(req, env);
+    if (url.pathname === '/w/order' && req.method === 'GET') return webOrder(req, env, url.searchParams.get('id') || '');
+    if (url.pathname === '/pay/payme' && req.method === 'POST') return paymeApi(req, env);
+    if (url.pathname === '/pay/click/prepare' && req.method === 'POST') return clickApi(req, env, 0);
+    if (url.pathname === '/pay/click/complete' && req.method === 'POST') return clickApi(req, env, 1);
     if (url.pathname === '/ai/gen' && req.method === 'POST') return aiGenerate(req, env, url.origin);
     if (url.pathname === '/ai/job' && req.method === 'GET') return aiJob(req, env, url.searchParams.get('id') || '');
     if (url.pathname === '/ai/history' && req.method === 'GET') return aiHistory(req, env);
@@ -794,6 +1034,6 @@ export default {
       });
     }
 
-    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 7)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response('AI studiya bot serveri ishlayapti ✅ (versiya 8)', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   }
 };

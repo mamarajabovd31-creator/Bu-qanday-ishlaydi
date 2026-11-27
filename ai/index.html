@@ -6,7 +6,6 @@
 <title>Protos AI</title>
 <meta name="robots" content="noindex">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="../protos/config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -317,11 +316,6 @@ textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(155,140,255,.
 .gate{text-align:center;padding:30px 18px;margin:30px 12px;background:var(--pnl);border-radius:18px;border:1px solid #1b1f44}
 .gate h1{font:700 20px var(--fb);margin:0 0 8px}
 .gate .sub{margin-bottom:16px}
-.gate .tglogin{min-height:48px;display:flex;justify-content:center;margin:4px 0 14px}
-.gate .small{font-size:12px;color:var(--dim);margin-top:10px}
-.pill.ghost{background:none;border:1px solid var(--wid);color:var(--muted);margin-top:4px}
-.gate .gl{width:64px;height:64px;margin:0 auto 12px;display:block}
-.logout{display:block;margin:18px auto 0;background:none;border:0;color:var(--dim);font:600 13px var(--fb);text-decoration:underline;cursor:pointer}
 .pill{display:inline-block;font-weight:700;font-size:14px;color:#fff;text-decoration:none;padding:11px 18px;border-radius:14px;background:linear-gradient(#9B8CFF,#7B6CF0)}
 
 /* ---------- To'ldirish ---------- */
@@ -610,17 +604,12 @@ body{background:radial-gradient(120% 50% at 50% -10%,rgba(155,140,255,.16),trans
 const tgApp = window.Telegram && Telegram.WebApp;
 try { tgApp.ready(); tgApp.expand(); tgApp.setHeaderColor('#10132B'); tgApp.setBackgroundColor('#10132B'); } catch (e) {}
 const initData = (tgApp && tgApp.initData) || '';
-// Telegram ichida (Mini App) yoki oddiy brauzerda (sayt) ochilganini bilamiz
-const IN_TG = !!initData;
-let SESSION = '';
-try { if (!IN_TG) SESSION = localStorage.getItem('protos_sess') || ''; } catch (e) {}
-const BOT = 'ProtosAI_uz_bot';
 const haptic = t => { try { tgApp.HapticFeedback.notificationOccurred(t); } catch (e) {} };
 
 // Server manzili: bot havolasidagi ?api= dan olinadi va eslab qolinadi
 const qs = new URLSearchParams(location.search);
 let API = qs.get('api') || '';
-try { if (API) localStorage.setItem('ai_api', API); else API = window.PROTOS_API || localStorage.getItem('ai_api') || ''; } catch (e) { API = API || window.PROTOS_API || ''; }
+try { if (API) localStorage.setItem('ai_api', API); else API = localStorage.getItem('ai_api') || ''; } catch (e) {}
 
 // Modellar va narxlar serverdan keladi (/ai/models). Bu — server javob bermaguncha zaxira ro'yxat.
 let MODELS = {
@@ -692,7 +681,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp
 
 async function api(path, opt = {}){
   let r;
-  try { r = await fetch(API + path, { ...opt, headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData, ...(SESSION ? { 'X-Session': SESSION } : {}), ...(opt.headers || {}) } }); }
+  try { r = await fetch(API + path, { ...opt, headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData, ...(opt.headers || {}) } }); }
   catch (e) { throw Object.assign(new Error("Serverga ulanib bo'lmadi. Internetni tekshirib, qayta urinib ko'ring."), { code: 'net' }); }
   const d = await r.json().catch(() => null);
   if (d === null) throw Object.assign(new Error("Server eski versiyada — bot egasi server kodini yangilashi kerak"), { code: 'old' });
@@ -1304,17 +1293,8 @@ $('packs').addEventListener('click', async e => {
   const b = e.target.closest('[data-pack]'); if (!b) return;
   $('payNote').textContent = "To'lov oynasi ochilmoqda…";
   try {
-    // Saytda: to'lov Telegram'da ochiladi (oyna bosilgan zahoti ochiladi, aks holda brauzer bloklaydi)
-    const win = IN_TG ? null : open('about:blank', '_blank');
     const d = await api('/ai/invoice', { method: 'POST', body: JSON.stringify({ initData, amount: Number(b.dataset.pack) }) });
     if (!d.link) throw new Error("To'lov havolasi kelmadi");
-    if (!IN_TG) {
-      if (win) win.location.href = d.link; else location.href = d.link;
-      $('payNote').innerHTML = `Telegram'da to'lovni tasdiqlang — balans shu yerda o'zi yangilanadi.<br><a href="${esc(d.link)}" target="_blank" rel="noopener">To'lov oynasi ochilmadimi? Shu yerni bosing</a>`;
-      const before = S.balance;
-      for (let i = 0; i < 60; i++) { await new Promise(r => setTimeout(r, 3000)); await refreshLeft(); if (S.balance !== before) { $('payNote').textContent = "✅ Balans to'ldirildi"; break; } }
-      return;
-    }
     tgApp.openInvoice(d.link, async st => {
       if (st === 'paid') {
         haptic('success'); $('payNote').textContent = "✅ To'landi! Balans yangilanmoqda…";
@@ -1354,7 +1334,7 @@ function toStudio(opts = {}){
   else if (opts.focus) setTimeout(() => $('prompt').focus({ preventScroll: true }), 120);
 }
 async function loadRecent(){
-  if (!API || !(initData || SESSION)) { $('hRecent').innerHTML = '<div class="rempty">Yaratgan ishlaringiz shu yerda chiqadi</div>'; return; }
+  if (!API || !initData) { $('hRecent').innerHTML = '<div class="rempty">Yaratgan ishlaringiz shu yerda chiqadi</div>'; return; }
   try {
     const d = await api('/ai/history'); setInfo(d);
     const jobs = (d.jobs || []).slice(0, 6);
@@ -1399,37 +1379,10 @@ $('hGo').onclick = () => {
   toStudio({ kind: H.kind, prompt: p, focus: !p });
 };
 
-/* ---------- Saytda Telegram bilan kirish ---------- */
-const LOGO = document.querySelector('.logo svg').outerHTML.replace('<svg ', '<svg class="gl" ');
-function loginGate(msg){
-  if (!API) return gate('<h1>⚙️ Server ulanmagan</h1><p class="sub">Sayt hali serverga ulanmagan. Birozdan keyin qayta oching.</p>');
-  gate(`${LOGO}<h1>Protos AI'ga kirish</h1><p class="sub">${esc(msg || "Rasm, video va ovoz yaratish uchun Telegram akkauntingiz bilan kiring. Balansingiz botdagi bilan bir xil bo'ladi.")}</p>` +
-    `<div class="tglogin" id="tgLogin"></div><p class="sub small" id="loginNote">Tugmani bosing — Telegram ilovangizga tasdiqlash xabari keladi.</p>` +
-    `<a class="pill ghost" href="https://t.me/${BOT}">Yoki Telegram botda ochish</a>`);
-  const sc = document.createElement('script');
-  sc.async = true; sc.src = 'https://telegram.org/js/telegram-widget.js?22';
-  sc.setAttribute('data-telegram-login', BOT); sc.setAttribute('data-size', 'large'); sc.setAttribute('data-radius', '14');
-  sc.setAttribute('data-request-access', 'write'); sc.setAttribute('data-onauth', 'protosAuth(user)');
-  $('tgLogin').appendChild(sc);
-}
-window.protosAuth = async function(user){
-  $('loginNote').textContent = 'Tekshirilmoqda…';
-  try {
-    const d = await api('/web/login', { method: 'POST', body: JSON.stringify(user) });
-    SESSION = d.token; try { localStorage.setItem('protos_sess', SESSION); } catch (e) {}
-    location.reload();
-  } catch (e) { $('loginNote').textContent = '❌ ' + e.message; }
-};
-function logout(quiet){ SESSION = ''; try { localStorage.removeItem('protos_sess'); } catch (e) {} if (!quiet) location.reload(); }
-window.logout = logout;
-if (!IN_TG) { const lb = document.createElement('button'); lb.className = 'logout'; lb.textContent = 'Akkauntdan chiqish'; lb.onclick = () => logout(); $('payNote').after(lb); }
-
 /* ---------- Boshlash ---------- */
 (async function start(){
   homeIdeas(); render(); vpSet('idle', 0);
-  // Saytdagi (protos/) yozilgan g'oya studiyaga o'tadi
-  try { const pp = localStorage.getItem('protos_prompt'); if (pp && $('hPrompt')) { $('hPrompt').value = pp; localStorage.removeItem('protos_prompt'); } } catch (e) {}
-  if (!IN_TG && !SESSION && !qs.has('demo')) return loginGate();
+  if (!initData && !qs.has('demo')) return gate('<h1>📱 Telegram orqali oching</h1><p class="sub">Bu sahifa <b>@ProtosAI_uz_bot</b> ichida ishlaydi.</p><a class="pill" href="https://t.me/ProtosAI_uz_bot">Botni ochish</a>');
   if (API) try {
     const md = await api('/ai/models');
     if (md && md.models) { for (const k in md.models) MODELS[k] = { ...(MODELS[k] || {}), ...md.models[k] }; render(); }
@@ -1440,8 +1393,7 @@ if (!IN_TG) { const lb = document.createElement('button'); lb.className = 'logou
     const d = await api('/ai/history');
     setInfo(d);
   } catch (e) {
-    if (e.code === 'auth' && !IN_TG) { logout(true); return loginGate("Kirish muddati tugagan. Iltimos, qaytadan kiring."); }
-    if (e.code === 'denied' || e.code === 'auth') return gate(`<h1>🔒 Hozircha yopiq</h1><p class="sub">${esc(e.message)}</p>` + (IN_TG ? '' : '<button class="logout" onclick="logout()">Boshqa akkaunt bilan kirish</button>'));
+    if (e.code === 'denied' || e.code === 'auth') return gate(`<h1>🔒 Hozircha yopiq</h1><p class="sub">${esc(e.message)}</p>`);
     $('balV').textContent = '—';
   }
   loadRecent();
@@ -1487,7 +1439,7 @@ if (!IN_TG) { const lb = document.createElement('button'); lb.className = 'logou
     if (b) { const s = STYLES[+b.dataset.sty][1]; has(P().value, s) ? delTag(s) : addTag(s); syncStyles(); try { tgApp.HapticFeedback.selectionChanged(); } catch (x) {} return; }
     if (e.target.closest('#pEnh')) {
       const m = MODELS[S.model] || {}, tag = BOOST[m.kind] || BOOST.video;
-      if (!P().value.trim()) { const t = "Avval nimani yaratishni yozing, keyin boyitamiz."; try { IN_TG && tgApp.showAlert ? tgApp.showAlert(t) : alert(t); } catch (x) { alert(t); } return; }
+      if (!P().value.trim()) { try { tgApp.showAlert ? tgApp.showAlert("Avval nimani yaratishni yozing, keyin boyitamiz.") : alert('Avval yozing'); } catch (x) {} return; }
       addTag(tag); syncStyles(); haptic('success'); return;
     }
     if (e.target.closest('#pClr')) { setPrompt(''); syncStyles(); P().focus(); return; }
