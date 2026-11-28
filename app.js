@@ -1,6 +1,6 @@
 // Kanal havolalari: manzilni yozsangiz "Aloqa" bo'limida tugma ishlaydi, bo'sh qolsa "tez kunda" turadi.
 const LINKS = {
-  telegram: "https://t.me/buqanday_ishlaydi1",
+  telegram: "https://t.me/tobyland_uz",
   instagram: "",   // tayyor bo'lganda: "https://www.instagram.com/buqanday_.ishlaydi/"
   youtube: ""      // masalan: "https://youtube.com/@kanal_nomi"
 };

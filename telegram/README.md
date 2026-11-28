@@ -1,13 +1,13 @@
 # Telegram kanalga postlar
 
-`telegram/posts/` ichiga yangi `.json` fayl qo'shilsa, GitHub Actions ("Telegram post") uni @bu_qandayishlaydi_bot orqali kanalga joylaydi.
+`telegram/posts/` ichiga yangi `.json` fayl qo'shilsa, GitHub Actions ("Telegram post") uni @ProtosAI_uz_bot orqali kanalga joylaydi.
 
 ## Bir martalik sozlash
-1. Telegram: kanal → Administratorlar → Admin qo'shish → `@bu_qandayishlaydi_bot` → "Xabar joylash" huquqini yoqing.
+1. Telegram: kanal → Administratorlar → Admin qo'shish → `@ProtosAI_uz_bot` → "Xabar joylash" huquqini yoqing.
 2. GitHub: repo → Settings → Secrets and variables → Actions → **New repository secret**
    - Name: `TELEGRAM_BOT_TOKEN`
    - Secret: BotFather bergan token
-3. (ixtiyoriy) Variables bo'limida `TELEGRAM_CHAT_ID` — boshqa kanal uchun. Bo'sh bo'lsa `@buqanday_ishlaydi1` ishlatiladi.
+3. (ixtiyoriy) Variables bo'limida `TELEGRAM_CHAT_ID` — boshqa kanal uchun. Bo'sh bo'lsa `@tobyland_uz` ishlatiladi.
 4. Tekshirish: Actions → Telegram post → Run workflow → mode = `check`. Bu hech narsa joylamaydi, faqat bot kanalga yoza olishini tekshiradi.
 
 ## Post fayli

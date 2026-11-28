@@ -1477,7 +1477,7 @@ const HTML = [
 ""
 ].join("\n");
 
-const CHANNEL_ABOUT = "«Toby Land» — loyihalar oroli: har bir bino alohida loyiha. Protos AI (rasm, video va ovoz yaratuvchi bot, @bu_qandayishlaydi_bot) va Virtual Ofis (12 ta AI xodim ishlaydigan ofis, @Ofisbek_bot) haqida yangiliklar, yangi imkoniyatlar va natijalar beriladigan o'zbek tilidagi kanal";
+const CHANNEL_ABOUT = "«Toby Land» — loyihalar oroli: har bir bino alohida loyiha. Protos AI (rasm, video va ovoz yaratuvchi bot, @ProtosAI_uz_bot) va Virtual Ofis (12 ta AI xodim ishlaydigan ofis, @Ofisbek_bot) haqida yangiliklar, yangi imkoniyatlar va natijalar beriladigan o'zbek tilidagi kanal";
 const CF_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const GEMINI_MODEL = 'gemini-flash-latest';
 

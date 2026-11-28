@@ -7,12 +7,12 @@ Foydalanish:
 
 Kerakli muhit o'zgaruvchilari:
   TELEGRAM_BOT_TOKEN  - BotFather bergan token (GitHub Secrets'da saqlanadi)
-  TELEGRAM_CHAT_ID    - kanal, masalan @buqanday_ishlaydi1 (bo'sh bo'lsa shu ishlatiladi)
+  TELEGRAM_CHAT_ID    - kanal, masalan @tobyland_uz (bo'sh bo'lsa shu ishlatiladi)
 """
 import json, os, subprocess, sys
 
 TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip()
-CHAT = (os.environ.get('TELEGRAM_CHAT_ID') or '@buqanday_ishlaydi1').strip()
+CHAT = (os.environ.get('TELEGRAM_CHAT_ID') or '@tobyland_uz').strip()
 API = os.environ.get('TG_API', 'https://api.telegram.org').rstrip('/')
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
